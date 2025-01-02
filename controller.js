@@ -1,7 +1,7 @@
 const oracledb = require('oracledb');
 
 // Aktifkan Thick Mode
-oracledb.initOracleClient({ libDir: 'D:\instantclient_23_6' });
+oracledb.initOracleClient({ libDir: 'D:/instantclient_23_6' });
 
 async function getConnection() {
     try {
