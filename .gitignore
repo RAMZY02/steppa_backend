@@ -12,3 +12,9 @@ node_modules/
 
 # VSCode settings
 .vscode/
+
+.codegpt
+
+instantclient_23_6
+
+package-lock.json/
