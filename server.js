@@ -4,9 +4,11 @@ const port = 3000;
 const pengepulRoutes = require("./src/routes/pengepulRoutes");
 const storeRoutes = require("./src/routes/storeRoutes");
 
+app.use(express.urlencoded({ extended: true }));
+
 // Gunakan routes yang telah dibuat
 app.use("/api/pengepul", pengepulRoutes);
-app.use("/api/store", storeRoutes);
+// app.use("/api/store", storeRoutes);
 
 // Mulai server
 app.listen(port, () => {

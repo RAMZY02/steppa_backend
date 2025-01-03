@@ -111,11 +111,11 @@ async function softDeleteSupplier(req, res) {
 }
 
 // Supplier - Get All
-async function getAllSuppliers() {
-  const connection = await getDbConnection();
+async function getAllSupplier() {
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT supplier_id, name, location, contact_info, is_deleted
+      `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
                 WHERE is_deleted = 'N'`
     );
@@ -130,10 +130,10 @@ async function getAllSuppliers() {
 
 // Supplier - Get by ID
 async function getSupplierById(supplierId) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT supplier_id, name, location, contact_info, is_deleted
+      `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
                 WHERE supplier_id = :supplier_id AND is_deleted = 'N'`,
       [supplierId]
@@ -149,13 +149,13 @@ async function getSupplierById(supplierId) {
 
 // Supplier - Get by Name
 async function getSupplierByName(supplierName) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT supplier_id, name, location, contact_info, is_deleted
+      `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE name = :supplierName AND is_deleted = 'N'`,
-      [supplierName]
+                WHERE name like :supplierName AND is_deleted = 'N'`,
+      [`%${supplierName}%`]
     );
     return result.rows;
   } catch (error) {
@@ -168,13 +168,13 @@ async function getSupplierByName(supplierName) {
 
 // Supplier - Get by location
 async function getSupplierByLocation(location) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT supplier_id, name, location, contact_info, is_deleted
+      `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE name = :location AND is_deleted = 'N'`,
-      [location]
+                WHERE location like :location AND is_deleted = 'N'`,
+      [`%${location}%`]
     );
     return result.rows;
   } catch (error) {
@@ -279,11 +279,11 @@ async function softDeleteRawMaterial(req, res) {
 }
 
 // Raw Materials - Get All
-async function getAllRawMaterials() {
-  const connection = await getDbConnection();
+async function getAllRawMaterial() {
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update, is_deleted
+      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
                 WHERE is_deleted = 'N'`
     );
@@ -298,10 +298,10 @@ async function getAllRawMaterials() {
 
 // Raw Materials - Get by ID
 async function getRawMaterialById(materialId) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update, is_deleted
+      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
                 WHERE material_id = :material_id AND is_deleted = 'N'`,
       [materialId]
@@ -317,13 +317,13 @@ async function getRawMaterialById(materialId) {
 
 // Raw Materials - Get by Name
 async function getRawMaterialByName(materialName) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update, is_deleted
+      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE materialName = :materialName AND is_deleted = 'N'`,
-      [materialName]
+                WHERE material_name like :materialName AND is_deleted = 'N'`,
+      [`%${materialName}%`]
     );
     return result.rows;
   } catch (error) {
@@ -336,12 +336,12 @@ async function getRawMaterialByName(materialName) {
 
 // Raw Materials - Get by Supplier
 async function getRawMaterialBySupplier(supplierId) {
-  const connection = await getDbConnection();
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update, is_deleted
+      `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE supplierId = :supplierId AND is_deleted = 'N'`,
+                WHERE supplier_id = :supplierId AND is_deleted = 'N'`,
       [supplierId]
     );
     return result.rows;
@@ -354,7 +354,7 @@ async function getRawMaterialBySupplier(supplierId) {
 }
 
 // Transaction & Detail - Insert
-async function insertTransactionAndDetails(transactionData) {
+async function insertTransactionAndDetail(transactionData) {
   let connection;
 
   try {
@@ -527,8 +527,8 @@ async function updateTransaction(req, res) {
 }
 
 // Transaction - Get All
-async function getAllTransactions() {
-  const connection = await getDbConnection();
+async function getAllTransaction() {
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
@@ -544,9 +544,29 @@ async function getAllTransactions() {
   }
 }
 
+// Transaction - Get by ID
+async function getTransactionById(transactionId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+         FROM transactions
+         WHERE transaction_id = :transaction_id
+         AND is_deleted = 'N'`,
+      { transaction_id: transactionId }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching transaction by ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 // Transaction - Get Pending
-async function getPendingTransactions() {
-  const connection = await getDbConnection();
+async function getPendingTransaction() {
+  const connection = await getConnection();
   try {
     const result = await connection.execute(
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
@@ -562,14 +582,125 @@ async function getPendingTransactions() {
   }
 }
 
+// Transaction - Get Completed
+async function getCompletedTransaction() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+                FROM transactions
+                WHERE transaction_status = 'Completed' AND is_deleted = 'N'`
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching completed transactions", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Transaction - Get Pending by Date Range
+async function getPendingTransactionByDate(startDate, endDate) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+         FROM transactions
+         WHERE transaction_status = 'Pending'
+         AND is_deleted = 'N'
+         AND transaction_date BETWEEN TO_DATE(:start_date, 'DD-MM-YYYY') 
+                                  AND TO_DATE(:end_date, 'DD-MM-YYYY')`,
+      {
+        start_date: startDate,
+        end_date: endDate,
+      }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching pending transactions by date", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Transaction - Get Completed by Date Range
+async function getCompletedTransactionByDate(startDate, endDate) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+         FROM transactions
+         WHERE transaction_status = 'Completed'
+         AND is_deleted = 'N'
+         AND transaction_date BETWEEN TO_DATE(:start_date, 'DD-MM-YYYY') 
+                                  AND TO_DATE(:end_date, 'DD-MM-YYYY')`,
+      {
+        start_date: startDate,
+        end_date: endDate,
+      }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching completed transactions by date", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Transaction - Get Pending by Supplier ID
+async function getPendingTransactionBySupplier(supplierId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+         FROM transactions
+         WHERE supplier_id = :supplier_id
+         AND transaction_status = 'Pending'
+         AND is_deleted = 'N'`,
+      { supplier_id: supplierId }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching pending transactions by supplier", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Transaction - Get Completed by Supplier ID
+async function getCompletedTransactionBySupplier(supplierId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
+         FROM transactions
+         WHERE supplier_id = :supplier_id
+         AND transaction_status = 'Completed'
+         AND is_deleted = 'N'`,
+      { supplier_id: supplierId }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching completed transactions by supplier", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 // Detail - Update
 async function updateTransactionDetail(req, res) {
   let connection;
 
   try {
     const { detailId, materialId, quantity } = req.body;
+    console.log("Updating detail with:", req.body);
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     await connection.execute(
       `UPDATE transaction_detail 
@@ -599,7 +730,7 @@ async function softDeleteTransactionDetail(req, res) {
   try {
     const { transactionId, detailId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Soft delete satu detail transaksi
     const result = await connection.execute(
@@ -626,48 +757,33 @@ async function softDeleteTransactionDetail(req, res) {
   }
 }
 
-// Detail - Get by Transaction ID
-async function getTransactionDetails(transactionId) {
-  const connection = await getDbConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT td.detail_id, td.transaction_id, td.material_id, m.material_name, td.quantity
-                FROM transaction_detail td
-                JOIN raw_materials m ON td.material_id = m.material_id
-                WHERE td.transaction_id = :transaction_id AND td.is_deleted = 'N'`,
-      [transactionId]
-    );
-    return result.rows;
-  } catch (error) {
-    console.error("Error fetching transaction details", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
 module.exports = {
   insertSupplier,
   updateSupplier,
   softDeleteSupplier,
-  getAllSuppliers,
+  getAllSupplier,
   getSupplierById,
   getSupplierByName,
   getSupplierByLocation,
   insertRawMaterial,
   updateRawMaterial,
   softDeleteRawMaterial,
-  getAllRawMaterials,
+  getAllRawMaterial,
   getRawMaterialByName,
   getRawMaterialById,
   getRawMaterialBySupplier,
-  insertTransactionAndDetails,
+  insertTransactionAndDetail,
   softDeleteTransaction,
   updateTransactionStatus,
   updateTransaction,
-  getAllTransactions,
-  getPendingTransactions,
+  getAllTransaction,
+  getTransactionById,
+  getPendingTransaction,
+  getCompletedTransaction,
+  getPendingTransactionByDate,
+  getCompletedTransactionByDate,
+  getPendingTransactionBySupplier,
+  getCompletedTransactionBySupplier,
   updateTransactionDetail,
   softDeleteTransactionDetail,
-  getTransactionDetails,
 };
