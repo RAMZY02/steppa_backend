@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {

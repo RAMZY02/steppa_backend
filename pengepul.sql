@@ -1,5 +1,5 @@
 -- 1. create user admin
-CREATE USER reki IDENTIFIED BY reki
+CREATE USER reti IDENTIFIED BY reti;
 CREATE role admin IDENTIFIED BY admin;
 GRANT CREATE TABLE TO admin;
 GRANT CREATE INDEX TO admin;
@@ -10,12 +10,14 @@ GRANT GRANT ANY OBJECT PRIVILEGE TO admin;
 GRANT ALTER ANY TABLE TO admin;
 GRANT CREATE SEQUENCE TO admin;
 GRANT CREATE ROLE TO admin;
-ALTER USER admin QUOTA UNLIMITED ON USERS;
-GRANT ADMIN TO reki;
+ALTER USER reti QUOTA UNLIMITED ON USERS;
+GRANT ADMIN TO reti;
+GRANT CONNECT TO reti;
+GRANT CREATE SESSION TO reti;
 
 
 --login ke reki
-conn reki@steppa_store/reki
+conn reti@steppa_pengepul/reti
 
 
 
@@ -39,16 +41,16 @@ CREATE TABLE raw_materials (
     material_name VARCHAR2(100) NOT NULL,
     stock_quantity NUMBER NOT NULL CHECK (stock_quantity >= 0),
     supplier_id VARCHAR2(10) REFERENCES suppliers(supplier_id) ON DELETE SET NULL,
-    last_update DATE DEFAULT SYSDATE
+    last_update DATE DEFAULT SYSDATE,
     is_deleted CHAR(1) DEFAULT 'N'
 );
 
 CREATE TABLE transactions (
     transaction_id VARCHAR2(10) PRIMARY KEY,
     transaction_date DATE DEFAULT SYSDATE NOT NULL,
-    transaction_status VARCHAR2(20) NOT NULL CHECK (transaction_type IN ('Pending', 'Completed')),
+    transaction_status VARCHAR2(20) NOT NULL CHECK (transaction_status IN ('Pending', 'Completed')),
     supplier_id VARCHAR2(10) REFERENCES suppliers(supplier_id) ON DELETE SET NULL,
-    remarks VARCHAR2(255)
+    remarks VARCHAR2(255),
     is_deleted CHAR(1) DEFAULT 'N'
 );
 
@@ -56,15 +58,9 @@ CREATE TABLE transaction_detail (
     detail_id VARCHAR2(10) PRIMARY KEY,
     transaction_id VARCHAR2(10) REFERENCES transactions(transaction_id) ON DELETE CASCADE,
     material_id VARCHAR2(10) REFERENCES raw_materials(material_id) ON DELETE CASCADE,
-    quantity NUMBER NOT NULL CHECK (quantity > 0)
+    quantity NUMBER NOT NULL CHECK (quantity > 0),
     is_deleted CHAR(1) DEFAULT 'N'
 );
-
-
-GRANT SELECT, INSERT ON transactions TO pengepul;
-GRANT SELECT, INSERT ON transaction_detail TO pengepul;
-GRANT SELECT ON suppliers TO pengepul;
-GRANT SELECT ON raw_materials TO pengepul;
 
 
 

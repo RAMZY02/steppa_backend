@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-// const pengepulRoutes = require("./src/routes/pengepulRoutes");
-// const storeRoutes = require("./src/routes/storeRoutes");
+const pengepulRoutes = require("./src/routes/pengepulRoutes");
+const storeRoutes = require("./src/routes/storeRoutes");
 const rndRoutes = require("./src/routes/rndRoutes");
 
 app.use(express.urlencoded({ extended: true }));
