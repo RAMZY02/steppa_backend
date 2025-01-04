@@ -1,0 +1,1140 @@
+{
+	"info": {
+		"_postman_id": "0b7c7dd5-a53b-4d5b-9abb-40fee1a437c5",
+		"name": "steppa_rnd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27256047"
+	},
+	"item": [
+		{
+			"name": "Design",
+			"item": [
+				{
+					"name": "getAllDesign",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getDesignByName",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design/name/design",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design",
+								"name",
+								"design"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getDesignById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertDesign",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "nike air jordan 2",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"value": "nike air jordan 2.jpg",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateDesign",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "nike air jordan 4",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"value": "nike air jordan 3.jpg",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteDesign",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "22",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DesginMaterials",
+			"item": [
+				{
+					"name": "getAllDesignMaterial",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllDesignMaterialByDesignId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material/design/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material",
+								"design",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllDesignMaterialByMaterialId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material/material/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material",
+								"material",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertDesignMaterial",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "designId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "materialId",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "qty",
+									"value": "50",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateDesignMaterial",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "designId",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "materialId",
+									"value": "1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "qty",
+									"value": "30",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteDesignMaterial",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "21",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/design-material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"design-material"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Production",
+			"item": [
+				{
+					"name": "getAllProduction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductionById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductionByDesignId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production/design/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production",
+								"design",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertProduction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "designId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "expectedQty",
+									"value": "300",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "PENDING",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateProduction",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "8",
+									"type": "text"
+								},
+								{
+									"key": "designId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "expectedQty",
+									"value": "1000",
+									"type": "text"
+								},
+								{
+									"key": "actualQty",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "PENDING",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteProduction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "8",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateProductionStatus",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "8",
+									"type": "text"
+								},
+								{
+									"key": "actualQty",
+									"value": "700",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/production/status",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"production",
+								"status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "getAllProducts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductByName",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product/name/spo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product",
+								"name",
+								"spo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertProduct",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "nike air jordan 22",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "nike air jordan sepatu mahal dan ganteng",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "dewasa",
+									"type": "text"
+								},
+								{
+									"key": "stokQty",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateProduct",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "10",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "nike air jordan 22",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "nike air jordan sepatu mahal dan ganteng",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "dewasa",
+									"type": "text"
+								},
+								{
+									"key": "stokQty",
+									"value": "20",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteProduct",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "10",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RawMaterials",
+			"item": [
+				{
+					"name": "getAllRawMaterial",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getRawMaterialByName",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material/name/material 1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material",
+								"name",
+								"material 1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getRawMaterialById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertRawMaterial",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "material 4",
+									"type": "text"
+								},
+								{
+									"key": "stokQty",
+									"value": "50",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateRawMaterial",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "21",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "material 4",
+									"type": "text"
+								},
+								{
+									"key": "stokQty",
+									"value": "15",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteMaterial",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "21",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/material",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"material"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "logs",
+			"item": [
+				{
+					"name": "Get All Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Log by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs/21",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logs by Action Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs/action-type/U",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs",
+								"action-type",
+								"U"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logs by Table Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs/table-name/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs",
+								"table-name",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logs by Action Time",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs/action-time/04-01-2025",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs",
+								"action-time",
+								"04-01-2025"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logs by Action User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/logs/action-user/rama",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"logs",
+								"action-user",
+								"rama"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
