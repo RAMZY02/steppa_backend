@@ -18,3 +18,4 @@ node_modules/
 instantclient_23_6
 
 package-lock.json/
+.codegpt

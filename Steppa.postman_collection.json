@@ -65,12 +65,12 @@
 									"urlencoded": [
 										{
 											"key": "name",
-											"value": "PT Bahan Organik Jaya",
+											"value": "PT Bahan Organik Jaya 2",
 											"type": "text"
 										},
 										{
 											"key": "location",
-											"value": "Surabaya",
+											"value": "Solo",
 											"type": "text"
 										},
 										{
@@ -145,7 +145,57 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Supplier - Update",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "supplierId",
+											"value": "SUP0011",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "PT KE SEBELAS",
+											"type": "text"
+										},
+										{
+											"key": "location",
+											"value": "SEBELAS",
+											"type": "text"
+										},
+										{
+											"key": "contactInfo",
+											"value": "1111111111111",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/pengepul/supplier",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"pengepul",
+										"supplier"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
 				},
 				{
 					"name": "Supplier - Delete",
@@ -177,7 +227,43 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Supplier - Delete",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "supplierId",
+											"value": "SUP0011",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/pengepul/supplier/delete",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"pengepul",
+										"supplier",
+										"delete"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": null
+						}
+					]
 				},
 				{
 					"name": "Supplier - Get All",
@@ -471,10 +557,44 @@
 					},
 					"response": [
 						{
-							"name": "x",
+							"name": "Raw Materials - Insert",
 							"originalRequest": {
-								"method": "GET",
-								"header": []
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "materialName",
+											"value": "Kulit Sawi",
+											"type": "text"
+										},
+										{
+											"key": "stockQuantity",
+											"value": "200",
+											"type": "text"
+										},
+										{
+											"key": "supplierId",
+											"value": "SUP0012",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/pengepul/material/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"pengepul",
+										"material",
+										""
+									]
+								}
 							},
 							"_postman_previewlanguage": null,
 							"header": null,
@@ -530,10 +650,49 @@
 					},
 					"response": [
 						{
-							"name": "x",
+							"name": "Raw Materials - Update",
 							"originalRequest": {
-								"method": "GET",
-								"header": []
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "materialId",
+											"value": "MAT0012",
+											"type": "text"
+										},
+										{
+											"key": "materialName",
+											"value": "Kulit Gandum",
+											"type": "text"
+										},
+										{
+											"key": "stockQuantity",
+											"value": "100",
+											"type": "text"
+										},
+										{
+											"key": "supplierId",
+											"value": "SUP0012",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/pengepul/material/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"pengepul",
+										"material",
+										""
+									]
+								}
 							},
 							"_postman_previewlanguage": null,
 							"header": null,
@@ -558,7 +717,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/pengepul/material/",
+							"raw": "http://localhost:3000/api/pengepul/material/delete",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -568,16 +727,40 @@
 								"api",
 								"pengepul",
 								"material",
-								""
+								"delete"
 							]
 						}
 					},
 					"response": [
 						{
-							"name": "x",
+							"name": "Raw Materials - Delete",
 							"originalRequest": {
-								"method": "GET",
-								"header": []
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "materialId",
+											"value": "MAT0012",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/pengepul/material/delete",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"pengepul",
+										"material",
+										"delete"
+									]
+								}
 							},
 							"_postman_previewlanguage": null,
 							"header": null,
@@ -813,27 +996,16 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "supplierId",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "remarks",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "details",
-									"value": "",
-									"type": "text"
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/transaction/",
+							"raw": "http://localhost:3000/api/pengepul/transaction/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -841,6 +1013,7 @@
 							"port": "3000",
 							"path": [
 								"api",
+								"pengepul",
 								"transaction",
 								""
 							]
@@ -848,32 +1021,21 @@
 					},
 					"response": [
 						{
-							"name": "Cth 1",
+							"name": "Transaction & Detail - Insert",
 							"originalRequest": {
 								"method": "POST",
 								"header": [],
 								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
-										{
-											"key": "supplierId",
-											"value": "SUP0001",
-											"type": "text"
-										},
-										{
-											"key": "remarks",
-											"value": "Purchase of raw materials",
-											"type": "text"
-										},
-										{
-											"key": "details",
-											"value": "\"details\": [\n   { \"materialId\": \"MAT0001\", \"quantity\": 50 },\n   { \"materialId\": \"MAT0002\", \"quantity\": 30 }\n]",
-											"type": "text"
+									"mode": "raw",
+									"raw": "{\r\n    \"transaction\": {\r\n        \"supplierId\": \"SUP0001\",\r\n        \"remarks\": \"Sample transaction\"\r\n    },\r\n    \"details\": [\r\n        {\r\n            \"materialId\": \"MAT0001\",\r\n            \"quantity\": 10\r\n        },\r\n        {\r\n            \"materialId\": \"MAT0002\",\r\n            \"quantity\": 5\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
 										}
-									]
+									}
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/transaction/",
+									"raw": "http://localhost:3000/api/pengepul/transaction/",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -881,6 +1043,7 @@
 									"port": "3000",
 									"path": [
 										"api",
+										"pengepul",
 										"transaction",
 										""
 									]
@@ -917,14 +1080,14 @@
 									"type": "text"
 								},
 								{
-									"key": "details",
+									"key": "transactionStatus",
 									"value": "",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/transaction/",
+							"raw": "http://localhost:3000/api/pengepul/transaction/",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -932,6 +1095,7 @@
 							"port": "3000",
 							"path": [
 								"api",
+								"pengepul",
 								"transaction",
 								""
 							]
@@ -939,37 +1103,37 @@
 					},
 					"response": [
 						{
-							"name": "Cth 1",
+							"name": "Transaction - Update",
 							"originalRequest": {
-								"method": "POST",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "urlencoded",
 									"urlencoded": [
 										{
 											"key": "transactionId",
-											"value": "TRS0001",
+											"value": "TRS0019",
 											"type": "text"
 										},
 										{
 											"key": "supplierId",
-											"value": "SUP0001",
+											"value": "SUP0009",
 											"type": "text"
 										},
 										{
 											"key": "remarks",
-											"value": "Purchase of raw materials",
+											"value": "ASD",
 											"type": "text"
 										},
 										{
-											"key": "details",
-											"value": "\"details\": [\n   { \"materialId\": \"MAT0001\", \"quantity\": 50 },\n   { \"materialId\": \"MAT0002\", \"quantity\": 30 }\n]",
+											"key": "transactionStatus",
+											"value": "Pending",
 											"type": "text"
 										}
 									]
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/transaction/",
+									"raw": "http://localhost:3000/api/pengepul/transaction/",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -977,6 +1141,7 @@
 									"port": "3000",
 									"path": [
 										"api",
+										"pengepul",
 										"transaction",
 										""
 									]
@@ -992,7 +1157,7 @@
 				{
 					"name": "Transaction - Complete",
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "urlencoded",
@@ -1005,7 +1170,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/transaction/complete",
+							"raw": "http://localhost:3000/api/pengepul/transaction/status",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1013,8 +1178,9 @@
 							"port": "3000",
 							"path": [
 								"api",
+								"pengepul",
 								"transaction",
-								"complete"
+								"status"
 							]
 						}
 					},
@@ -1022,20 +1188,20 @@
 						{
 							"name": "Cth 1",
 							"originalRequest": {
-								"method": "POST",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "urlencoded",
 									"urlencoded": [
 										{
 											"key": "transactionId",
-											"value": "TRD0005",
+											"value": "TRS0019",
 											"type": "text"
 										}
 									]
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/transaction/update",
+									"raw": "http://localhost:3000/api/pengepul/transaction/status",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -1043,8 +1209,9 @@
 									"port": "3000",
 									"path": [
 										"api",
+										"pengepul",
 										"transaction",
-										"update"
+										"status"
 									]
 								}
 							},
@@ -1065,13 +1232,13 @@
 							"urlencoded": [
 								{
 									"key": "transactionId",
-									"value": "",
+									"value": "TRS0019",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:3000/api/transaction/delete",
+							"raw": "http://localhost:3000/api/pengepul/transaction/delete",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1079,6 +1246,7 @@
 							"port": "3000",
 							"path": [
 								"api",
+								"pengepul",
 								"transaction",
 								"delete"
 							]
@@ -1088,20 +1256,20 @@
 						{
 							"name": "Cth 1",
 							"originalRequest": {
-								"method": "POST",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "urlencoded",
 									"urlencoded": [
 										{
 											"key": "transactionId",
-											"value": "TRD0005",
+											"value": "TRD0019",
 											"type": "text"
 										}
 									]
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/transaction/update",
+									"raw": "http://localhost:3000/api/pengepul/transaction/delete",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -1109,8 +1277,9 @@
 									"port": "3000",
 									"path": [
 										"api",
+										"pengepul",
 										"transaction",
-										"update"
+										"delete"
 									]
 								}
 							},
@@ -1168,7 +1337,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:3000/api/pengepul/transaction/TRS0001",
+									"raw": "http://localhost:3000/api/pengepul/transaction/TRS0018",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -1178,7 +1347,7 @@
 										"api",
 										"pengepul",
 										"transaction",
-										"TRS0001"
+										"TRS0018"
 									]
 								}
 							},
@@ -1606,7 +1775,785 @@
 		},
 		{
 			"name": "Store",
-			"item": []
+			"item": [
+				{
+					"name": "Insert Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"P001\",\n  \"product_name\": \"Product 1\",\n  \"product_description\": \"Description 1\",\n  \"product_category\": \"Category 1\",\n  \"stok_qty\": 100,\n  \"price\": 50\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"P001\",\n  \"product_name\": \"Updated Product 1\",\n  \"product_description\": \"Updated Description 1\",\n  \"product_category\": \"Updated Category 1\",\n  \"stok_qty\": 150,\n  \"price\": 60\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"PRO0001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Sale",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_id\": \"S001\",\n  \"sale_channel\": \"Online\",\n  \"sale_date\": \"2023-10-01\",\n  \"total\": 500\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sales",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sale",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_id\": \"S001\",\n  \"sale_channel\": \"Offline\",\n  \"sale_date\": \"2023-10-02\",\n  \"total\": 600\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sales",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Sale",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_id\": \"S001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sales",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Sales",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/sales",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Sale Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_item_id\": \"SI001\",\n  \"sale_id\": \"S001\",\n  \"product_id\": \"P001\",\n  \"quantity\": 2,\n  \"price\": 50,\n  \"subtotal\": 100\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sale_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sale_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sale Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_item_id\": \"SI001\",\n  \"sale_id\": \"S001\",\n  \"product_id\": \"P001\",\n  \"quantity\": 3,\n  \"price\": 50,\n  \"subtotal\": 150\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sale_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sale_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Sale Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sale_item_id\": \"SI001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/sale_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sale_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Sale Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/sale_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"sale_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": \"C001\",\n  \"name\": \"Customer 1\",\n  \"email\": \"customer1@example.com\",\n  \"phone_number\": \"1234567890\",\n  \"address\": \"Address 1\",\n  \"city\": \"City 1\",\n  \"country\": \"Country 1\",\n  \"zip_code\": \"12345\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": \"C001\",\n  \"name\": \"Updated Customer 1\",\n  \"email\": \"updated_customer1@example.com\",\n  \"phone_number\": \"0987654321\",\n  \"address\": \"Updated Address 1\",\n  \"city\": \"Updated City 1\",\n  \"country\": \"Updated Country 1\",\n  \"zip_code\": \"54321\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"customer_id\": \"C001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_id\": \"CT001\",\n  \"customer_id\": \"C001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/carts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_id\": \"CT001\",\n  \"customer_id\": \"C002\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/carts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_id\": \"CT001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/carts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Carts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/carts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Cart Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_item_id\": \"CI001\",\n  \"cart_id\": \"CT001\",\n  \"product_id\": \"P001\",\n  \"quantity\": 2,\n  \"price\": 50,\n  \"status\": \"active\",\n  \"added_at\": \"2023-10-01\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/cart_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"cart_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_item_id\": \"CI001\",\n  \"cart_id\": \"CT001\",\n  \"product_id\": \"P001\",\n  \"quantity\": 3,\n  \"price\": 50,\n  \"status\": \"active\",\n  \"added_at\": \"2023-10-02\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/cart_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"cart_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Cart Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cart_item_id\": \"CI001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/cart_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"cart_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Cart Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/cart_items",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"cart_items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert Revenue Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"report_id\": \"R001\",\n  \"report_period\": \"2023-10-01\",\n  \"total_revenue\": 1000,\n  \"total_expenses\": 500,\n  \"net_profit\": 500\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/revenue_reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"revenue_reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Revenue Report",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"report_id\": \"R001\",\n  \"report_period\": \"2023-10-02\",\n  \"total_revenue\": 1200,\n  \"total_expenses\": 600,\n  \"net_profit\": 600\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/revenue_reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"revenue_reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Soft Delete Revenue Report",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"report_id\": \"R001\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/store/revenue_reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"revenue_reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Revenue Reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/api/store/revenue_reports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"store",
+								"revenue_reports"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

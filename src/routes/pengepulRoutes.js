@@ -43,7 +43,7 @@ router.post("/supplier", async (req, res) => {
 router.put("/supplier", updateSupplier);
 
 // Supplier - Delete
-router.delete("/supplier", softDeleteSupplier);
+router.put("/supplier/delete", softDeleteSupplier);
 
 // Supplier - Get All
 router.get("/supplier", async (req, res) => {
@@ -84,7 +84,7 @@ router.post("/material", async (req, res) => {
 router.put("/material", updateRawMaterial);
 
 // Material - Delete
-router.delete("/material", softDeleteRawMaterial);
+router.put("/material/delete", softDeleteRawMaterial);
 
 // Material - Get All
 router.get("/material", async (req, res) => {
@@ -115,14 +115,14 @@ router.get("/material/bysupplier/:supplierId", async (req, res) => {
 
 // Routes for Transaction
 // Transaction & Detail - Insert
-router.post("/transactions", async (req, res) => {
+router.post("/transaction", async (req, res) => {
   const transactionData = req.body;
   const response = await insertTransactionAndDetail(transactionData);
   res.status(201).json(response);
 });
 
 // Transaction & Detail - Delete
-router.delete("/transaction", softDeleteTransaction);
+router.put("/transaction/delete", softDeleteTransaction);
 
 // Transaction - Status ( Pending -> Completed)
 router.put("/transaction/status", updateTransactionStatus);
@@ -145,6 +145,7 @@ router.get("/transaction/pending", async (req, res) => {
 // Transaction - Get Pending by ID
 router.get("/transaction/:id", async (req, res) => {
   const { id: transactionId } = req.params;
+
   try {
     const transaction = await getTransactionById(transactionId);
     res.status(200).json(transaction);

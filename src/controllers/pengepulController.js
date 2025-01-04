@@ -23,7 +23,7 @@ async function insertSupplier(name, location, contactInfo) {
   let connection;
 
   try {
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     const query = `
             INSERT INTO suppliers (name, location, contact_info)
@@ -52,7 +52,7 @@ async function updateSupplier(req, res) {
   try {
     const { supplierId, name, location, contactInfo } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     await connection.execute(
       `UPDATE suppliers 
@@ -80,7 +80,7 @@ async function softDeleteSupplier(req, res) {
   try {
     const { supplierId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Update is_deleted menjadi 'Y' untuk supplier tertentu
     const result = await connection.execute(
@@ -190,7 +190,7 @@ async function insertRawMaterial(materialName, stockQuantity, supplierId) {
   let connection;
 
   try {
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     const query = `
             INSERT INTO raw_materials (material_name, stock_quantity, supplier_id, last_update)
@@ -219,7 +219,7 @@ async function updateRawMaterial(req, res) {
   try {
     const { materialId, materialName, stockQuantity, supplierId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     await connection.execute(
       `UPDATE raw_materials 
@@ -248,7 +248,7 @@ async function softDeleteRawMaterial(req, res) {
   try {
     const { materialId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Update is_deleted menjadi 'Y' untuk raw material tertentu
     const result = await connection.execute(
@@ -360,7 +360,7 @@ async function insertTransactionAndDetail(transactionData) {
   try {
     const { transaction, details } = transactionData;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Begin transaction
     await connection.execute(`BEGIN NULL; END;`); // To start a transaction explicitly
@@ -418,7 +418,7 @@ async function softDeleteTransaction(req, res) {
   try {
     const { transactionId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Soft delete transaksi
     await connection.execute(
@@ -461,7 +461,7 @@ async function updateTransactionStatus(req, res) {
         .json({ error: "Transaction ID and new status are required." });
     }
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     // Menjalankan prosedur
     await connection.execute(
@@ -478,7 +478,6 @@ async function updateTransactionStatus(req, res) {
     res.status(200).json({
       message: "Transaction status updated successfully.",
       transactionId,
-      newStatus,
     });
   } catch (error) {
     console.error("Error updating transaction status:", error);
@@ -504,7 +503,7 @@ async function updateTransaction(req, res) {
   try {
     const { transactionId, transactionStatus, remarks, supplierId } = req.body;
 
-    connection = await oracledb.getConnection(dbConfig);
+    connection = await getConnection();
 
     await connection.execute(
       `UPDATE transactions 
@@ -549,18 +548,21 @@ async function getTransactionById(transactionId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
-         FROM transactions
-         WHERE transaction_id = :transaction_id
-         AND is_deleted = 'N'`,
-      { transaction_id: transactionId }
+      `SELECT t.transaction_id, t.transaction_date, t.transaction_status, t.supplier_id, t.remarks, td.detail_id, td.material_id, td.quantity        
+      FROM transactions t
+      JOIN transaction_detail td ON t.transaction_id = td.transaction_id
+      WHERE t.transaction_id = :transactionId AND t.is_deleted = 'N' AND td.is_deleted = 'N'`,
+      [transactionId]
     );
+
     return result.rows;
   } catch (error) {
-    console.error("Error fetching transaction by ID", error);
+    console.error("Error fetching transaction details", error);
     throw error;
   } finally {
-    connection.close();
+    if (connection) {
+      await connection.close();
+    }
   }
 }
 

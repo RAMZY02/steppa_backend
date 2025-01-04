@@ -6,10 +6,11 @@ const port = 3000;
 const rndRoutes = require("./src/routes/rndRoutes");
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Gunakan routes yang telah dibuat
-// app.use("/api/pengepul", pengepulRoutes);
-// app.use("/api/store", storeRoutes);
+app.use("/api/pengepul", pengepulRoutes);
+app.use("/api/store", storeRoutes);
 app.use("/api/rnd", rndRoutes);
 
 // Mulai server
