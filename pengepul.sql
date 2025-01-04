@@ -22,7 +22,7 @@ conn reti@steppa_pengepul/reti
 
 
 --role admin
-set role admin identified by admin
+set role admin identified by admin;
 
 
 

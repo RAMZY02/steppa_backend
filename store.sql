@@ -21,7 +21,7 @@ conn reki@steppa_store/reki
 
 
 --role admin
-set role admin identified by admin
+set role admin identified by admin;
 
 
 
