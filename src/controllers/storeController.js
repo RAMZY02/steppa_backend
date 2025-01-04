@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "D:/Kuliah/S7/Multiplatform/Proyek/steppa_backend/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -24,8 +24,8 @@ async function insertProduct(product) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO products (product_id, product_name, product_description, product_category, stok_qty, price)
-      VALUES (:product_id, :product_name, :product_description, :product_category, :stok_qty, :price)
+      INSERT INTO products (product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_id, :product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
     `;
     await connection.execute(query, product, { autoCommit: true });
     console.log("Product added successfully.");
@@ -45,7 +45,7 @@ async function updateProduct(product) {
     const query = `
       UPDATE products
       SET product_name = :product_name, product_description = :product_description, product_category = :product_category,
-          stok_qty = :stok_qty, price = :price
+          product_size = :product_size, product_gender = :product_gender, product_image = :product_image, stok_qty = :stok_qty, price = :price
       WHERE product_id = :product_id
     `;
     await connection.execute(query, product, { autoCommit: true });
@@ -63,7 +63,7 @@ async function softDeleteProduct(productId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE products SET is_deleted = 'Y' WHERE product_id = :product_id`;
+    const query = `UPDATE products SET is_deleted = 'Y', deleted_at = SYSDATE WHERE product_id = :product_id`;
     await connection.execute(
       query,
       { product_id: productId },
@@ -83,7 +83,15 @@ async function getAllProducts() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM products WHERE is_deleted = 'N'`
+      `SELECT 
+        product_name,
+        product_category,
+        product_gender,
+        price,
+        MAX(product_image) AS sample_image,
+      FROM products
+      WHERE is_deleted = 'N'
+      GROUP BY product_name, product_category, product_gender, price;`
     );
     return result.rows;
   } catch (error) {
@@ -91,6 +99,48 @@ async function getAllProducts() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Products - Get New Releases
+async function getNewReleaseProducts() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM products 
+       WHERE is_deleted = 'N' 
+       AND created_at >= SYSDATE - 30`
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching new release products", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Products - Add Stock
+async function addStock(productId, quantity) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE products
+      SET stok_qty = stok_qty + :quantity
+      WHERE product_id = :product_id AND is_deleted = 'N'
+    `;
+    await connection.execute(
+      query,
+      { product_id: productId, quantity },
+      { autoCommit: true }
+    );
+    console.log("Stock added successfully.");
+  } catch (error) {
+    console.error("Error adding stock:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -138,7 +188,7 @@ async function softDeleteSale(saleId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sales SET is_deleted = 'Y' WHERE sale_id = :sale_id`;
+    const query = `UPDATE sales SET is_deleted = 'Y', deleted_at = SYSDATE WHERE sale_id = :sale_id`;
     await connection.execute(query, { sale_id: saleId }, { autoCommit: true });
     console.log("Sale marked as deleted successfully.");
   } catch (error) {
@@ -209,7 +259,7 @@ async function softDeleteSaleItem(saleItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sale_items SET is_deleted = 'Y' WHERE sale_item_id = :sale_item_id`;
+    const query = `UPDATE sale_items SET is_deleted = 'Y', deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
     await connection.execute(
       query,
       { sale_item_id: saleItemId },
@@ -284,7 +334,7 @@ async function softDeleteCustomer(customerId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE customers SET is_deleted = 'Y' WHERE customer_id = :customer_id`;
+    const query = `UPDATE customers SET is_deleted = 'Y', deleted_at = SYSDATE WHERE customer_id = :customer_id`;
     await connection.execute(
       query,
       { customer_id: customerId },
@@ -359,7 +409,7 @@ async function softDeleteCart(cartId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE carts SET is_deleted = 'Y' WHERE cart_id = :cart_id`;
+    const query = `UPDATE carts SET is_deleted = 'Y', deleted_at = SYSDATE WHERE cart_id = :cart_id`;
     await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
     console.log("Cart marked as deleted successfully.");
   } catch (error) {
@@ -392,8 +442,8 @@ async function insertCartItem(cartItem) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO cart_items (cart_item_id, cart_id, product_id, quantity, price, status, added_at)
-      VALUES (:cart_item_id, :cart_id, :product_id, :quantity, :price, :status, :added_at)
+      INSERT INTO cart_items (cart_item_id, cart_id, product_id, quantity, price, status)
+      VALUES (:cart_item_id, :cart_id, :product_id, :quantity, :price, :status)
     `;
     await connection.execute(query, cartItem, { autoCommit: true });
     console.log("Cart item added successfully.");
@@ -412,7 +462,7 @@ async function updateCartItem(cartItem) {
     connection = await getConnection();
     const query = `
       UPDATE cart_items
-      SET cart_id = :cart_id, product_id = :product_id, quantity = :quantity, price = :price, status = :status, added_at = :added_at
+      SET cart_id = :cart_id, product_id = :product_id, quantity = :quantity, price = :price, status = :status
       WHERE cart_item_id = :cart_item_id
     `;
     await connection.execute(query, cartItem, { autoCommit: true });
@@ -430,7 +480,7 @@ async function softDeleteCartItem(cartItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE cart_items SET is_deleted = 'Y' WHERE cart_item_id = :cart_item_id`;
+    const query = `UPDATE cart_items SET is_deleted = 'Y', deleted_at = SYSDATE WHERE cart_item_id = :cart_item_id`;
     await connection.execute(
       query,
       { cart_item_id: cartItemId },
@@ -505,7 +555,7 @@ async function softDeleteRevenueReport(reportId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE revenue_reports SET is_deleted = 'Y' WHERE report_id = :report_id`;
+    const query = `UPDATE revenue_reports SET is_deleted = 'Y', deleted_at = SYSDATE WHERE report_id = :report_id`;
     await connection.execute(
       query,
       { report_id: reportId },
@@ -541,6 +591,8 @@ module.exports = {
   updateProduct,
   softDeleteProduct,
   getAllProducts,
+  getNewReleaseProducts,
+  addStock,
   insertSale,
   updateSale,
   softDeleteSale,
