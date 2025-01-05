@@ -122,9 +122,17 @@ async function getNewReleaseProducts() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM products 
-       WHERE deleted_at IS NULL 
-       AND created_at >= SYSDATE - 30`
+      `SELECT 
+       product_name,
+       product_description,
+       product_category,
+       product_gender,
+       price,
+       MAX(product_image)
+       FROM products
+       WHERE deleted_at IS NULL
+       AND created_at >= SYSDATE - 30
+       GROUP BY product_name, product_description, product_category, product_gender, price`
     );
     return result.rows;
   } catch (error) {
