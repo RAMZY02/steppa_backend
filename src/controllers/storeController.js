@@ -88,19 +88,31 @@ async function getAllProducts() {
         product_category,
         product_gender,
         price,
-        MAX(product_image) AS sample_image,
+        MAX(product_image) AS sample_image
       FROM products
       WHERE is_deleted = 'N'
-      GROUP BY product_name, product_category, product_gender, price;`
+      GROUP BY product_name, product_category, product_gender, price`
     );
-    return result.rows;
+
+    const products = result.rows.map(row => {
+      return {
+        product_name: row[0],
+        product_category: row[1],
+        product_gender: row[2],
+        price: row[3],
+        product_image: row[4],
+      };
+    });
+    console.log(products);
+    return products;
   } catch (error) {
-    console.error("Error fetching products", error);
+    console.error("Error fetching products:", error);
     throw error;
   } finally {
-    connection.close();
+    if (connection) await connection.close();
   }
 }
+
 
 // Products - Get New Releases
 async function getNewReleaseProducts() {
