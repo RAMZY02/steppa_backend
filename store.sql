@@ -208,7 +208,7 @@ CREATE OR REPLACE TRIGGER trg_bef_cart_items
 BEFORE INSERT ON cart_items
 FOR EACH ROW
 BEGIN
-    :NEW.cart_id := 'CIT' || LPAD(seq_cart_items_id.NEXTVAL, 4, '0');
+    :NEW.cart_item_id := 'CIT' || LPAD(seq_cart_items_id.NEXTVAL, 4, '0');
 END;
 /
 

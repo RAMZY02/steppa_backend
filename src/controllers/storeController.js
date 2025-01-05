@@ -134,7 +134,18 @@ async function getNewReleaseProducts() {
        AND created_at >= SYSDATE - 30
        GROUP BY product_name, product_description, product_category, product_gender, price`
     );
-    return result.rows;
+
+    const newReleases = result.rows.map((row) => {
+      return {
+        product_name: row[0],
+        product_description: row[1],
+        product_category: row[2],
+        product_gender: row[3],
+        price: row[4],
+        product_image: row[5],
+      };
+    });
+    return newReleases;
   } catch (error) {
     console.error("Error fetching new release products", error);
     throw error;
@@ -153,7 +164,13 @@ async function getProductStock(productName, productSize) {
        WHERE product_name = :product_name AND product_size = :product_size AND deleted_at IS NULL`,
       { product_name: productName, product_size: productSize }
     );
-    return result.rows;
+
+    const productStock = result.rows.map((row) => {
+      return {
+        stok_qty: row[0],
+      };
+    });
+    return productStock;
   } catch (error) {
     console.error("Error fetching product details:", error);
     throw error;
@@ -248,7 +265,18 @@ async function getAllSales() {
     const result = await connection.execute(
       `SELECT * FROM sales WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const sales = result.rows.map((row) => {
+      return {
+        sale_id: row[0],
+        sale_channel: row[1],
+        sale_date: row[2],
+        total: row[3],
+        created_at: row[4],
+        deleted_at: row[5],
+      };
+    });
+    return sales;
   } catch (error) {
     console.error("Error fetching sales", error);
     throw error;
@@ -323,7 +351,20 @@ async function getAllSaleItems() {
     const result = await connection.execute(
       `SELECT * FROM sale_items WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const saleItems = result.rows.map((row) => {
+      return {
+        sale_item_id: row[0],
+        sale_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        price: row[4],
+        subtotal: row[5],
+        created_at: row[6],
+        deleted_at: row[7],
+      };
+    });
+    return saleItems;
   } catch (error) {
     console.error("Error fetching sale items", error);
     throw error;
@@ -398,7 +439,22 @@ async function getAllCustomers() {
     const result = await connection.execute(
       `SELECT * FROM customers WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const customers = result.rows.map((row) => {
+      return {
+        customer_id: row[0],
+        name: row[1],
+        email: row[2],
+        phone_number: row[3],
+        address: row[4],
+        city: row[5],
+        country: row[6],
+        zip_code: row[7],
+        created_at: row[8],
+        deleted_at: row[9],
+      };
+    });
+    return customers;
   } catch (error) {
     console.error("Error fetching customers", error);
     throw error;
@@ -469,7 +525,16 @@ async function getAllCarts() {
     const result = await connection.execute(
       `SELECT * FROM carts WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const carts = result.rows.map((row) => {
+      return {
+        cart_id: row[0],
+        customer_id: row[1],
+        created_at: row[2],
+        deleted_at: row[3],
+      };
+    });
+    return carts;
   } catch (error) {
     console.error("Error fetching carts", error);
     throw error;
@@ -544,7 +609,20 @@ async function getAllCartItems() {
     const result = await connection.execute(
       `SELECT * FROM cart_items WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const cartItems = result.rows.map((row) => {
+      return {
+        cart_item_id: row[0],
+        cart_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        price: row[4],
+        status: row[5],
+        created_at: row[6],
+        deleted_at: row[7],
+      };
+    });
+    return cartItems;
   } catch (error) {
     console.error("Error fetching cart items", error);
     throw error;
@@ -619,7 +697,19 @@ async function getAllRevenueReports() {
     const result = await connection.execute(
       `SELECT * FROM revenue_reports WHERE deleted_at IS NULL`
     );
-    return result.rows;
+
+    const revenueReports = result.rows.map((row) => {
+      return {
+        report_id: row[0],
+        report_period: row[1],
+        total_revenue: row[2],
+        total_expenses: row[3],
+        net_profit: row[4],
+        created_at: row[5],
+        deleted_at: row[6],
+      };
+    });
+    return revenueReports;
   } catch (error) {
     console.error("Error fetching revenue reports", error);
     throw error;
