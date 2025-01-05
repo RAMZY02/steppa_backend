@@ -365,3 +365,91 @@ BEGIN
     END IF;
 END;
 /
+
+-- Insert dummy data into suppliers
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 1', 'Location 1', 'Contact 1');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 2', 'Location 2', 'Contact 2');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 3', 'Location 3', 'Contact 3');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 4', 'Location 4', 'Contact 4');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 5', 'Location 5', 'Contact 5');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 6', 'Location 6', 'Contact 6');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 7', 'Location 7', 'Contact 7');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 8', 'Location 8', 'Contact 8');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 9', 'Location 9', 'Contact 9');
+INSERT INTO suppliers (name, location, contact_info)
+VALUES ('Supplier 10', 'Location 10', 'Contact 10');
+
+-- Insert dummy data into raw_materials
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 1', 100, 'SUP0001');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 2', 200, 'SUP0002');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 3', 300, 'SUP0003');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 4', 400, 'SUP0004');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 5', 500, 'SUP0005');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 6', 600, 'SUP0006');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 7', 700, 'SUP0007');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 8', 800, 'SUP0008');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 9', 900, 'SUP0009');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
+VALUES ('Material 10', 1000, 'SUP0010');
+
+-- Insert dummy data into transactions
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0001', 'Remarks 1');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0002', 'Remarks 2');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0003', 'Remarks 3');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0004', 'Remarks 4');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0005', 'Remarks 5');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0006', 'Remarks 6');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0007', 'Remarks 7');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0008', 'Remarks 8');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0009', 'Remarks 9');
+INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+VALUES (SYSDATE, 'Pending', 'SUP0010', 'Remarks 10');
+
+-- Insert dummy data into transaction_detail
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0001', 'MAT0001', 10);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0002', 'MAT0002', 20);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0003', 'MAT0003', 30);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0004', 'MAT0004', 40);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0005', 'MAT0005', 50);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0006', 'MAT0006', 60);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0007', 'MAT0007', 70);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0008', 'MAT0008', 80);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0009', 'MAT0009', 90);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+VALUES ('TRS0010', 'MAT0010', 100);
