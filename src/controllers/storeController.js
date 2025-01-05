@@ -2,6 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -9,6 +10,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
+      connectString: "192.168.1.6:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
