@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "D:/Kuliah/S7/Multiplatform/Proyek/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -24,8 +24,8 @@ async function insertDesign(name, image) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO design (name, image)
-      VALUES (:name, :image)
+      INSERT INTO design (name, image, created_at)
+      VALUES (:name, :image, SYSDATE)
     `;
     await connection.execute(query, { name, image }, { autoCommit: true });
     console.log("Design added successfully.");
@@ -78,8 +78,8 @@ async function softDeleteDesign(req, res) {
     connection = await getConnection();
     await connection.execute(
       `UPDATE design 
-       SET is_deleted = 'Y' 
-       WHERE id = :id AND is_deleted = 'N'`,
+       SET deleted_at = SYSDATE 
+       WHERE id = :id AND deleted_at IS NULL`,
       { id },
       { autoCommit: true }
     );
@@ -97,9 +97,9 @@ async function getAllDesigns() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, created_at 
        FROM design 
-       WHERE is_deleted = 'N'`
+       WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -115,9 +115,9 @@ async function getDesignById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, created_at 
        FROM design 
-       WHERE id = :id AND is_deleted = 'N'`,
+       WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
     return result.rows;
@@ -134,9 +134,9 @@ async function getDesignByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, created_at 
        FROM design 
-       WHERE LOWER(name) LIKE LOWER(:name) AND is_deleted = 'N'`,
+       WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
     return result.rows;
@@ -154,8 +154,8 @@ async function insertDesignMaterial(designId, materialId, qty) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO design_materials (design_id, material_id, qty)
-      VALUES (:designId, :materialId, :qty)
+      INSERT INTO design_materials (design_id, material_id, qty, created_at)
+      VALUES (:designId, :materialId, :qty, SYSDATE)
     `;
     await connection.execute(query, { designId, materialId, qty }, { autoCommit: true });
     console.log("Design material added successfully.");
@@ -214,8 +214,8 @@ async function softDeleteDesignMaterial(req, res) {
     connection = await getConnection();
     await connection.execute(
       `UPDATE design_materials 
-       SET is_deleted = 'Y' 
-       WHERE id = :id AND is_deleted = 'N'`,
+       SET deleted_at = SYSDATE 
+       WHERE id = :id AND deleted_at IS NULL`,
       { id },
       { autoCommit: true }
     );
@@ -233,9 +233,9 @@ async function getAllDesignMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty 
+      `SELECT id, design_id, material_id, qty, created_at 
        FROM design_materials 
-       WHERE is_deleted = 'N'`
+       WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -251,9 +251,9 @@ async function getDesignMaterialById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty 
+      `SELECT id, design_id, material_id, qty, created_at 
        FROM design_materials 
-       WHERE id = :id AND is_deleted = 'N'`,
+       WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
     return result.rows;
@@ -270,9 +270,9 @@ async function getDesignMaterialByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty 
+      `SELECT id, design_id, material_id, qty, created_at 
        FROM design_materials 
-       WHERE design_id = :designId AND is_deleted = 'N'`,
+       WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
     );
     return result.rows;
@@ -289,9 +289,9 @@ async function getDesignMaterialByMaterialId(materialId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty 
+      `SELECT id, design_id, material_id, qty, created_at 
        FROM design_materials 
-       WHERE material_id = :materialId AND is_deleted = 'N'`,
+       WHERE material_id = :materialId AND deleted_at IS NULL`,
       { materialId }
     );
     return result.rows;
@@ -309,8 +309,8 @@ async function insertProduction(designId, expectedQty, status) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO production (design_id, expected_qty, status)
-      VALUES (:designId, :expectedQty, :status)
+      INSERT INTO production (design_id, expected_qty, status, created_at)
+      VALUES (:designId, :expectedQty, :status, SYSDATE)
     `;
     await connection.execute(query, { designId, expectedQty, status }, { autoCommit: true });
     console.log("Production added successfully.");
@@ -343,6 +343,12 @@ async function updateProduction(req, res) {
       binds.expectedQty = expectedQty;
     }
 
+    if (actualQty) {
+      if (designId || expectedQty) query += ', ';
+      query += 'actual_qty = :actualQty';
+      binds.actualQty = actualQty;
+    }
+
     if (status) {
       if (designId || expectedQty || actualQty) query += ', ';
       query += 'status = :status';
@@ -369,8 +375,8 @@ async function softDeleteProduction(req, res) {
     connection = await getConnection();
     await connection.execute(
       `UPDATE production 
-       SET is_deleted = 'Y' 
-       WHERE id = :id AND is_deleted = 'N'`,
+       SET deleted_at = SYSDATE 
+       WHERE id = :id AND deleted_at IS NULL`,
       { id },
       { autoCommit: true }
     );
@@ -388,9 +394,9 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
        FROM production 
-       WHERE is_deleted = 'N'`
+       WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -406,9 +412,9 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
        FROM production 
-       WHERE id = :id AND is_deleted = 'N'`,
+       WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
     return result.rows;
@@ -425,9 +431,9 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
        FROM production 
-       WHERE design_id = :designId AND is_deleted = 'N'`,
+       WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
     );
     return result.rows;
@@ -463,15 +469,24 @@ async function updateProductionStatus(req, res) {
 }
 
 // Insert Product
-async function insertProduct(name, description, category, stokQty, price) {
+async function insertProduct(product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price) {
   let connection;
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO products (name, description, category, stok_qty, price)
-      VALUES (:name, :description, :category, :stokQty, :price)
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
     `;
-    await connection.execute(query, { name, description, category, stokQty, price }, { autoCommit: true });
+    await connection.execute(query, {
+      product_name,
+      product_description,
+      product_category,
+      product_size,
+      product_gender,
+      product_image,
+      stok_qty,
+      price
+    }, { autoCommit: true });
     console.log("Product added successfully.");
   } catch (error) {
     console.error("Error inserting product:", error.message);
@@ -485,42 +500,62 @@ async function insertProduct(name, description, category, stokQty, price) {
 async function updateProduct(req, res) {
   let connection;
   try {
-    const { id, name, description, category, stokQty, price } = req.body;
+    const { product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price } = req.body;
+    console.log(req.body);
+    
     connection = await getConnection();
     
     let query = 'UPDATE products SET ';
-    const binds = { id };
+    const binds = { product_id };
 
-    if (name) {
-      query += 'name = :name';
-      binds.name = name;
+    if (product_name) {
+      query += 'product_name = :product_name';
+      binds.product_name = product_name;
     }
 
-    if (description) {
-      if (name) query += ', ';
-      query += 'description = :description';
-      binds.description = description;
+    if (product_description) {
+      if (product_name) query += ', ';
+      query += 'product_description = :product_description';
+      binds.product_description = product_description;
     }
 
-    if (category) {
-      if (name || description) query += ', ';
-      query += 'category = :category';
-      binds.category = category;
+    if (product_category) {
+      if (product_name || product_description) query += ', ';
+      query += 'product_category = :product_category';
+      binds.product_category = product_category;
     }
 
-    if (stokQty) {
-      if (name || description || category) query += ', ';
-      query += 'stok_qty = :stokQty';
-      binds.stokQty = stokQty;
+    if (product_size) {
+      if (product_name || product_description || product_category) query += ', ';
+      query += 'product_size = :product_size';
+      binds.product_size = product_size;
+    }
+
+    if (product_gender) {
+      if (product_name || product_description || product_category || product_size) query += ', ';
+      query += 'product_gender = :product_gender';
+      binds.product_gender = product_gender;
+    }
+
+    if (product_image) {
+      if (product_name || product_description || product_category || product_size || product_gender) query += ', ';
+      query += 'product_image = :product_image';
+      binds.product_image = product_image;
+    }
+
+    if (stok_qty) {
+      if (product_name || product_description || product_category || product_size || product_gender || product_image) query += ', ';
+      query += 'stok_qty = :stok_qty';
+      binds.stok_qty = stok_qty;
     }
 
     if (price) {
-      if (name || description || category || stokQty) query += ', ';
+      if (product_name || product_description || product_category || product_size || product_gender || product_image || stok_qty) query += ', ';
       query += 'price = :price';
       binds.price = price;
     }
 
-    query += ' WHERE id = :id';
+    query += ', last_update = SYSDATE WHERE product_id = :product_id';
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Product updated successfully." });
@@ -536,13 +571,13 @@ async function updateProduct(req, res) {
 async function softDeleteProduct(req, res) {
   let connection;
   try {
-    const { id } = req.body;
+    const { product_id } = req.body;
     connection = await getConnection();
     await connection.execute(
       `UPDATE products 
-       SET is_deleted = 'Y' 
-       WHERE id = :id AND is_deleted = 'N'`,
-      { id },
+       SET deleted_at = SYSDATE 
+       WHERE product_id = :product_id AND deleted_at IS NULL`,
+      { product_id },
       { autoCommit: true }
     );
     res.status(200).json({ message: "Product marked as deleted successfully." });
@@ -559,9 +594,9 @@ async function getAllProducts() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, description, category, stok_qty, price 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
        FROM products 
-       WHERE is_deleted = 'N'`
+       WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -577,9 +612,9 @@ async function getProductById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, description, category, stok_qty, price 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
        FROM products 
-       WHERE id = :id AND is_deleted = 'N'`,
+       WHERE product_id = :id AND deleted_at IS NULL`,
       { id }
     );
     return result.rows;
@@ -596,9 +631,9 @@ async function getProductByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, description, category, stok_qty, price 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
        FROM products 
-       WHERE LOWER(name) LIKE LOWER(:name) AND is_deleted = 'N'`,
+       WHERE LOWER(product_name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
     return result.rows;
@@ -670,8 +705,8 @@ async function softDeleteRawMaterial(req, res) {
     connection = await getConnection();
     await connection.execute(
       `UPDATE raw_materials 
-       SET is_deleted = 'Y' 
-       WHERE id = :id AND is_deleted = 'N'`,
+       SET deleted_at = SYSDATE 
+       WHERE id = :id AND deleted_at IS NULL`,
       { id },
       { autoCommit: true }
     );
@@ -689,9 +724,9 @@ async function getAllRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT id, name, stok_qty, last_update, created_at 
        FROM raw_materials 
-       WHERE is_deleted = 'N'`
+       WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -707,9 +742,9 @@ async function getRawMaterialById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT id, name, stok_qty, last_update, created_at 
        FROM raw_materials 
-       WHERE id = :id AND is_deleted = 'N'`,
+       WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
     return result.rows;
@@ -726,9 +761,9 @@ async function getRawMaterialByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT id, name, stok_qty, last_update, created_at 
        FROM raw_materials 
-       WHERE LOWER(name) LIKE LOWER(:name) AND is_deleted = 'N'`,
+       WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
     return result.rows;

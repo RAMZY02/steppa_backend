@@ -185,8 +185,8 @@ router.put("/production/status", updateProductionStatus);
 
 router.post("/product", async (req, res) => {
   try {
-    const { name, description, category, stokQty, price } = req.body;
-    await insertProduct(name, description, category, stokQty, price);
+    const { product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price } = req.body;
+    await insertProduct(product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price);
     res.status(201).json({ message: "Product inserted successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -121,7 +121,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "1",
+									"value": "41",
 									"type": "text"
 								},
 								{
@@ -162,7 +162,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "22",
+									"value": "41",
 									"type": "text"
 								}
 							]
@@ -306,7 +306,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "1",
+									"value": "21",
 									"type": "text"
 								},
 								{
@@ -497,7 +497,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "8",
+									"value": "9",
 									"type": "text"
 								},
 								{
@@ -548,7 +548,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "8",
+									"value": "9",
 									"type": "text"
 								}
 							]
@@ -579,7 +579,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "8",
+									"value": "9",
 									"type": "text"
 								},
 								{
@@ -638,7 +638,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/api/rnd/product/1",
+							"raw": "http://localhost:3000/api/rnd/product/PRO0011",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -648,7 +648,7 @@
 								"api",
 								"rnd",
 								"product",
-								"1"
+								"PRO0011"
 							]
 						}
 					},
@@ -660,7 +660,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/api/rnd/product/name/spo",
+							"raw": "http://localhost:3000/api/rnd/product/name/pro",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -671,7 +671,7 @@
 								"rnd",
 								"product",
 								"name",
-								"spo"
+								"pro"
 							]
 						}
 					},
@@ -686,22 +686,37 @@
 							"mode": "urlencoded",
 							"urlencoded": [
 								{
-									"key": "name",
+									"key": "product_name",
 									"value": "nike air jordan 22",
 									"type": "text"
 								},
 								{
-									"key": "description",
+									"key": "product_description",
 									"value": "nike air jordan sepatu mahal dan ganteng",
 									"type": "text"
 								},
 								{
-									"key": "category",
+									"key": "product_category",
 									"value": "dewasa",
 									"type": "text"
 								},
 								{
-									"key": "stokQty",
+									"key": "product_size",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "product_gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "product_image",
+									"value": "image.jpg",
+									"type": "text"
+								},
+								{
+									"key": "stok_qty",
 									"value": "15",
 									"type": "text"
 								},
@@ -737,28 +752,43 @@
 							"mode": "urlencoded",
 							"urlencoded": [
 								{
-									"key": "id",
-									"value": "10",
+									"key": "product_id",
+									"value": "PRO0021",
 									"type": "text"
 								},
 								{
-									"key": "name",
-									"value": "nike air jordan 22",
+									"key": "product_name",
+									"value": "nike air jordan 21",
 									"type": "text"
 								},
 								{
-									"key": "description",
+									"key": "product_description",
 									"value": "nike air jordan sepatu mahal dan ganteng",
 									"type": "text"
 								},
 								{
-									"key": "category",
+									"key": "product_category",
 									"value": "dewasa",
 									"type": "text"
 								},
 								{
-									"key": "stokQty",
-									"value": "20",
+									"key": "product_size",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "product_gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "product_image",
+									"value": "image.jpg",
+									"type": "text"
+								},
+								{
+									"key": "stok_qty",
+									"value": "15",
 									"type": "text"
 								},
 								{
@@ -793,8 +823,8 @@
 							"mode": "urlencoded",
 							"urlencoded": [
 								{
-									"key": "id",
-									"value": "10",
+									"key": "product_id",
+									"value": "PRO0013",
 									"type": "text"
 								}
 							]
@@ -896,7 +926,7 @@
 							"urlencoded": [
 								{
 									"key": "name",
-									"value": "material 4",
+									"value": "material 6",
 									"type": "text"
 								},
 								{
@@ -932,17 +962,17 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "21",
+									"value": "41",
 									"type": "text"
 								},
 								{
 									"key": "name",
-									"value": "material 4",
+									"value": "material 5",
 									"type": "text"
 								},
 								{
 									"key": "stokQty",
-									"value": "15",
+									"value": "300",
 									"type": "text"
 								}
 							]
@@ -973,7 +1003,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "21",
+									"value": "41",
 									"type": "text"
 								}
 							]
