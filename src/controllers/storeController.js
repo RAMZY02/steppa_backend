@@ -98,10 +98,11 @@ async function getAllProducts() {
     const products = result.rows.map((row) => {
       return {
         product_name: row[0],
-        product_category: row[1],
-        product_gender: row[2],
-        price: row[3],
-        product_image: row[4],
+        product_description: row[1],
+        product_category: row[2],
+        product_gender: row[3],
+        price: row[4],
+        product_image: row[5],
       };
     });
     console.log(products);
