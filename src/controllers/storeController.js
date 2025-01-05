@@ -92,7 +92,7 @@ async function getAllProducts() {
         MAX(product_image)
       FROM products
       WHERE deleted_at IS NULL
-      GROUP BY product_name, product_category, product_gender, price`
+      GROUP BY product_name, product_description, product_category, product_gender, price`
     );
 
     const products = result.rows.map((row) => {
