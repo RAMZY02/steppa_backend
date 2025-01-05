@@ -33,7 +33,8 @@ CREATE TABLE suppliers (
     name VARCHAR2(100) NOT NULL,
     location VARCHAR2(100),
     contact_info VARCHAR2(50),
-    is_deleted CHAR(1) DEFAULT 'N'
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
 );
 
 CREATE TABLE raw_materials (
@@ -42,7 +43,8 @@ CREATE TABLE raw_materials (
     stock_quantity NUMBER NOT NULL CHECK (stock_quantity >= 0),
     supplier_id VARCHAR2(10) REFERENCES suppliers(supplier_id) ON DELETE SET NULL,
     last_update DATE DEFAULT SYSDATE,
-    is_deleted CHAR(1) DEFAULT 'N'
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
 );
 
 CREATE TABLE transactions (
@@ -51,7 +53,8 @@ CREATE TABLE transactions (
     transaction_status VARCHAR2(20) NOT NULL CHECK (transaction_status IN ('Pending', 'Completed')),
     supplier_id VARCHAR2(10) REFERENCES suppliers(supplier_id) ON DELETE SET NULL,
     remarks VARCHAR2(255),
-    is_deleted CHAR(1) DEFAULT 'N'
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
 );
 
 CREATE TABLE transaction_detail (
@@ -59,7 +62,8 @@ CREATE TABLE transaction_detail (
     transaction_id VARCHAR2(10) REFERENCES transactions(transaction_id) ON DELETE CASCADE,
     material_id VARCHAR2(10) REFERENCES raw_materials(material_id) ON DELETE CASCADE,
     quantity NUMBER NOT NULL CHECK (quantity > 0),
-    is_deleted CHAR(1) DEFAULT 'N'
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
 );
 
 

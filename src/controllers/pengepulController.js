@@ -82,11 +82,10 @@ async function softDeleteSupplier(req, res) {
 
     connection = await getConnection();
 
-    // Update is_deleted menjadi 'Y' untuk supplier tertentu
     const result = await connection.execute(
       `UPDATE suppliers 
-            SET is_deleted = 'Y' 
-            WHERE supplier_id = :supplierId AND is_deleted = 'N'`,
+            SET deleted_at = SYSDATE 
+            WHERE supplier_id = :supplierId AND deleted_at IS NULL`,
       { supplierId },
       { autoCommit: true }
     );
@@ -117,7 +116,7 @@ async function getAllSupplier() {
     const result = await connection.execute(
       `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE is_deleted = 'N'`
+                WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -135,7 +134,7 @@ async function getSupplierById(supplierId) {
     const result = await connection.execute(
       `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE supplier_id = :supplier_id AND is_deleted = 'N'`,
+                WHERE supplier_id = :supplier_id AND deleted_at IS NULL`,
       [supplierId]
     );
     return result.rows;
@@ -154,7 +153,7 @@ async function getSupplierByName(supplierName) {
     const result = await connection.execute(
       `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE name like :supplierName AND is_deleted = 'N'`,
+                WHERE name like :supplierName AND deleted_at IS NULL`,
       [`%${supplierName}%`]
     );
     return result.rows;
@@ -173,7 +172,7 @@ async function getSupplierByLocation(location) {
     const result = await connection.execute(
       `SELECT supplier_id, name, location, contact_info
                 FROM suppliers
-                WHERE location like :location AND is_deleted = 'N'`,
+                WHERE location like :location AND deleted_at IS NULL`,
       [`%${location}%`]
     );
     return result.rows;
@@ -250,11 +249,10 @@ async function softDeleteRawMaterial(req, res) {
 
     connection = await getConnection();
 
-    // Update is_deleted menjadi 'Y' untuk raw material tertentu
     const result = await connection.execute(
       `UPDATE raw_materials 
-            SET is_deleted = 'Y' 
-            WHERE material_id = :materialId AND is_deleted = 'N'`,
+            SET deleted_at = SYSDATE 
+            WHERE material_id = :materialId AND deleted_at IS NULL`,
       { materialId },
       { autoCommit: true }
     );
@@ -285,7 +283,7 @@ async function getAllRawMaterial() {
     const result = await connection.execute(
       `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE is_deleted = 'N'`
+                WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -303,7 +301,7 @@ async function getRawMaterialById(materialId) {
     const result = await connection.execute(
       `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE material_id = :material_id AND is_deleted = 'N'`,
+                WHERE material_id = :material_id AND deleted_at IS NULL`,
       [materialId]
     );
     return result.rows;
@@ -322,7 +320,7 @@ async function getRawMaterialByName(materialName) {
     const result = await connection.execute(
       `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE material_name like :materialName AND is_deleted = 'N'`,
+                WHERE material_name like :materialName AND deleted_at IS NULL`,
       [`%${materialName}%`]
     );
     return result.rows;
@@ -341,7 +339,7 @@ async function getRawMaterialBySupplier(supplierId) {
     const result = await connection.execute(
       `SELECT material_id, material_name, stock_quantity, supplier_id, last_update
                 FROM raw_materials
-                WHERE supplier_id = :supplierId AND is_deleted = 'N'`,
+                WHERE supplier_id = :supplierId AND deleted_at IS NULL`,
       [supplierId]
     );
     return result.rows;
@@ -422,14 +420,14 @@ async function softDeleteTransaction(req, res) {
 
     // Soft delete transaksi
     await connection.execute(
-      `UPDATE transactions SET is_deleted = 'Y' WHERE transaction_id = :transactionId`,
+      `UPDATE transactions SET deleted_at = SYSDATE WHERE transaction_id = :transactionId`,
       { transactionId },
       { autoCommit: true }
     );
 
     // Soft delete semua detail transaksi terkait
     await connection.execute(
-      `UPDATE transaction_detail SET is_deleted = 'Y' WHERE transaction_id = :transactionId`,
+      `UPDATE transaction_detail SET deleted_at = SYSDATE WHERE transaction_id = :transactionId`,
       { transactionId },
       { autoCommit: true }
     );
@@ -532,7 +530,7 @@ async function getAllTransaction() {
     const result = await connection.execute(
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
                 FROM transactions
-                WHERE is_deleted = 'N'`
+                WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -551,7 +549,7 @@ async function getTransactionById(transactionId) {
       `SELECT t.transaction_id, t.transaction_date, t.transaction_status, t.supplier_id, t.remarks, td.detail_id, td.material_id, td.quantity        
       FROM transactions t
       JOIN transaction_detail td ON t.transaction_id = td.transaction_id
-      WHERE t.transaction_id = :transactionId AND t.is_deleted = 'N' AND td.is_deleted = 'N'`,
+      WHERE t.transaction_id = :transactionId AND t.deleted_at IS NULL AND td.deleted_at IS NULL`,
       [transactionId]
     );
 
@@ -573,7 +571,7 @@ async function getPendingTransaction() {
     const result = await connection.execute(
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
                 FROM transactions
-                WHERE transaction_status = 'Pending' AND is_deleted = 'N'`
+                WHERE transaction_status = 'Pending' AND deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -591,7 +589,7 @@ async function getCompletedTransaction() {
     const result = await connection.execute(
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
                 FROM transactions
-                WHERE transaction_status = 'Completed' AND is_deleted = 'N'`
+                WHERE transaction_status = 'Completed' AND deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -610,7 +608,7 @@ async function getPendingTransactionByDate(startDate, endDate) {
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
          FROM transactions
          WHERE transaction_status = 'Pending'
-         AND is_deleted = 'N'
+         AND deleted_at IS NULL
          AND transaction_date BETWEEN TO_DATE(:start_date, 'DD-MM-YYYY') 
                                   AND TO_DATE(:end_date, 'DD-MM-YYYY')`,
       {
@@ -635,7 +633,7 @@ async function getCompletedTransactionByDate(startDate, endDate) {
       `SELECT transaction_id, transaction_date, transaction_status, supplier_id, remarks
          FROM transactions
          WHERE transaction_status = 'Completed'
-         AND is_deleted = 'N'
+         AND deleted_at IS NULL
          AND transaction_date BETWEEN TO_DATE(:start_date, 'DD-MM-YYYY') 
                                   AND TO_DATE(:end_date, 'DD-MM-YYYY')`,
       {
@@ -661,7 +659,7 @@ async function getPendingTransactionBySupplier(supplierId) {
          FROM transactions
          WHERE supplier_id = :supplier_id
          AND transaction_status = 'Pending'
-         AND is_deleted = 'N'`,
+         AND deleted_at IS NULL`,
       { supplier_id: supplierId }
     );
     return result.rows;
@@ -682,7 +680,7 @@ async function getCompletedTransactionBySupplier(supplierId) {
          FROM transactions
          WHERE supplier_id = :supplier_id
          AND transaction_status = 'Completed'
-         AND is_deleted = 'N'`,
+         AND deleted_at IS NULL`,
       { supplier_id: supplierId }
     );
     return result.rows;
@@ -736,7 +734,7 @@ async function softDeleteTransactionDetail(req, res) {
 
     // Soft delete satu detail transaksi
     const result = await connection.execute(
-      `UPDATE transaction_detail SET is_deleted = 'Y' 
+      `UPDATE transaction_detail SET deleted_at = SYSDATE 
             WHERE detail_id = :detailId AND transaction_id = :transactionId`,
       { detailId, transactionId },
       { autoCommit: true }

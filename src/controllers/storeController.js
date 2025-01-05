@@ -63,7 +63,7 @@ async function softDeleteProduct(productId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE products SET is_deleted = 'Y', deleted_at = SYSDATE WHERE product_id = :product_id`;
+    const query = `UPDATE products SET deleted_at = SYSDATE WHERE product_id = :product_id`;
     await connection.execute(
       query,
       { product_id: productId },
@@ -88,19 +88,32 @@ async function getAllProducts() {
         product_category,
         product_gender,
         price,
-        MAX(product_image) AS sample_image,
+        MAX(product_image)
       FROM products
-      WHERE is_deleted = 'N'
-      GROUP BY product_name, product_category, product_gender, price;`
+      WHERE deleted_at IS NULL
+      GROUP BY product_name, product_category, product_gender, price`
     );
-    return result.rows;
+
+    const products = result.rows.map((row) => {
+      return {
+        product_name: row[0],
+        product_category: row[1],
+        product_gender: row[2],
+        price: row[3],
+        product_image: row[4],
+      };
+    });
+    console.log(products);
+    return products;
   } catch (error) {
-    console.error("Error fetching products", error);
+    console.error("Error fetching products:", error);
     throw error;
   } finally {
-    connection.close();
+    if (connection) await connection.close();
   }
 }
+
+// Products - Get Catalog
 
 // Products - Get New Releases
 async function getNewReleaseProducts() {
@@ -108,7 +121,7 @@ async function getNewReleaseProducts() {
   try {
     const result = await connection.execute(
       `SELECT * FROM products 
-       WHERE is_deleted = 'N' 
+       WHERE deleted_at IS NULL 
        AND created_at >= SYSDATE - 30`
     );
     return result.rows;
@@ -128,7 +141,7 @@ async function addStock(productId, quantity) {
     const query = `
       UPDATE products
       SET stok_qty = stok_qty + :quantity
-      WHERE product_id = :product_id AND is_deleted = 'N'
+      WHERE product_id = :product_id AND deleted_at IS NULL
     `;
     await connection.execute(
       query,
@@ -188,7 +201,7 @@ async function softDeleteSale(saleId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sales SET is_deleted = 'Y', deleted_at = SYSDATE WHERE sale_id = :sale_id`;
+    const query = `UPDATE sales SET deleted_at = SYSDATE WHERE sale_id = :sale_id`;
     await connection.execute(query, { sale_id: saleId }, { autoCommit: true });
     console.log("Sale marked as deleted successfully.");
   } catch (error) {
@@ -204,7 +217,7 @@ async function getAllSales() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM sales WHERE is_deleted = 'N'`
+      `SELECT * FROM sales WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -259,7 +272,7 @@ async function softDeleteSaleItem(saleItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sale_items SET is_deleted = 'Y', deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
+    const query = `UPDATE sale_items SET deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
     await connection.execute(
       query,
       { sale_item_id: saleItemId },
@@ -279,7 +292,7 @@ async function getAllSaleItems() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM sale_items WHERE is_deleted = 'N'`
+      `SELECT * FROM sale_items WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -334,7 +347,7 @@ async function softDeleteCustomer(customerId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE customers SET is_deleted = 'Y', deleted_at = SYSDATE WHERE customer_id = :customer_id`;
+    const query = `UPDATE customers SET deleted_at = SYSDATE WHERE customer_id = :customer_id`;
     await connection.execute(
       query,
       { customer_id: customerId },
@@ -354,7 +367,7 @@ async function getAllCustomers() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM customers WHERE is_deleted = 'N'`
+      `SELECT * FROM customers WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -409,7 +422,7 @@ async function softDeleteCart(cartId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE carts SET is_deleted = 'Y', deleted_at = SYSDATE WHERE cart_id = :cart_id`;
+    const query = `UPDATE carts SET deleted_at = SYSDATE WHERE cart_id = :cart_id`;
     await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
     console.log("Cart marked as deleted successfully.");
   } catch (error) {
@@ -425,7 +438,7 @@ async function getAllCarts() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM carts WHERE is_deleted = 'N'`
+      `SELECT * FROM carts WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -480,7 +493,7 @@ async function softDeleteCartItem(cartItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE cart_items SET is_deleted = 'Y', deleted_at = SYSDATE WHERE cart_item_id = :cart_item_id`;
+    const query = `UPDATE cart_items SET deleted_at = SYSDATE WHERE cart_item_id = :cart_item_id`;
     await connection.execute(
       query,
       { cart_item_id: cartItemId },
@@ -500,7 +513,7 @@ async function getAllCartItems() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM cart_items WHERE is_deleted = 'N'`
+      `SELECT * FROM cart_items WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {
@@ -555,7 +568,7 @@ async function softDeleteRevenueReport(reportId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE revenue_reports SET is_deleted = 'Y', deleted_at = SYSDATE WHERE report_id = :report_id`;
+    const query = `UPDATE revenue_reports SET deleted_at = SYSDATE WHERE report_id = :report_id`;
     await connection.execute(
       query,
       { report_id: reportId },
@@ -575,7 +588,7 @@ async function getAllRevenueReports() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT * FROM revenue_reports WHERE is_deleted = 'N'`
+      `SELECT * FROM revenue_reports WHERE deleted_at IS NULL`
     );
     return result.rows;
   } catch (error) {

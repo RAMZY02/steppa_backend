@@ -37,7 +37,7 @@ CREATE TABLE products (
     product_image VARCHAR2(255) NOT NULL,
     stok_qty NUMBER NOT NULL,
     price NUMBER NOT NULL,
-    is_deleted CHAR(1) DEFAULT 'N',
+    last_update DATE DEFAULT SYSDATE,
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -47,7 +47,6 @@ CREATE TABLE sales (
     sale_channel VARCHAR2(50) NOT NULL,
     sale_date DATE NOT NULL,
     total NUMBER NOT NULL,
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -59,7 +58,6 @@ CREATE TABLE sale_items (
     quantity NUMBER NOT NULL,
     price NUMBER NOT NULL,
     subtotal NUMBER NOT NULL,
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -73,7 +71,6 @@ CREATE TABLE customers (
     city VARCHAR2(50),
     country VARCHAR2(50),
     zip_code VARCHAR2(10),
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -81,7 +78,6 @@ CREATE TABLE customers (
 CREATE TABLE carts (
     cart_id VARCHAR2(10) PRIMARY KEY,
     customer_id VARCHAR2(10) NOT NULL REFERENCES customers(customer_id),
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -93,7 +89,6 @@ CREATE TABLE cart_items (
     quantity NUMBER NOT NULL CHECK (quantity > 0),
     price NUMBER NOT NULL,
     status VARCHAR2(20) DEFAULT 'active',
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -104,7 +99,6 @@ CREATE TABLE revenue_reports (
     total_revenue NUMBER NOT NULL,
     total_expenses NUMBER NOT NULL,
     net_profit NUMBER NOT NULL,
-    is_deleted CHAR(1) DEFAULT 'N',
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
