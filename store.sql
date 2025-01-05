@@ -421,139 +421,87 @@ END;
 
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '43', 'Male', 'image1.jpg', 100, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '40', 'Unisex', 'image1.jpg', 100, 50);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '44', 'Male', 'image1.jpg', 200, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '41', 'Unisex', 'image1.jpg', 100, 50);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '45', 'Male', 'image1.jpg', 150, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '42', 'Unisex', 'image1.jpg', 100, 50);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 4', 'Description 4', 'Category 4', '40', 'Female', 'image4.jpg', 120, 80);
+VALUES ('Product 1', 'Description 1', 'Category 1', '43', 'Unisex', 'image1.jpg', 100, 50);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 5', 'Description 5', 'Category 5', '40', 'Male', 'image5.jpg', 130, 90);
+VALUES ('Product 1', 'Description 1', 'Category 1', '44', 'Unisex', 'image1.jpg', 100, 50);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 6', 'Description 6', 'Category 6', '40', 'Female', 'image6.jpg', 140, 100);
+VALUES ('Product 2', 'Description 2', 'Category 2', '40', 'Male', 'image2.jpg', 200, 60);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 7', 'Description 7', 'Category 7', '40', 'Male', 'image7.jpg', 110, 110);
+VALUES ('Product 2', 'Description 2', 'Category 2', '41', 'Male', 'image2.jpg', 200, 60);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 8', 'Description 8', 'Category 8', '40', 'Female', 'image8.jpg', 160, 120);
+VALUES ('Product 2', 'Description 2', 'Category 2', '42', 'Male', 'image2.jpg', 200, 60);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 9', 'Description 9', 'Category 9', '40', 'Male', 'image9.jpg', 170, 130);
+VALUES ('Product 2', 'Description 2', 'Category 2', '43', 'Male', 'image2.jpg', 200, 60);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 10', 'Description 10', 'Category 10', '40', 'Female', 'image10.jpg', 180, 140);
+VALUES ('Product 2', 'Description 2', 'Category 2', '44', 'Male', 'image2.jpg', 200, 60);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Product 3', 'Description 3', 'Category 3', '40', 'Female', 'image3.jpg', 150, 70);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Product 3', 'Description 3', 'Category 3', '41', 'Female', 'image3.jpg', 150, 70);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Product 3', 'Description 3', 'Category 3', '42', 'Female', 'image3.jpg', 150, 70);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Product 3', 'Description 3', 'Category 3', '43', 'Female', 'image3.jpg', 150, 70);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Product 3', 'Description 3', 'Category 3', '44', 'Female', 'image3.jpg', 150, 70);
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 500);
+VALUES ('Online', SYSDATE, 100);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 600);
+VALUES ('Offline', SYSDATE, 200);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 700);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 800);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 900);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 1000);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 1100);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 1200);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 1300);
-INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 1400);
+VALUES ('Online', SYSDATE, 300);
 
 -- Insert dummy data into sale_items
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
 VALUES ('SLS0001', 'PRO0001', 2, 50, 100);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+VALUES ('SLS0001', 'PRO0002', 1, 60, 60);
+INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
 VALUES ('SLS0002', 'PRO0002', 3, 60, 180);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0003', 'PRO0003', 4, 70, 280);
+VALUES ('SLS0002', 'PRO0003', 1, 70, 70);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0004', 'PRO0004', 5, 80, 400);
+VALUES ('SLS0003', 'PRO0001', 1, 50, 50);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0005', 'PRO0005', 6, 90, 540);
-INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0006', 'PRO0006', 7, 100, 700);
-INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0007', 'PRO0007', 8, 110, 880);
-INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0008', 'PRO0008', 9, 120, 1080);
-INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0009', 'PRO0009', 10, 130, 1300);
-INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0010', 'PRO0010', 11, 140, 1540);
+VALUES ('SLS0003', 'PRO0003', 2, 70, 140);
 
 -- Insert dummy data into customers
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 1', 'customer1@example.com', '1234567890', 'Address 1', 'City 1', 'Country 1', '12345');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 2', 'customer2@example.com', '0987654321', 'Address 2', 'City 2', 'Country 2', '54321');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 3', 'customer3@example.com', '1122334455', 'Address 3', 'City 3', 'Country 3', '67890');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 4', 'customer4@example.com', '5566778899', 'Address 4', 'City 4', 'Country 4', '09876');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 5', 'customer5@example.com', '6677889900', 'Address 5', 'City 5', 'Country 5', '11223');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 6', 'customer6@example.com', '7788990011', 'Address 6', 'City 6', 'Country 6', '33445');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 7', 'customer7@example.com', '8899001122', 'Address 7', 'City 7', 'Country 7', '55667');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 8', 'customer8@example.com', '9900112233', 'Address 8', 'City 8', 'Country 8', '77889');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 9', 'customer9@example.com', '0011223344', 'Address 9', 'City 9', 'Country 9', '99001');
-INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-VALUES ('Customer 10', 'customer10@example.com', '1122334455', 'Address 10', 'City 10', 'Country 10', '12345');
+INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
+VALUES ('Customer 1', 'customer1@example.com', '1234567890', 'password1', 'Address 1', 'City 1', 'Country 1', '12345');
+INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
+VALUES ('Customer 2', 'customer2@example.com', '0987654321', 'password2', 'Address 2', 'City 2', 'Country 2', '54321');
+INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
+VALUES ('Customer 3', 'customer3@example.com', '1122334455', 'password3', 'Address 3', 'City 3', 'Country 3', '67890');
 
 -- Insert dummy data into carts
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0001');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0002');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0003');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0004');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0005');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0006');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0007');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0008');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0009');
-    INSERT INTO carts (customer_id)
-    VALUES ('CUS0010');
+INSERT INTO carts (customer_id)
+VALUES ('CUS0001');
+INSERT INTO carts (customer_id)
+VALUES ('CUS0002');
+INSERT INTO carts (customer_id)
+VALUES ('CUS0003');
 
 -- Insert dummy data into cart_items
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0001', 'PRO0004', 2, 50, 'active');
+VALUES ('CRT0001', 'PRO0001', 2, 50, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0001', 'PRO0003', 1, 70, 'active');
+VALUES ('CRT0001', 'PRO0002', 1, 60, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0002', 'PRO0005', 3, 60, 'active');
+VALUES ('CRT0002', 'PRO0002', 3, 60, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0002', 'PRO0004', 2, 50, 'active');
+VALUES ('CRT0002', 'PRO0003', 1, 70, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0003', 'PRO0003', 4, 70, 'active');
+VALUES ('CRT0003', 'PRO0001', 1, 50, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0004', 'PRO0004', 5, 80, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0005', 'PRO0005', 6, 90, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0006', 'PRO0006', 7, 100, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0007', 'PRO0007', 8, 110, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0008', 'PRO0008', 9, 120, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0009', 'PRO0009', 10, 130, 'active');
-INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0010', 'PRO0010', 11, 140, 'active');
+VALUES ('CRT0003', 'PRO0003', 2, 70, 'active');
 
 -- Insert dummy data into revenue_reports
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
@@ -562,20 +510,6 @@ INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_p
 VALUES (SYSDATE, 2000, 1000, 1000);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
 VALUES (SYSDATE, 3000, 1500, 1500);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 4000, 2000, 2000);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 5000, 2500, 2500);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 6000, 3000, 3000);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 7000, 3500, 3500);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 8000, 4000, 4000);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 9000, 4500, 4500);
-INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 10000, 5000, 5000);
 
 CREATE OR REPLACE TRIGGER trg_update_trans_status
 AFTER UPDATE OF transaction_status ON transactions

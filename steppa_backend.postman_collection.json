@@ -575,6 +575,428 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Soft Delete Cart",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/carts/delete",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["carts", "delete"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Carts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/carts",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["carts"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Insert Cart Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart_items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart_items"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Cart Item",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 3,\n  \"price\": 50\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart_items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart_items"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Soft Delete Cart Item",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart_items/delete",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart_items", "delete"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Cart Items",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/cart_items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart_items"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add to Cart",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart/add",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "add"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Cart Item Quantity",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"quantity\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart/update_quantity",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "update_quantity"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Remove Item from Cart",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart/remove_item",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "remove_item"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Checkout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart/checkout",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "checkout"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Calculate Cart Subtotal",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/cart/subtotal?cart_id=CRT001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "subtotal"],
+          "query": [
+            {
+              "key": "cart_id",
+              "value": "CRT001"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Offline Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_id\": \"CUS001\",\n  \"sale_channel\": \"Offline\",\n  \"products\": [\"PROD001\", \"PROD002\"],\n  \"quantities\": [2, 3],\n  \"prices\": [50, 60]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/cart/offline_transaction",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["cart", "offline_transaction"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Insert Revenue Report",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"report_period\": \"2023-10-01\",\n  \"total_revenue\": 1000,\n  \"total_expenses\": 500,\n  \"net_profit\": 500\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/revenue_reports",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["revenue_reports"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Revenue Report",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"report_id\": \"REV001\",\n  \"report_period\": \"2023-10-02\",\n  \"total_revenue\": 2000,\n  \"total_expenses\": 1000,\n  \"net_profit\": 1000\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/revenue_reports",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["revenue_reports"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Soft Delete Revenue Report",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"report_id\": \"REV001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/revenue_reports/delete",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["revenue_reports", "delete"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Revenue Reports",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/revenue_reports",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["revenue_reports"]
+        }
+      },
+      "response": []
     }
   ]
 }
