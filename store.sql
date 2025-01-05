@@ -107,7 +107,7 @@ CREATE TABLE revenue_reports (
 
 
 
-
+DROP SEQUENCE seq_products_id;
 CREATE SEQUENCE seq_products_id
 START WITH 1 
 INCREMENT BY 1 
@@ -125,7 +125,7 @@ END;
 /
 
 
-
+DROP SEQUENCE seq_sales_id;
 CREATE SEQUENCE seq_sales_id
 START WITH 1 
 INCREMENT BY 1 
@@ -143,7 +143,7 @@ END;
 /
 
 
-
+DROP SEQUENCE seq_sale_items_id;
 CREATE SEQUENCE seq_sale_items_id
 START WITH 1 
 INCREMENT BY 1 
@@ -161,7 +161,7 @@ END;
 /
 
 
-
+DROP SEQUENCE seq_customers_id;
 CREATE SEQUENCE seq_customers_id
 START WITH 1 
 INCREMENT BY 1 
@@ -179,7 +179,7 @@ END;
 /
 
 
-
+DROP SEQUENCE seq_carts_id;
 CREATE SEQUENCE seq_carts_id
 START WITH 1 
 INCREMENT BY 1 
@@ -196,7 +196,7 @@ BEGIN
 END;
 /
 
-
+DROP SEQUENCE seq_cart_items_id;
 CREATE SEQUENCE seq_cart_items_id
 START WITH 1 
 INCREMENT BY 1 
@@ -213,7 +213,7 @@ BEGIN
 END;
 /
 
-
+DROP SEQUENCE seq_revenue_id;
 CREATE SEQUENCE seq_revenue_id
 START WITH 1 
 INCREMENT BY 1 
@@ -348,26 +348,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER after_checkout_update_stock
-AFTER INSERT ON sale_items
-FOR EACH ROW
-DECLARE
-    v_stock NUMBER;
-BEGIN
-    SELECT stok_qty
-    INTO v_stock
-    FROM products
-    WHERE product_id = :NEW.product_id;
 
-    IF v_stock - :NEW.quantity < 0 THEN
-        RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ' || :NEW.product_id);
-    END IF;
-
-    UPDATE products
-    SET stok_qty = stok_qty - :NEW.quantity
-    WHERE product_id = :NEW.product_id;
-END;
-/
 
 
 CREATE OR REPLACE PROCEDURE offline_transaction( 
@@ -511,54 +492,24 @@ VALUES (SYSDATE, 2000, 1000, 1000);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
 VALUES (SYSDATE, 3000, 1500, 1500);
 
-CREATE OR REPLACE TRIGGER trg_update_trans_status
-AFTER UPDATE OF transaction_status ON transactions
+
+CREATE OR REPLACE TRIGGER after_checkout_update_stock
+AFTER INSERT ON sale_items
 FOR EACH ROW
-WHEN (NEW.transaction_status = 'Completed')
 DECLARE
-    v_material_id VARCHAR2(10);
-    v_quantity NUMBER;
-    CURSOR transaction_details_cursor IS
-        SELECT material_id, quantity
-        FROM transaction_detail
-        WHERE transaction_id = :NEW.transaction_id;
+    v_stock NUMBER;
 BEGIN
-    FOR detail IN transaction_details_cursor LOOP
-        v_material_id := detail.material_id;
-        v_quantity := detail.quantity;
+    SELECT stok_qty
+    INTO v_stock
+    FROM products
+    WHERE product_id = :NEW.product_id;
 
-        UPDATE raw_materials
-        SET stock_quantity = stock_quantity + v_quantity,
-            last_update = SYSDATE
-        WHERE material_id = v_material_id;
-    END LOOP;
-END;
-/
-
-CREATE OR REPLACE PROCEDURE update_transaction_status (
-    p_transaction_id IN VARCHAR2,
-    p_new_status IN VARCHAR2
-) AS
-    v_current_status VARCHAR2(20);
-BEGIN
-    IF p_new_status NOT IN ('Pending', 'Completed') THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Invalid transaction status.');
+    IF v_stock - :NEW.quantity < 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ' || :NEW.product_id);
     END IF;
 
-    SELECT transaction_status
-    INTO v_current_status
-    FROM transactions
-    WHERE transaction_id = p_transaction_id;
-
-    IF v_current_status = 'Completed' THEN
-        RAISE_APPLICATION_ERROR(-20002, 'Transaction already completed, cannot be updated further.');
-    END IF;
-
-    UPDATE transactions
-    SET transaction_status = p_new_status,
-        transaction_date = SYSDATE 
-    WHERE transaction_id = p_transaction_id;
-
-    COMMIT;
+    UPDATE products
+    SET stok_qty = stok_qty - :NEW.quantity
+    WHERE product_id = :NEW.product_id;
 END;
 /
