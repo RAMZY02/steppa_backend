@@ -54,6 +54,15 @@ router.get("/products/stock", async (req, res) => {
   }
 });
 
+router.get("/products/new_releases", async (req, res) => {
+  try {
+    const newReleases = await storeController.getNewReleaseProducts();
+    res.status(200).json(newReleases);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sale routes
 router.post("/sales", async (req, res) => {
   try {
