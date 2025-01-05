@@ -2,7 +2,6 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -10,7 +9,6 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "localhost:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -127,6 +125,25 @@ async function getNewReleaseProducts() {
     return result.rows;
   } catch (error) {
     console.error("Error fetching new release products", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Products - Get Stock
+async function getProductStock(productName, productSize) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT stok_qty
+       FROM products
+       WHERE product_name = :product_name AND product_size = :product_size AND deleted_at IS NULL`,
+      { product_name: productName, product_size: productSize }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching product details:", error);
     throw error;
   } finally {
     connection.close();
@@ -605,6 +622,7 @@ module.exports = {
   softDeleteProduct,
   getAllProducts,
   getNewReleaseProducts,
+  getProductStock,
   addStock,
   insertSale,
   updateSale,
