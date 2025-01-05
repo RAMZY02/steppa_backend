@@ -97,7 +97,7 @@ async function getAllDesigns() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image, created_at 
+      `SELECT id, name, image 
        FROM design 
        WHERE deleted_at IS NULL`
     );
@@ -115,7 +115,7 @@ async function getDesignById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image, created_at 
+      `SELECT id, name, image 
        FROM design 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -134,7 +134,7 @@ async function getDesignByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image, created_at 
+      `SELECT id, name, image 
        FROM design 
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
@@ -233,7 +233,7 @@ async function getAllDesignMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty, created_at 
+      `SELECT id, design_id, material_id, qty 
        FROM design_materials 
        WHERE deleted_at IS NULL`
     );
@@ -251,7 +251,7 @@ async function getDesignMaterialById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty, created_at 
+      `SELECT id, design_id, material_id, qty 
        FROM design_materials 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -270,7 +270,7 @@ async function getDesignMaterialByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty, created_at 
+      `SELECT id, design_id, material_id, qty 
        FROM design_materials 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
@@ -289,7 +289,7 @@ async function getDesignMaterialByMaterialId(materialId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, material_id, qty, created_at 
+      `SELECT id, design_id, material_id, qty 
        FROM design_materials 
        WHERE material_id = :materialId AND deleted_at IS NULL`,
       { materialId }
@@ -394,7 +394,7 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
+      `SELECT id, design_id, expected_qty, actual_qty, status 
        FROM production 
        WHERE deleted_at IS NULL`
     );
@@ -412,7 +412,7 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
+      `SELECT id, design_id, expected_qty, actual_qty, status 
        FROM production 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -431,7 +431,7 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, created_at 
+      `SELECT id, design_id, expected_qty, actual_qty, status 
        FROM production 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
@@ -594,7 +594,7 @@ async function getAllProducts() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price 
        FROM products 
        WHERE deleted_at IS NULL`
     );
@@ -612,7 +612,7 @@ async function getProductById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price 
        FROM products 
        WHERE product_id = :id AND deleted_at IS NULL`,
       { id }
@@ -631,7 +631,7 @@ async function getProductByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at 
+      `SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price 
        FROM products 
        WHERE LOWER(product_name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
@@ -724,7 +724,7 @@ async function getAllRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update, created_at 
+      `SELECT id, name, stok_qty, last_update 
        FROM raw_materials 
        WHERE deleted_at IS NULL`
     );
@@ -742,7 +742,7 @@ async function getRawMaterialById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update, created_at 
+      `SELECT id, name, stok_qty, last_update 
        FROM raw_materials 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -761,7 +761,7 @@ async function getRawMaterialByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update, created_at 
+      `SELECT id, name, stok_qty, last_update 
        FROM raw_materials 
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
