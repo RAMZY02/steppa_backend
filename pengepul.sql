@@ -66,7 +66,17 @@ CREATE TABLE transaction_detail (
     deleted_at DATE
 );
 
-
+CREATE TABLE users (
+    user_id VARCHAR2(10) PRIMARY KEY,
+    username VARCHAR2(50) NOT NULL UNIQUE,
+    password VARCHAR2(255) NOT NULL,
+    full_name VARCHAR2(100),
+    email VARCHAR2(100),
+    phone_number VARCHAR2(20),
+    role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
+);
 
 CREATE SEQUENCE seq_suppliers_id
 START WITH 1 
@@ -132,6 +142,21 @@ BEGIN
 END;
 /
 
+CREATE SEQUENCE seq_users_id
+START WITH 1 
+INCREMENT BY 1 
+MINVALUE 1 
+MAXVALUE 9999 
+NOCYCLE 
+CACHE 10;
+
+CREATE OR REPLACE TRIGGER trg_bef_users
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+    :NEW.user_id := 'USR' || LPAD(seq_users_id.NEXTVAL, 4, '0');
+END;
+/
 
 CREATE OR REPLACE TRIGGER trg_update_trans_status
 AFTER UPDATE OF transaction_status ON transactions
@@ -234,6 +259,12 @@ BEGIN
         IF :OLD.contact_info != :NEW.contact_info THEN
             v_action_details := v_action_details || 'Contact Info changed from ' || :OLD.contact_info || ' to ' || :NEW.contact_info || ', ';
         END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
 
         IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
@@ -274,6 +305,12 @@ BEGIN
         END IF;
         IF :OLD.last_update != :NEW.last_update THEN
             v_action_details := v_action_details || 'Last update changed from ' || :OLD.last_update || ' to ' || :NEW.last_update || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
         END IF;
 
         IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
@@ -316,6 +353,12 @@ BEGIN
         IF :OLD.remarks != :NEW.remarks THEN
             v_action_details := v_action_details || 'Remarks changed from ' || :OLD.remarks || ' to ' || :NEW.remarks || ', ';
         END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
 
         IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
@@ -326,7 +369,6 @@ BEGIN
     END IF;
 END;
 /
-
 
 CREATE OR REPLACE TRIGGER trg_log_transaction_detail
 AFTER INSERT OR UPDATE OR DELETE ON transaction_detail
@@ -355,6 +397,12 @@ BEGIN
         IF :OLD.quantity != :NEW.quantity THEN
             v_action_details := v_action_details || 'Quantity changed from ' || TO_CHAR(:OLD.quantity) || ' to ' || TO_CHAR(:NEW.quantity) || ', ';
         END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
 
         IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
@@ -362,6 +410,59 @@ BEGIN
 
         INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
         VALUES (log_pengepul_seq.NEXTVAL, 'U', 'transaction_detail', v_action_details, v_user);
+    END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_log_users
+AFTER INSERT OR UPDATE OR DELETE ON users
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'users', 'Inserted user: ' || :NEW.username, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.user_id || ' ';
+
+        IF :OLD.user_id != :NEW.user_id THEN
+            v_action_details := v_action_details || 'User ID changed from ' || :OLD.user_id || ' to ' || :NEW.user_id || ', ';
+        END IF;
+        IF :OLD.username != :NEW.username THEN
+            v_action_details := v_action_details || 'Username changed from ' || :OLD.username || ' to ' || :NEW.username || ', ';
+        END IF;
+        IF :OLD.password != :NEW.password THEN
+            v_action_details := v_action_details || 'Password changed from ' || :OLD.password || ' to ' || :NEW.password || ', ';
+        END IF;
+        IF :OLD.full_name != :NEW.full_name THEN
+            v_action_details := v_action_details || 'Full Name changed from ' || :OLD.full_name || ' to ' || :NEW.full_name || ', ';
+        END IF;
+        IF :OLD.email != :NEW.email THEN
+            v_action_details := v_action_details || 'Email changed from ' || :OLD.email || ' to ' || :NEW.email || ', ';
+        END IF;
+        IF :OLD.phone_number != :NEW.phone_number THEN
+            v_action_details := v_action_details || 'Phone Number changed from ' || :OLD.phone_number || ' to ' || :NEW.phone_number || ', ';
+        END IF;
+        IF :OLD.role != :NEW.role THEN
+            v_action_details := v_action_details || 'Role changed from ' || :OLD.role || ' to ' || :NEW.role || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'users', v_action_details, v_user);
     END IF;
 END;
 /
@@ -453,3 +554,12 @@ INSERT INTO transaction_detail (transaction_id, material_id, quantity)
 VALUES ('TRS0009', 'MAT0009', 90);
 INSERT INTO transaction_detail (transaction_id, material_id, quantity)
 VALUES ('TRS0010', 'MAT0010', 100);
+
+-- Insert dummy data into users
+INSERT INTO users (username, password, full_name, email, phone_number, role)
+VALUES ('admin', 'adminpassword', 'Admin User', 'admin@example.com', '1234567890', 'admin');
+INSERT INTO users (username, password, full_name, email, phone_number, role)
+VALUES ('employee1', 'employeepassword1', 'Employee One', 'employee1@example.com', '0987654321', 'employee');
+INSERT INTO users (username, password, full_name, email, phone_number, role)
+VALUES ('employee2', 'employeepassword2', 'Employee Two', 'employee2@example.com', '1122334455', 'employee');
+

@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -43,22 +43,22 @@ async function updateDesign(req, res) {
   try {
     const { id, name, image } = req.body;
     connection = await getConnection();
-    
-    let query = 'UPDATE design SET ';
+
+    let query = "UPDATE design SET ";
     const binds = { id };
 
     if (name) {
-      query += 'name = :name';
+      query += "name = :name";
       binds.name = name;
     }
 
     if (image) {
-      if (name) query += ', ';
-      query += 'image = :image';
+      if (name) query += ", ";
+      query += "image = :image";
       binds.image = image;
     }
 
-    query += ' WHERE id = :id';
+    query += " WHERE id = :id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Design updated successfully." });
@@ -157,7 +157,11 @@ async function insertDesignMaterial(designId, materialId, qty) {
       INSERT INTO design_materials (design_id, material_id, qty, created_at)
       VALUES (:designId, :materialId, :qty, SYSDATE)
     `;
-    await connection.execute(query, { designId, materialId, qty }, { autoCommit: true });
+    await connection.execute(
+      query,
+      { designId, materialId, qty },
+      { autoCommit: true }
+    );
     console.log("Design material added successfully.");
   } catch (error) {
     console.error("Error inserting design material:", error.message);
@@ -173,28 +177,28 @@ async function updateDesignMaterial(req, res) {
   try {
     const { id, designId, materialId, qty } = req.body;
     connection = await getConnection();
-    
-    let query = 'UPDATE design_materials SET ';
+
+    let query = "UPDATE design_materials SET ";
     const binds = { id };
 
     if (designId) {
-      query += 'design_id = :designId';
+      query += "design_id = :designId";
       binds.designId = designId;
     }
 
     if (materialId) {
-      if (designId) query += ', ';
-      query += 'material_id = :materialId';
+      if (designId) query += ", ";
+      query += "material_id = :materialId";
       binds.materialId = materialId;
     }
 
     if (qty) {
-      if (designId || materialId) query += ', ';
-      query += 'qty = :qty';
+      if (designId || materialId) query += ", ";
+      query += "qty = :qty";
       binds.qty = qty;
     }
 
-    query += ' WHERE id = :id';
+    query += " WHERE id = :id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Design material updated successfully." });
@@ -219,7 +223,9 @@ async function softDeleteDesignMaterial(req, res) {
       { id },
       { autoCommit: true }
     );
-    res.status(200).json({ message: "Design material marked as deleted successfully." });
+    res
+      .status(200)
+      .json({ message: "Design material marked as deleted successfully." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -312,7 +318,11 @@ async function insertProduction(designId, expectedQty, status, productionSize) {
       INSERT INTO production (design_id, expected_qty, status, production_size, created_at)
       VALUES (:designId, :expectedQty, :status, :productionSize, SYSDATE)
     `;
-    await connection.execute(query, { designId, expectedQty, status, productionSize }, { autoCommit: true });
+    await connection.execute(
+      query,
+      { designId, expectedQty, status, productionSize },
+      { autoCommit: true }
+    );
     console.log("Production added successfully.");
   } catch (error) {
     console.error("Error inserting production:", error.message);
@@ -326,43 +336,44 @@ async function insertProduction(designId, expectedQty, status, productionSize) {
 async function updateProduction(req, res) {
   let connection;
   try {
-    const { id, designId, expectedQty, actualQty, status, productionSize } = req.body;
-    
+    const { id, designId, expectedQty, actualQty, status, productionSize } =
+      req.body;
+
     connection = await getConnection();
-    
-    let query = 'UPDATE production SET ';
+
+    let query = "UPDATE production SET ";
     const binds = { id };
 
     if (designId) {
-      query += 'design_id = :designId';
+      query += "design_id = :designId";
       binds.designId = designId;
     }
 
     if (expectedQty) {
-      if (designId) query += ', ';
-      query += 'expected_qty = :expectedQty';
+      if (designId) query += ", ";
+      query += "expected_qty = :expectedQty";
       binds.expectedQty = expectedQty;
     }
 
     if (actualQty) {
-      if (designId || expectedQty) query += ', ';
-      query += 'actual_qty = :actualQty';
+      if (designId || expectedQty) query += ", ";
+      query += "actual_qty = :actualQty";
       binds.actualQty = actualQty;
     }
 
     if (status) {
-      if (designId || expectedQty || actualQty) query += ', ';
-      query += 'status = :status';
+      if (designId || expectedQty || actualQty) query += ", ";
+      query += "status = :status";
       binds.status = status;
     }
 
     if (productionSize) {
-      if (designId || expectedQty || actualQty || status) query += ', ';
-      query += 'production_size = :productionSize';
+      if (designId || expectedQty || actualQty || status) query += ", ";
+      query += "production_size = :productionSize";
       binds.productionSize = productionSize;
     }
 
-    query += ' WHERE id = :id';
+    query += " WHERE id = :id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Production updated successfully." });
@@ -387,7 +398,9 @@ async function softDeleteProduction(req, res) {
       { id },
       { autoCommit: true }
     );
-    res.status(200).json({ message: "Production marked as deleted successfully." });
+    res
+      .status(200)
+      .json({ message: "Production marked as deleted successfully." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -458,7 +471,7 @@ async function updateProductionStatus(req, res) {
   try {
     const { id, actualQty } = req.body;
     connection = await getConnection();
-    
+
     await connection.execute(
       `BEGIN
       update_production_status (:id, :actualQty);
@@ -466,7 +479,9 @@ async function updateProductionStatus(req, res) {
       { id, actualQty },
       { autoCommit: true }
     );
-    res.status(200).json({ message: "Production status updated successfully." });
+    res
+      .status(200)
+      .json({ message: "Production status updated successfully." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -476,7 +491,16 @@ async function updateProductionStatus(req, res) {
 }
 
 // Insert Product
-async function insertProduct(product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price) {
+async function insertProduct(
+  product_name,
+  product_description,
+  product_category,
+  product_size,
+  product_gender,
+  product_image,
+  stok_qty,
+  price
+) {
   let connection;
   try {
     connection = await getConnection();
@@ -484,16 +508,20 @@ async function insertProduct(product_name, product_description, product_category
       INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
       VALUES (:product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
     `;
-    await connection.execute(query, {
-      product_name,
-      product_description,
-      product_category,
-      product_size,
-      product_gender,
-      product_image,
-      stok_qty,
-      price
-    }, { autoCommit: true });
+    await connection.execute(
+      query,
+      {
+        product_name,
+        product_description,
+        product_category,
+        product_size,
+        product_gender,
+        product_image,
+        stok_qty,
+        price,
+      },
+      { autoCommit: true }
+    );
     console.log("Product added successfully.");
   } catch (error) {
     console.error("Error inserting product:", error.message);
@@ -507,62 +535,103 @@ async function insertProduct(product_name, product_description, product_category
 async function updateProduct(req, res) {
   let connection;
   try {
-    const { product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price } = req.body;
+    const {
+      product_id,
+      product_name,
+      product_description,
+      product_category,
+      product_size,
+      product_gender,
+      product_image,
+      stok_qty,
+      price,
+    } = req.body;
     console.log(req.body);
-    
+
     connection = await getConnection();
-    
-    let query = 'UPDATE products SET ';
+
+    let query = "UPDATE products SET ";
     const binds = { product_id };
 
     if (product_name) {
-      query += 'product_name = :product_name';
+      query += "product_name = :product_name";
       binds.product_name = product_name;
     }
 
     if (product_description) {
-      if (product_name) query += ', ';
-      query += 'product_description = :product_description';
+      if (product_name) query += ", ";
+      query += "product_description = :product_description";
       binds.product_description = product_description;
     }
 
     if (product_category) {
-      if (product_name || product_description) query += ', ';
-      query += 'product_category = :product_category';
+      if (product_name || product_description) query += ", ";
+      query += "product_category = :product_category";
       binds.product_category = product_category;
     }
 
     if (product_size) {
-      if (product_name || product_description || product_category) query += ', ';
-      query += 'product_size = :product_size';
+      if (product_name || product_description || product_category)
+        query += ", ";
+      query += "product_size = :product_size";
       binds.product_size = product_size;
     }
 
     if (product_gender) {
-      if (product_name || product_description || product_category || product_size) query += ', ';
-      query += 'product_gender = :product_gender';
+      if (
+        product_name ||
+        product_description ||
+        product_category ||
+        product_size
+      )
+        query += ", ";
+      query += "product_gender = :product_gender";
       binds.product_gender = product_gender;
     }
 
     if (product_image) {
-      if (product_name || product_description || product_category || product_size || product_gender) query += ', ';
-      query += 'product_image = :product_image';
+      if (
+        product_name ||
+        product_description ||
+        product_category ||
+        product_size ||
+        product_gender
+      )
+        query += ", ";
+      query += "product_image = :product_image";
       binds.product_image = product_image;
     }
 
     if (stok_qty) {
-      if (product_name || product_description || product_category || product_size || product_gender || product_image) query += ', ';
-      query += 'stok_qty = :stok_qty';
+      if (
+        product_name ||
+        product_description ||
+        product_category ||
+        product_size ||
+        product_gender ||
+        product_image
+      )
+        query += ", ";
+      query += "stok_qty = :stok_qty";
       binds.stok_qty = stok_qty;
     }
 
     if (price) {
-      if (product_name || product_description || product_category || product_size || product_gender || product_image || stok_qty) query += ', ';
-      query += 'price = :price';
+      if (
+        product_name ||
+        product_description ||
+        product_category ||
+        product_size ||
+        product_gender ||
+        product_image ||
+        stok_qty
+      )
+        query += ", ";
+      query += "price = :price";
       binds.price = price;
     }
 
-    query += ', last_update = SYSDATE WHERE product_id = :product_id';
+    query += ", last_update = SYSDATE WHERE product_id = :product_id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Product updated successfully." });
@@ -587,7 +656,9 @@ async function softDeleteProduct(req, res) {
       { product_id },
       { autoCommit: true }
     );
-    res.status(200).json({ message: "Product marked as deleted successfully." });
+    res
+      .status(200)
+      .json({ message: "Product marked as deleted successfully." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -677,22 +748,22 @@ async function updateRawMaterial(req, res) {
   try {
     const { id, name, stokQty } = req.body;
     connection = await getConnection();
-    
-    let query = 'UPDATE raw_materials SET ';
+
+    let query = "UPDATE raw_materials SET ";
     const binds = { id };
 
     if (name) {
-      query += 'name = :name';
+      query += "name = :name";
       binds.name = name;
     }
 
     if (stokQty) {
-      if (name) query += ', ';
-      query += 'stok_qty = :stokQty';
+      if (name) query += ", ";
+      query += "stok_qty = :stokQty";
       binds.stokQty = stokQty;
     }
 
-    query += ', last_update = SYSDATE WHERE id = :id';
+    query += ", last_update = SYSDATE WHERE id = :id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Raw material updated successfully." });
@@ -717,7 +788,9 @@ async function softDeleteRawMaterial(req, res) {
       { id },
       { autoCommit: true }
     );
-    res.status(200).json({ message: "Raw material marked as deleted successfully." });
+    res
+      .status(200)
+      .json({ message: "Raw material marked as deleted successfully." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -926,5 +999,5 @@ module.exports = {
   getLogsByActionType,
   getLogsByTableName,
   getLogsByActionTime,
-  getLogsByActionUser
+  getLogsByActionUser,
 };

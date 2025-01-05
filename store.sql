@@ -104,6 +104,18 @@ CREATE TABLE revenue_reports (
     deleted_at DATE
 );
 
+CREATE TABLE users (
+    user_id VARCHAR2(10) PRIMARY KEY,
+    username VARCHAR2(50) NOT NULL UNIQUE,
+    password VARCHAR2(255) NOT NULL,
+    full_name VARCHAR2(100),
+    email VARCHAR2(100),
+    phone_number VARCHAR2(20),
+    role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
+);
+
 
 
 
@@ -227,6 +239,23 @@ BEFORE INSERT ON revenue_reports
 FOR EACH ROW
 BEGIN
     :NEW.report_id := 'REV' || LPAD(seq_revenue_id.NEXTVAL, 4, '0');
+END;
+/
+
+DROP SEQUENCE seq_users_id;
+CREATE SEQUENCE seq_users_id
+START WITH 1 
+INCREMENT BY 1 
+MINVALUE 1 
+MAXVALUE 9999 
+NOCYCLE 
+CACHE 10;
+
+CREATE OR REPLACE TRIGGER trg_bef_users
+BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+    :NEW.user_id := 'USR' || LPAD(seq_users_id.NEXTVAL, 4, '0');
 END;
 /
 
@@ -402,35 +431,45 @@ END;
 
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '40', 'Unisex', 'image1.jpg', 100, 50);
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'airmax.jpg', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '41', 'Unisex', 'image1.jpg', 100, 50);
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'airmax.jpg', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '42', 'Unisex', 'image1.jpg', 100, 50);
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '42', 'male', 'airmax.jpg', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '43', 'Unisex', 'image1.jpg', 100, 50);
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '43', 'male', 'airmax.jpg', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '44', 'Unisex', 'image1.jpg', 100, 50);
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '44', 'male', 'airmax.jpg', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 2', 'Description 2', 'Category 2', '40', 'Male', 'image2.jpg', 200, 60);
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '40', 'female', 'ultraboost.jpg', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 2', 'Description 2', 'Category 2', '41', 'Male', 'image2.jpg', 200, 60);
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '41', 'female', 'ultraboost.jpg', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 2', 'Description 2', 'Category 2', '42', 'Male', 'image2.jpg', 200, 60);
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '42', 'female', 'ultraboost.jpg', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 2', 'Description 2', 'Category 2', '43', 'Male', 'image2.jpg', 200, 60);
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '43', 'female', 'ultraboost.jpg', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 2', 'Description 2', 'Category 2', '44', 'Male', 'image2.jpg', 200, 60);
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '44', 'female', 'ultraboost.jpg', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 3', 'Description 3', 'Category 3', '40', 'Female', 'image3.jpg', 150, 70);
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '40', 'male', 'puma.jpg', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 3', 'Description 3', 'Category 3', '41', 'Female', 'image3.jpg', 150, 70);
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '41', 'male', 'puma.jpg', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 3', 'Description 3', 'Category 3', '42', 'Female', 'image3.jpg', 150, 70);
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '42', 'male', 'puma.jpg', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 3', 'Description 3', 'Category 3', '43', 'Female', 'image3.jpg', 150, 70);
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '43', 'male', 'puma.jpg', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 3', 'Description 3', 'Category 3', '44', 'Female', 'image3.jpg', 150, 70);
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '44', 'male', 'puma.jpg', 20, 90),
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '40', 'female', 'reebok.jpg', 25, 120);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '41', 'female', 'reebok.jpg', 25, 120);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '42', 'female', 'reebok.jpg', 25, 120);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '43', 'female', 'reebok.jpg', 25, 120);
+INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '44', 'female', 'reebok.jpg', 25, 120);
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
@@ -442,17 +481,17 @@ VALUES ('Online', SYSDATE, 300);
 
 -- Insert dummy data into sale_items
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0001', 'PRO0001', 2, 50, 100);
+VALUES ('SLS0001', 'PRO0001', 2, 150, 300);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0001', 'PRO0002', 1, 60, 60);
+VALUES ('SLS0001', 'PRO0002', 1, 180, 180);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0002', 'PRO0002', 3, 60, 180);
+VALUES ('SLS0002', 'PRO0002', 2, 180, 360);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0002', 'PRO0003', 1, 70, 70);
+VALUES ('SLS0002', 'PRO0003', 1, 90, 90);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0003', 'PRO0001', 1, 50, 50);
+VALUES ('SLS0003', 'PRO0001', 1, 150, 150);
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
-VALUES ('SLS0003', 'PRO0003', 2, 70, 140);
+VALUES ('SLS0003', 'PRO0003', 2, 90, 180);
 
 -- Insert dummy data into customers
 INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
@@ -472,17 +511,17 @@ VALUES ('CUS0003');
 
 -- Insert dummy data into cart_items
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0001', 'PRO0001', 2, 50, 'active');
+VALUES ('CRT0001', 'PRO0001', 2, 150, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0001', 'PRO0002', 1, 60, 'active');
+VALUES ('CRT0001', 'PRO0002', 1, 180, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0002', 'PRO0002', 3, 60, 'active');
+VALUES ('CRT0002', 'PRO0002', 3, 180, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0002', 'PRO0003', 1, 70, 'active');
+VALUES ('CRT0002', 'PRO0003', 1, 90, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0003', 'PRO0001', 1, 50, 'active');
+VALUES ('CRT0003', 'PRO0001', 1, 150, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0003', 'PRO0003', 2, 70, 'active');
+VALUES ('CRT0003', 'PRO0003', 2, 90, 'active');
 
 -- Insert dummy data into revenue_reports
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
@@ -511,5 +550,382 @@ BEGIN
     UPDATE products
     SET stok_qty = stok_qty - :NEW.quantity
     WHERE product_id = :NEW.product_id;
+END;
+/
+
+
+-- Sequence untuk log
+CREATE SEQUENCE log_store_seq
+START WITH 1 
+INCREMENT BY 1 
+MINVALUE 1 
+MAXVALUE 9999 
+NOCYCLE 
+CACHE 10;
+
+-- Tabel log untuk menyimpan perubahan
+CREATE TABLE log_store (
+    log_id INT PRIMARY KEY,
+    action_type CHAR(1), 
+    table_name VARCHAR2(50),
+    action_details VARCHAR2(255),
+    action_time DATE DEFAULT SYSDATE,
+    action_user VARCHAR2(50)
+);
+
+-- Trigger untuk produk
+CREATE OR REPLACE TRIGGER trg_log_products
+AFTER INSERT OR UPDATE OR DELETE ON products
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'products', 'Inserted product: ' || :NEW.product_name, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.product_id || ' ';
+
+        IF :OLD.product_name != :NEW.product_name THEN
+            v_action_details := v_action_details || 'Product name changed from ' || :OLD.product_name || ' to ' || :NEW.product_name || ', ';
+        END IF;
+        IF :OLD.product_description != :NEW.product_description THEN
+            v_action_details := v_action_details || 'Product description changed from ' || :OLD.product_description || ' to ' || :NEW.product_description || ', ';
+        END IF;
+        IF :OLD.product_category != :NEW.product_category THEN
+            v_action_details := v_action_details || 'Product category changed from ' || :OLD.product_category || ' to ' || :NEW.product_category || ', ';
+        END IF;
+        IF :OLD.product_size != :NEW.product_size THEN
+            v_action_details := v_action_details || 'Product size changed from ' || :OLD.product_size || ' to ' || :NEW.product_size || ', ';
+        END IF;
+        IF :OLD.product_gender != :NEW.product_gender THEN
+            v_action_details := v_action_details || 'Product gender changed from ' || :OLD.product_gender || ' to ' || :NEW.product_gender || ', ';
+        END IF;
+        IF :OLD.product_image != :NEW.product_image THEN
+            v_action_details := v_action_details || 'Product image changed from ' || :OLD.product_image || ' to ' || :NEW.product_image || ', ';
+        END IF;
+        IF :OLD.stok_qty != :NEW.stok_qty THEN
+            v_action_details := v_action_details || 'Stock quantity changed from ' || :OLD.stok_qty || ' to ' || :NEW.stok_qty || ', ';
+        END IF;
+        IF :OLD.price != :NEW.price THEN
+            v_action_details := v_action_details || 'Price changed from ' || :OLD.price || ' to ' || :NEW.price || ', ';
+        END IF;
+        IF :OLD.last_update != :NEW.last_update THEN
+            v_action_details := v_action_details || 'Last update changed from ' || :OLD.last_update || ' to ' || :NEW.last_update || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'products', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'products', 'Deleted product: ' || :OLD.product_name, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk sales
+CREATE OR REPLACE TRIGGER trg_log_sales
+AFTER INSERT OR UPDATE OR DELETE ON sales
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'sales', 'Inserted sale: ' || :NEW.sale_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.sale_id || ' ';
+
+        IF :OLD.sale_channel != :NEW.sale_channel THEN
+            v_action_details := v_action_details || 'Sale channel changed from ' || :OLD.sale_channel || ' to ' || :NEW.sale_channel || ', ';
+        END IF;
+        IF :OLD.sale_date != :NEW.sale_date THEN
+            v_action_details := v_action_details || 'Sale date changed from ' || :OLD.sale_date || ' to ' || :NEW.sale_date || ', ';
+        END IF;
+        IF :OLD.total != :NEW.total THEN
+            v_action_details := v_action_details || 'Total sale changed from ' || :OLD.total || ' to ' || :NEW.total || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'sales', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'sales', 'Deleted sale: ' || :OLD.sale_id, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk sale_items
+CREATE OR REPLACE TRIGGER trg_log_sale_items
+AFTER INSERT OR UPDATE OR DELETE ON sale_items
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'sale_items', 'Inserted sale item: ' || :NEW.sale_item_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.sale_item_id || ' ';
+
+        IF :OLD.sale_id != :NEW.sale_id THEN
+            v_action_details := v_action_details || 'Sale ID changed from ' || :OLD.sale_id || ' to ' || :NEW.sale_id || ', ';
+        END IF;
+        IF :OLD.product_id != :NEW.product_id THEN
+            v_action_details := v_action_details || 'Product ID changed from ' || :OLD.product_id || ' to ' || :NEW.product_id || ', ';
+        END IF;
+        IF :OLD.quantity != :NEW.quantity THEN
+            v_action_details := v_action_details || 'Quantity changed from ' || :OLD.quantity || ' to ' || :NEW.quantity || ', ';
+        END IF;
+        IF :OLD.price != :NEW.price THEN
+            v_action_details := v_action_details || 'Price changed from ' || :OLD.price || ' to ' || :NEW.price || ', ';
+        END IF;
+        IF :OLD.subtotal != :NEW.subtotal THEN
+            v_action_details := v_action_details || 'Subtotal changed from ' || :OLD.subtotal || ' to ' || :NEW.subtotal || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'sale_items', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'sale_items', 'Deleted sale item: ' || :OLD.sale_item_id, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk customers
+CREATE OR REPLACE TRIGGER trg_log_customers
+AFTER INSERT OR UPDATE OR DELETE ON customers
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'customers', 'Inserted customer: ' || :NEW.name, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.customer_id || ' ';
+
+        IF :OLD.name != :NEW.name THEN
+            v_action_details := v_action_details || 'Name changed from ' || :OLD.name || ' to ' || :NEW.name || ', ';
+        END IF;
+        IF :OLD.email != :NEW.email THEN
+            v_action_details := v_action_details || 'Email changed from ' || :OLD.email || ' to ' || :NEW.email || ', ';
+        END IF;
+        IF :OLD.phone_number != :NEW.phone_number THEN
+            v_action_details := v_action_details || 'Phone number changed from ' || :OLD.phone_number || ' to ' || :NEW.phone_number || ', ';
+        END IF;
+        IF :OLD.password != :NEW.password THEN
+            v_action_details := v_action_details || 'Password changed from ' || :OLD.password || ' to ' || :NEW.password || ', ';
+        END IF;
+        IF :OLD.address != :NEW.address THEN
+            v_action_details := v_action_details || 'Address changed from ' || :OLD.address || ' to ' || :NEW.address || ', ';
+        END IF;
+        IF :OLD.city != :NEW.city THEN
+            v_action_details := v_action_details || 'City changed from ' || :OLD.city || ' to ' || :NEW.city || ', ';
+        END IF;
+        IF :OLD.country != :NEW.country THEN
+            v_action_details := v_action_details || 'Country changed from ' || :OLD.country || ' to ' || :NEW.country || ', ';
+        END IF;
+        IF :OLD.zip_code != :NEW.zip_code THEN
+            v_action_details := v_action_details || 'Zip code changed from ' || :OLD.zip_code || ' to ' || :NEW.zip_code || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'customers', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'customers', 'Deleted customer: ' || :OLD.name, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk carts
+CREATE OR REPLACE TRIGGER trg_log_carts
+AFTER INSERT OR UPDATE OR DELETE ON carts
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'carts', 'Inserted cart: ' || :NEW.cart_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.cart_id || ' ';
+
+        IF :OLD.customer_id != :NEW.customer_id THEN
+            v_action_details := v_action_details || 'Customer ID changed from ' || :OLD.customer_id || ' to ' || :NEW.customer_id || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'carts', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'carts', 'Deleted cart: ' || :OLD.cart_id, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk cart_items
+CREATE OR REPLACE TRIGGER trg_log_cart_items
+AFTER INSERT OR UPDATE OR DELETE ON cart_items
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'cart_items', 'Inserted cart item: ' || :NEW.cart_item_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.cart_item_id || ' ';
+
+        IF :OLD.cart_id != :NEW.cart_id THEN
+            v_action_details := v_action_details || 'Cart ID changed from ' || :OLD.cart_id || ' to ' || :NEW.cart_id || ', ';
+        END IF;
+        IF :OLD.product_id != :NEW.product_id THEN
+            v_action_details := v_action_details || 'Product ID changed from ' || :OLD.product_id || ' to ' || :NEW.product_id || ', ';
+        END IF;
+        IF :OLD.quantity != :NEW.quantity THEN
+            v_action_details := v_action_details || 'Quantity changed from ' || :OLD.quantity || ' to ' || :NEW.quantity || ', ';
+        END IF;
+        IF :OLD.price != :NEW.price THEN
+            v_action_details := v_action_details || 'Price changed from ' || :OLD.price || ' to ' || :NEW.price || ', ';
+        END IF;
+        IF :OLD.status != :NEW.status THEN
+            v_action_details := v_action_details || 'Status changed from ' || :OLD.status || ' to ' || :NEW.status || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'cart_items', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'cart_items', 'Deleted cart item: ' || :OLD.cart_item_id, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk revenue_reports
+CREATE OR REPLACE TRIGGER trg_log_revenue_reports
+AFTER INSERT OR UPDATE OR DELETE ON revenue_reports
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'revenue_reports', 'Inserted revenue report: ' || :NEW.report_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.report_id || ' ';
+
+        IF :OLD.report_period != :NEW.report_period THEN
+            v_action_details := v_action_details || 'Report period changed from ' || :OLD.report_period || ' to ' || :NEW.report_period || ', ';
+        END IF;
+        IF :OLD.total_revenue != :NEW.total_revenue THEN
+            v_action_details := v_action_details || 'Total revenue changed from ' || :OLD.total_revenue || ' to ' || :NEW.total_revenue || ', ';
+        END IF;
+        IF :OLD.total_expenses != :NEW.total_expenses THEN
+            v_action_details := v_action_details || 'Total expenses changed from ' || :OLD.total_expenses || ' to ' || :NEW.total_expenses || ', ';
+        END IF;
+        IF :OLD.net_profit != :NEW.net_profit THEN
+            v_action_details := v_action_details || 'Net profit changed from ' || :OLD.net_profit || ' to ' || :NEW.net_profit || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'revenue_reports', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'revenue_reports', 'Deleted revenue report: ' || :OLD.report_id, v_user);
+    END IF;
 END;
 /

@@ -67,6 +67,26 @@ router.get("/products", async (req, res) => {
   }
 });
 
+// Get Product by ID
+router.get("/products/:id", async (req, res) => {
+  try {
+    const product = await storeController.getProductById(req.params.id);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Product by Name
+router.get("/products/name/:name", async (req, res) => {
+  try {
+    const product = await storeController.getProductByName(req.params.name);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get Stock
 router.get("/products/stock", async (req, res) => {
   try {
@@ -132,6 +152,16 @@ router.get("/sales", authenticateToken, async (req, res) => {
   }
 });
 
+// Get Sale by ID
+router.get("/sales/:id", authenticateToken, async (req, res) => {
+  try {
+    const sale = await storeController.getSaleById(req.params.id);
+    res.status(200).json(sale);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sale Item routes
 // Insert sale item
 router.post("/sale_items", authenticateToken, async (req, res) => {
@@ -170,6 +200,16 @@ router.get("/sale_items", authenticateToken, async (req, res) => {
   try {
     const saleItems = await storeController.getAllSaleItems();
     res.status(200).json(saleItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Sale Item by ID
+router.get("/sale_items/:id", authenticateToken, async (req, res) => {
+  try {
+    const saleItem = await storeController.getSaleItemById(req.params.id);
+    res.status(200).json(saleItem);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -218,6 +258,16 @@ router.get("/customers", async (req, res) => {
   }
 });
 
+// Get Customer by ID
+router.get("/customers/:id", authenticateToken, async (req, res) => {
+  try {
+    const customer = await storeController.getCustomerById(req.params.id);
+    res.status(200).json(customer);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Cart routes
 // Update cart
 router.put("/carts", authenticateToken, async (req, res) => {
@@ -244,6 +294,16 @@ router.get("/carts", authenticateToken, async (req, res) => {
   try {
     const carts = await storeController.getAllCarts();
     res.status(200).json(carts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Cart by ID
+router.get("/carts/:id", authenticateToken, async (req, res) => {
+  try {
+    const cart = await storeController.getCartById(req.params.id);
+    res.status(200).json(cart);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -287,6 +347,16 @@ router.get("/cart_items", authenticateToken, async (req, res) => {
   try {
     const cartItems = await storeController.getAllCartItems();
     res.status(200).json(cartItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Cart Item by ID
+router.get("/cart_items/:id", authenticateToken, async (req, res) => {
+  try {
+    const cartItem = await storeController.getCartItemById(req.params.id);
+    res.status(200).json(cartItem);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -409,6 +479,59 @@ router.get("/revenue_reports", authenticateToken, async (req, res) => {
   try {
     const revenueReports = await storeController.getAllRevenueReports();
     res.status(200).json(revenueReports);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Revenue Report by ID
+router.get("/revenue_reports/:id", authenticateToken, async (req, res) => {
+  try {
+    const revenueReport = await storeController.getRevenueReportById(
+      req.params.id
+    );
+    res.status(200).json(revenueReport);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// User routes
+// Insert user
+router.post("/users", async (req, res) => {
+  try {
+    await storeController.insertUser(req.body);
+    res.status(201).json({ message: "User added successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update user
+router.put("/users", async (req, res) => {
+  try {
+    await storeController.updateUser(req.body);
+    res.status(200).json({ message: "User updated successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Soft delete user
+router.put("/users/delete", async (req, res) => {
+  try {
+    await storeController.softDeleteUser(req.body.user_id);
+    res.status(200).json({ message: "User marked as deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user by ID
+router.get("/users/:id", async (req, res) => {
+  try {
+    const user = await storeController.getUserById(req.params.id);
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

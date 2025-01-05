@@ -1,8 +1,10 @@
 const oracledb = require("oracledb");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -757,6 +759,191 @@ async function softDeleteTransactionDetail(req, res) {
   }
 }
 
+async function register(req, res) {
+  const { username, password, fullName, email, phoneNumber, role } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const query = `
+      INSERT INTO users (username, password, full_name, email, phone_number, role)
+      VALUES (:username, :password, :fullName, :email, :phoneNumber, :role)
+    `;
+
+    await connection.execute(
+      query,
+      {
+        username,
+        password: hashedPassword,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+      },
+      { autoCommit: true }
+    );
+
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error("Error registering user:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function login(req, res) {
+  const { username, password } = req.body;
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `SELECT user_id, password, role FROM users WHERE username = :username`,
+      { username }
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user.PASSWORD);
+
+    if (!validPassword) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    const token = jwt.sign(
+      { id: user.USER_ID, role: user.ROLE },
+      "your_jwt_secret",
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Error logging in:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function insertUser(req, res) {
+  const { username, password, fullName, email, phoneNumber, role } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const query = `
+      INSERT INTO users (username, password, full_name, email, phone_number, role)
+      VALUES (:username, :password, :fullName, :email, :phoneNumber, :role)
+    `;
+
+    await connection.execute(
+      query,
+      {
+        username,
+        password: hashedPassword,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+      },
+      { autoCommit: true }
+    );
+
+    res.status(201).json({ message: "User inserted successfully" });
+  } catch (error) {
+    console.error("Error inserting user:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function updateUser(req, res) {
+  const { userId, username, password, fullName, email, phoneNumber, role } =
+    req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const query = `
+      UPDATE users
+      SET username = :username,
+          password = :password,
+          full_name = :fullName,
+          email = :email,
+          phone_number = :phoneNumber,
+          role = :role
+      WHERE user_id = :userId
+    `;
+
+    await connection.execute(
+      query,
+      {
+        userId,
+        username,
+        password: hashedPassword,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+      },
+      { autoCommit: true }
+    );
+
+    res.status(200).json({ message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function softDeleteUser(req, res) {
+  const { userId } = req.body;
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const query = `
+      UPDATE users
+      SET deleted_at = SYSDATE
+      WHERE user_id = :userId AND deleted_at IS NULL
+    `;
+
+    const result = await connection.execute(
+      query,
+      { userId },
+      { autoCommit: true }
+    );
+
+    if (result.rowsAffected > 0) {
+      res.status(200).json({ message: "User marked as deleted successfully" });
+    } else {
+      res.status(404).json({ message: "User not found or already deleted" });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertSupplier,
   updateSupplier,
@@ -786,4 +973,9 @@ module.exports = {
   getCompletedTransactionBySupplier,
   updateTransactionDetail,
   softDeleteTransactionDetail,
+  register,
+  login,
+  insertUser,
+  updateUser,
+  softDeleteUser,
 };

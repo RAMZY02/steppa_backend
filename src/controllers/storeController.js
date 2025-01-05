@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -260,6 +260,42 @@ async function addStock(productId, quantity) {
   }
 }
 
+// Products - Get by ID
+async function getProductById(productId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM products WHERE product_id = :product_id AND deleted_at IS NULL`,
+      { product_id: productId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Product not found.");
+    }
+
+    const product = result.rows[0];
+    return {
+      product_id: product[0],
+      product_name: product[1],
+      product_description: product[2],
+      product_category: product[3],
+      product_size: product[4],
+      product_gender: product[5],
+      product_image: product[6],
+      stok_qty: product[7],
+      price: product[8],
+      last_update: product[9],
+      created_at: product[10],
+      deleted_at: product[11],
+    };
+  } catch (error) {
+    console.error("Error fetching product by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Sales - Insert
 async function insertSale(sale) {
   let connection;
@@ -339,6 +375,36 @@ async function getAllSales() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Sales - Get by ID
+async function getSaleById(saleId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM sales WHERE sale_id = :sale_id AND deleted_at IS NULL`,
+      { sale_id: saleId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Sale not found.");
+    }
+
+    const sale = result.rows[0];
+    return {
+      sale_id: sale[0],
+      sale_channel: sale[1],
+      sale_date: sale[2],
+      total: sale[3],
+      created_at: sale[4],
+      deleted_at: sale[5],
+    };
+  } catch (error) {
+    console.error("Error fetching sale by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -427,6 +493,38 @@ async function getAllSaleItems() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Sale Items - Get by ID
+async function getSaleItemById(saleItemId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM sale_items WHERE sale_item_id = :sale_item_id AND deleted_at IS NULL`,
+      { sale_item_id: saleItemId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Sale item not found.");
+    }
+
+    const saleItem = result.rows[0];
+    return {
+      sale_item_id: saleItem[0],
+      sale_id: saleItem[1],
+      product_id: saleItem[2],
+      quantity: saleItem[3],
+      price: saleItem[4],
+      subtotal: saleItem[5],
+      created_at: saleItem[6],
+      deleted_at: saleItem[7],
+    };
+  } catch (error) {
+    console.error("Error fetching sale item by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -559,6 +657,40 @@ async function getAllCustomers() {
   }
 }
 
+// Customers - Get by ID
+async function getCustomerById(customerId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM customers WHERE customer_id = :customer_id AND deleted_at IS NULL`,
+      { customer_id: customerId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Customer not found.");
+    }
+
+    const customer = result.rows[0];
+    return {
+      customer_id: customer[0],
+      name: customer[1],
+      email: customer[2],
+      phone_number: customer[3],
+      address: customer[4],
+      city: customer[5],
+      country: customer[6],
+      zip_code: customer[7],
+      created_at: customer[8],
+      deleted_at: customer[9],
+    };
+  } catch (error) {
+    console.error("Error fetching customer by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Carts - Insert
 async function insertCart(cart) {
   let connection;
@@ -636,6 +768,34 @@ async function getAllCarts() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Carts - Get by ID
+async function getCartById(cartId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM carts WHERE cart_id = :cart_id AND deleted_at IS NULL`,
+      { cart_id: cartId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Cart not found.");
+    }
+
+    const cart = result.rows[0];
+    return {
+      cart_id: cart[0],
+      customer_id: cart[1],
+      created_at: cart[2],
+      deleted_at: cart[3],
+    };
+  } catch (error) {
+    console.error("Error fetching cart by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -727,6 +887,38 @@ async function getAllCartItems() {
   }
 }
 
+// Cart Items - Get by ID
+async function getCartItemById(cartItemId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM cart_items WHERE cart_item_id = :cart_item_id AND deleted_at IS NULL`,
+      { cart_item_id: cartItemId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Cart item not found.");
+    }
+
+    const cartItem = result.rows[0];
+    return {
+      cart_item_id: cartItem[0],
+      cart_id: cartItem[1],
+      product_id: cartItem[2],
+      quantity: cartItem[3],
+      price: cartItem[4],
+      status: cartItem[5],
+      created_at: cartItem[6],
+      deleted_at: cartItem[7],
+    };
+  } catch (error) {
+    console.error("Error fetching cart item by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Revenue Reports - Insert
 async function insertRevenueReport(report) {
   let connection;
@@ -811,6 +1003,37 @@ async function getAllRevenueReports() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Revenue Reports - Get by ID
+async function getRevenueReportById(reportId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM revenue_reports WHERE report_id = :report_id AND deleted_at IS NULL`,
+      { report_id: reportId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Revenue report not found.");
+    }
+
+    const revenueReport = result.rows[0];
+    return {
+      report_id: revenueReport[0],
+      report_period: revenueReport[1],
+      total_revenue: revenueReport[2],
+      total_expenses: revenueReport[3],
+      net_profit: revenueReport[4],
+      created_at: revenueReport[5],
+      deleted_at: revenueReport[6],
+    };
+  } catch (error) {
+    console.error("Error fetching revenue report by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -944,6 +1167,131 @@ async function offlineTransaction(
   }
 }
 
+// Users - Insert
+async function insertUser(user) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const query = `
+      INSERT INTO users (username, email, password)
+      VALUES (:username, :email, :password)
+    `;
+    await connection.execute(
+      query,
+      {
+        ...user,
+        password: hashedPassword,
+      },
+      { autoCommit: true }
+    );
+    console.log("User added successfully.");
+  } catch (error) {
+    console.error("Error inserting user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Update
+async function updateUser(user) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE users
+      SET username = :username, email = :email, password = :password
+      WHERE user_id = :user_id
+    `;
+    await connection.execute(query, user, { autoCommit: true });
+    console.log("User updated successfully.");
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Delete
+async function softDeleteUser(userId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `UPDATE users SET deleted_at = SYSDATE WHERE user_id = :user_id`;
+    await connection.execute(query, { user_id: userId }, { autoCommit: true });
+    console.log("User marked as deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Get by ID
+async function getUserById(userId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id: userId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("User not found.");
+    }
+
+    const user = result.rows[0];
+    return {
+      user_id: user[0],
+      username: user[1],
+      email: user[2],
+      created_at: user[3],
+      deleted_at: user[4],
+    };
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Get by ID
+async function getUserById(userId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id: userId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("User not found.");
+    }
+
+    const user = result.rows[0];
+    return {
+      user_id: user[0],
+      username: user[1],
+      password: user[2],
+      full_name: user[3],
+      email: user[4],
+      phone_number: user[5],
+      role: user[6],
+      created_at: user[7],
+      deleted_at: user[8],
+    };
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertProduct,
   updateProduct,
@@ -952,30 +1300,37 @@ module.exports = {
   getNewReleaseProducts,
   getProductStock,
   addStock,
+  getProductById,
   insertSale,
   updateSale,
   softDeleteSale,
   getAllSales,
+  getSaleById,
   insertSaleItem,
   updateSaleItem,
   softDeleteSaleItem,
   getAllSaleItems,
+  getSaleItemById,
   insertCustomer,
   updateCustomer,
   softDeleteCustomer,
   getAllCustomers,
+  getCustomerById,
   insertCart,
   updateCart,
   softDeleteCart,
   getAllCarts,
+  getCartById,
   insertCartItem,
   updateCartItem,
   softDeleteCartItem,
   getAllCartItems,
+  getCartItemById,
   insertRevenueReport,
   updateRevenueReport,
   softDeleteRevenueReport,
   getAllRevenueReports,
+  getRevenueReportById,
   addToCart,
   updateCartItemQuantity,
   removeItemFromCart,
@@ -984,4 +1339,8 @@ module.exports = {
   offlineTransaction,
   registerUser,
   loginUser,
+  insertUser,
+  updateUser,
+  softDeleteUser,
+  getUserById,
 };
