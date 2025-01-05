@@ -435,16 +435,55 @@ async function insertCustomer(customer) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `
+
+    // Mulai transaksi
+    await connection.execute("BEGIN");
+
+    // Query untuk memasukkan data ke tabel customers
+    const insertCustomerQuery = `
       INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
       VALUES (:name, :email, :phone_number, :address, :city, :country, :zip_code)
+      RETURNING customer_id INTO :customer_id
     `;
-    await connection.execute(query, customer, { autoCommit: true });
-    console.log("Customer added successfully.");
+
+    const binds = {
+      name: customer.name,
+      email: customer.email,
+      phone_number: customer.phone_number,
+      address: customer.address,
+      city: customer.city,
+      country: customer.country,
+      zip_code: customer.zip_code,
+      customer_id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    };
+
+    // Menjalankan query dan mendapatkan customer_id yang baru dibuat
+    await connection.execute(insertCustomerQuery, binds);
+
+    const customerId = binds.customer_id.val;
+    console.log("Customer added with ID:", customerId);
+
+    // Setelah berhasil menambah customer, insert cart untuk customer yang baru
+    const insertCartQuery = `
+      INSERT INTO carts (customer_id)
+      VALUES (:customer_id)
+    `;
+
+    await connection.execute(insertCartQuery, { customer_id: customerId });
+    console.log("Cart added successfully for customer with ID:", customerId);
+
+    // Commit transaksi
+    await connection.execute("COMMIT");
   } catch (error) {
-    console.error("Error inserting customer:", error.message);
+    console.error("Error inserting customer and creating cart:", error.message);
+
+    // Rollback transaksi jika terjadi kesalahan
+    if (connection) {
+      await connection.execute("ROLLBACK");
+    }
     throw error;
   } finally {
+    // Tutup koneksi
     if (connection) await connection.close();
   }
 }
