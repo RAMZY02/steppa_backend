@@ -304,15 +304,15 @@ async function getDesignMaterialByMaterialId(materialId) {
 }
 
 // Insert Production
-async function insertProduction(designId, expectedQty, status) {
+async function insertProduction(designId, expectedQty, status, productionSize) {
   let connection;
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO production (design_id, expected_qty, status, created_at)
-      VALUES (:designId, :expectedQty, :status, SYSDATE)
+      INSERT INTO production (design_id, expected_qty, status, production_size, created_at)
+      VALUES (:designId, :expectedQty, :status, :productionSize, SYSDATE)
     `;
-    await connection.execute(query, { designId, expectedQty, status }, { autoCommit: true });
+    await connection.execute(query, { designId, expectedQty, status, productionSize }, { autoCommit: true });
     console.log("Production added successfully.");
   } catch (error) {
     console.error("Error inserting production:", error.message);
@@ -326,7 +326,8 @@ async function insertProduction(designId, expectedQty, status) {
 async function updateProduction(req, res) {
   let connection;
   try {
-    const { id, designId, expectedQty, actualQty, status } = req.body;
+    const { id, designId, expectedQty, actualQty, status, productionSize } = req.body;
+    
     connection = await getConnection();
     
     let query = 'UPDATE production SET ';
@@ -353,6 +354,12 @@ async function updateProduction(req, res) {
       if (designId || expectedQty || actualQty) query += ', ';
       query += 'status = :status';
       binds.status = status;
+    }
+
+    if (productionSize) {
+      if (designId || expectedQty || actualQty || status) query += ', ';
+      query += 'production_size = :productionSize';
+      binds.productionSize = productionSize;
     }
 
     query += ' WHERE id = :id';
@@ -394,7 +401,7 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
        FROM production 
        WHERE deleted_at IS NULL`
     );
@@ -412,7 +419,7 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
        FROM production 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -431,7 +438,7 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status 
+      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
        FROM production 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }

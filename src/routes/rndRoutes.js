@@ -140,15 +140,15 @@ router.get("/design-material/material/:materialId", async (req, res) => {
 
 router.post("/production", async (req, res) => {
   try {
-    const { designId, expectedQty, status } = req.body;
-    await insertProduction(designId, expectedQty, status);
+    const { designId, expectedQty, status, productionSize } = req.body;
+    await insertProduction(designId, expectedQty, status, productionSize);
     res.status(201).json({ message: "Production inserted successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-router.put("/production", updateProduction);
+router.put("/production",  updateProduction);
 
 router.delete("/production", softDeleteProduction);
 
