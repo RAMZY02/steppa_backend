@@ -67,6 +67,7 @@ CREATE TABLE customers (
     name VARCHAR2(100) NOT NULL,
     email VARCHAR2(100),
     phone_number VARCHAR2(15),
+    password VARCHAR2(20),
     address VARCHAR2(200),
     city VARCHAR2(50),
     country VARCHAR2(50),
@@ -369,7 +370,54 @@ END;
 /
 
 
+CREATE OR REPLACE PROCEDURE offline_transaction( 
+    p_customer_id IN VARCHAR2,
+    p_sale_channel IN VARCHAR2,
+    p_products IN SYS.ODCIVARCHAR2LIST,
+    p_quantities IN SYS.ODCINUMBERLIST,
+    p_prices IN SYS.ODCINUMBERLIST,
+    p_total OUT NUMBER
+) AS
+    v_sale_id VARCHAR2(10);
+    v_cart_id VARCHAR2(10);
+    v_total NUMBER := 0;
+    v_stok_qty NUMBER;
+BEGIN
+    SELECT cart_id
+    INTO v_cart_id
+    FROM carts
+    WHERE customer_id = p_customer_id;
 
+    INSERT INTO sales (sale_channel, sale_date, total)
+    VALUES (p_sale_channel, SYSDATE, 0)
+    RETURNING sale_id INTO v_sale_id;
+
+    FOR i IN 1 .. p_products.COUNT LOOP
+        SELECT stok_qty INTO v_stok_qty FROM products WHERE product_id = p_products(i);
+        IF v_stok_qty < p_quantities(i) THEN
+            RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ' || p_products(i));
+        END IF;
+
+        INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+        VALUES (v_sale_id, p_products(i), p_quantities(i), p_prices(i), p_quantities(i) * p_prices(i));
+
+        UPDATE products
+        SET stok_qty = stok_qty - p_quantities(i)
+        WHERE product_id = p_products(i);
+
+        INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+        VALUES (v_cart_id, p_products(i), p_quantities(i), p_prices(i), 'purchased');
+
+        v_total := v_total + (p_quantities(i) * p_prices(i));
+    END LOOP;
+
+    UPDATE sales
+    SET total = v_total
+    WHERE sale_id = v_sale_id;
+
+    p_total := v_total;
+END;
+/
 
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)

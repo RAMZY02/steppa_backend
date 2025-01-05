@@ -1,9 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const storeController = require("../controllers/storeController");
+const authenticateToken = require("../middleware/authenticateToken");
+
+// User Registration
+router.post("/register", async (req, res) => {
+  try {
+    await storeController.registerUser(req.body);
+    res.status(201).json({ message: "User registered successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// User Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const { token } = await storeController.loginUser(email, password);
+    res.status(200).json({ message: "User logged in successfully.", token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Product routes
-router.post("/products", async (req, res) => {
+// Insert product
+router.post("/products", authenticateToken, async (req, res) => {
   try {
     await storeController.insertProduct(req.body);
     res.status(201).json({ message: "Product added successfully." });
@@ -12,7 +35,8 @@ router.post("/products", async (req, res) => {
   }
 });
 
-router.put("/products", async (req, res) => {
+// Update product
+router.put("/products", authenticateToken, async (req, res) => {
   try {
     await storeController.updateProduct(req.body);
     res.status(200).json({ message: "Product updated successfully." });
@@ -21,7 +45,8 @@ router.put("/products", async (req, res) => {
   }
 });
 
-router.delete("/products", async (req, res) => {
+// Soft delete product
+router.put("/products/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteProduct(req.body.product_id);
     res
@@ -32,7 +57,8 @@ router.delete("/products", async (req, res) => {
   }
 });
 
-router.get("/products", async (req, res) => {
+// Get All Products
+router.get("/products", authenticateToken, async (req, res) => {
   try {
     const products = await storeController.getAllProducts();
     res.status(200).json(products);
@@ -41,7 +67,8 @@ router.get("/products", async (req, res) => {
   }
 });
 
-router.get("/products/stock", async (req, res) => {
+// Get Stock
+router.get("/products/stock", authenticateToken, async (req, res) => {
   try {
     const { product_name, product_size } = req.query;
     const productDetail = await storeController.getProductStock(
@@ -54,7 +81,8 @@ router.get("/products/stock", async (req, res) => {
   }
 });
 
-router.get("/products/new_releases", async (req, res) => {
+// Get New Releases
+router.get("/products/new_releases", authenticateToken, async (req, res) => {
   try {
     const newReleases = await storeController.getNewReleaseProducts();
     res.status(200).json(newReleases);
@@ -64,7 +92,8 @@ router.get("/products/new_releases", async (req, res) => {
 });
 
 // Sale routes
-router.post("/sales", async (req, res) => {
+// Insert sale
+router.post("/sales", authenticateToken, async (req, res) => {
   try {
     await storeController.insertSale(req.body);
     res.status(201).json({ message: "Sale added successfully." });
@@ -73,7 +102,8 @@ router.post("/sales", async (req, res) => {
   }
 });
 
-router.put("/sales", async (req, res) => {
+// Update sale
+router.put("/sales", authenticateToken, async (req, res) => {
   try {
     await storeController.updateSale(req.body);
     res.status(200).json({ message: "Sale updated successfully." });
@@ -82,7 +112,8 @@ router.put("/sales", async (req, res) => {
   }
 });
 
-router.delete("/sales", async (req, res) => {
+// Soft delete sale
+router.put("/sales/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteSale(req.body.sale_id);
     res.status(200).json({ message: "Sale marked as deleted successfully." });
@@ -91,7 +122,8 @@ router.delete("/sales", async (req, res) => {
   }
 });
 
-router.get("/sales", async (req, res) => {
+// Get All Sales
+router.get("/sales", authenticateToken, async (req, res) => {
   try {
     const sales = await storeController.getAllSales();
     res.status(200).json(sales);
@@ -101,7 +133,8 @@ router.get("/sales", async (req, res) => {
 });
 
 // Sale Item routes
-router.post("/sale_items", async (req, res) => {
+// Insert sale item
+router.post("/sale_items", authenticateToken, async (req, res) => {
   try {
     await storeController.insertSaleItem(req.body);
     res.status(201).json({ message: "Sale item added successfully." });
@@ -110,7 +143,8 @@ router.post("/sale_items", async (req, res) => {
   }
 });
 
-router.put("/sale_items", async (req, res) => {
+// Update sale item
+router.put("/sale_items", authenticateToken, async (req, res) => {
   try {
     await storeController.updateSaleItem(req.body);
     res.status(200).json({ message: "Sale item updated successfully." });
@@ -119,7 +153,8 @@ router.put("/sale_items", async (req, res) => {
   }
 });
 
-router.delete("/sale_items", async (req, res) => {
+// Soft delete sale item
+router.put("/sale_items/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteSaleItem(req.body.sale_item_id);
     res
@@ -130,7 +165,8 @@ router.delete("/sale_items", async (req, res) => {
   }
 });
 
-router.get("/sale_items", async (req, res) => {
+// Get All Sale Items
+router.get("/sale_items", authenticateToken, async (req, res) => {
   try {
     const saleItems = await storeController.getAllSaleItems();
     res.status(200).json(saleItems);
@@ -140,7 +176,8 @@ router.get("/sale_items", async (req, res) => {
 });
 
 // Customer routes
-router.post("/customers", async (req, res) => {
+// Insert customer
+router.post("/customers", authenticateToken, async (req, res) => {
   try {
     await storeController.insertCustomer(req.body);
     res.status(201).json({ message: "Customer added successfully." });
@@ -149,7 +186,8 @@ router.post("/customers", async (req, res) => {
   }
 });
 
-router.put("/customers", async (req, res) => {
+// Update customer
+router.put("/customers", authenticateToken, async (req, res) => {
   try {
     await storeController.updateCustomer(req.body);
     res.status(200).json({ message: "Customer updated successfully." });
@@ -158,7 +196,8 @@ router.put("/customers", async (req, res) => {
   }
 });
 
-router.delete("/customers", async (req, res) => {
+// Soft delete customer
+router.put("/customers/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteCustomer(req.body.customer_id);
     res
@@ -169,7 +208,8 @@ router.delete("/customers", async (req, res) => {
   }
 });
 
-router.get("/customers", async (req, res) => {
+// Get All Customers
+router.get("/customers", authenticateToken, async (req, res) => {
   try {
     const customers = await storeController.getAllCustomers();
     res.status(200).json(customers);
@@ -179,7 +219,8 @@ router.get("/customers", async (req, res) => {
 });
 
 // Cart routes
-router.post("/carts", async (req, res) => {
+// Insert cart
+router.post("/carts", authenticateToken, async (req, res) => {
   try {
     await storeController.insertCart(req.body);
     res.status(201).json({ message: "Cart added successfully." });
@@ -188,7 +229,8 @@ router.post("/carts", async (req, res) => {
   }
 });
 
-router.put("/carts", async (req, res) => {
+// Update cart
+router.put("/carts", authenticateToken, async (req, res) => {
   try {
     await storeController.updateCart(req.body);
     res.status(200).json({ message: "Cart updated successfully." });
@@ -197,7 +239,8 @@ router.put("/carts", async (req, res) => {
   }
 });
 
-router.delete("/carts", async (req, res) => {
+// Soft delete cart
+router.delete("/carts/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteCart(req.body.cart_id);
     res.status(200).json({ message: "Cart marked as deleted successfully." });
@@ -206,7 +249,8 @@ router.delete("/carts", async (req, res) => {
   }
 });
 
-router.get("/carts", async (req, res) => {
+// Get All Carts
+router.get("/carts", authenticateToken, async (req, res) => {
   try {
     const carts = await storeController.getAllCarts();
     res.status(200).json(carts);
@@ -216,7 +260,8 @@ router.get("/carts", async (req, res) => {
 });
 
 // Cart Item routes
-router.post("/cart_items", async (req, res) => {
+// Insert cart item
+router.post("/cart_items", authenticateToken, async (req, res) => {
   try {
     await storeController.insertCartItem(req.body);
     res.status(201).json({ message: "Cart item added successfully." });
@@ -225,7 +270,8 @@ router.post("/cart_items", async (req, res) => {
   }
 });
 
-router.put("/cart_items", async (req, res) => {
+// Update cart item
+router.put("/cart_items", authenticateToken, async (req, res) => {
   try {
     await storeController.updateCartItem(req.body);
     res.status(200).json({ message: "Cart item updated successfully." });
@@ -234,7 +280,8 @@ router.put("/cart_items", async (req, res) => {
   }
 });
 
-router.delete("/cart_items", async (req, res) => {
+// Soft delete cart item
+router.put("/cart_items/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteCartItem(req.body.cart_item_id);
     res
@@ -245,7 +292,8 @@ router.delete("/cart_items", async (req, res) => {
   }
 });
 
-router.get("/cart_items", async (req, res) => {
+// Get All Cart Items
+router.get("/cart_items", authenticateToken, async (req, res) => {
   try {
     const cartItems = await storeController.getAllCartItems();
     res.status(200).json(cartItems);
@@ -254,8 +302,88 @@ router.get("/cart_items", async (req, res) => {
   }
 });
 
+// Cart - Add to Cart
+router.post("/cart/add", authenticateToken, async (req, res) => {
+  try {
+    const { cart_id, product_id, quantity, price } = req.body;
+    await storeController.addToCart(cart_id, product_id, quantity, price);
+    res.status(201).json({ message: "Item added to cart successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cart - Update Cart Item Quantity
+router.put("/cart/update_quantity", authenticateToken, async (req, res) => {
+  try {
+    const { cart_item_id, quantity } = req.body;
+    await storeController.updateCartItemQuantity(cart_item_id, quantity);
+    res
+      .status(200)
+      .json({ message: "Cart item quantity updated successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cart - Remove Item from Cart
+router.put("/cart/remove_item", authenticateToken, async (req, res) => {
+  try {
+    const { cart_item_id } = req.body;
+    await storeController.removeItemFromCart(cart_item_id);
+    res.status(200).json({ message: "Item removed from cart successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cart - Checkout
+router.post("/cart/checkout", authenticateToken, async (req, res) => {
+  try {
+    const { cart_id } = req.body;
+    await storeController.checkout(cart_id);
+    res.status(200).json({ message: "Checkout completed successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cart - Calculate Cart Subtotal
+router.get("/cart/subtotal", authenticateToken, async (req, res) => {
+  try {
+    const { cart_id } = req.query;
+    const total = await storeController.calculateCartSubtotal(cart_id);
+    res.status(200).json({ total });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cart - Offline Transaction
+router.post(
+  "/cart/offline_transaction",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { customer_id, sale_channel, products, quantities, prices } =
+        req.body;
+      const total = await storeController.offlineTransaction(
+        customer_id,
+        sale_channel,
+        products,
+        quantities,
+        prices
+      );
+      res.status(200).json({ total });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
 // Revenue Report routes
-router.post("/revenue_reports", async (req, res) => {
+// Insert revenue report
+router.post("/revenue_reports", authenticateToken, async (req, res) => {
   try {
     await storeController.insertRevenueReport(req.body);
     res.status(201).json({ message: "Revenue report added successfully." });
@@ -264,7 +392,8 @@ router.post("/revenue_reports", async (req, res) => {
   }
 });
 
-router.put("/revenue_reports", async (req, res) => {
+// Update revenue report
+router.put("/revenue_reports", authenticateToken, async (req, res) => {
   try {
     await storeController.updateRevenueReport(req.body);
     res.status(200).json({ message: "Revenue report updated successfully." });
@@ -273,7 +402,8 @@ router.put("/revenue_reports", async (req, res) => {
   }
 });
 
-router.delete("/revenue_reports", async (req, res) => {
+// Soft delete revenue report
+router.put("/revenue_reports/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteRevenueReport(req.body.report_id);
     res
@@ -284,7 +414,8 @@ router.delete("/revenue_reports", async (req, res) => {
   }
 });
 
-router.get("/revenue_reports", async (req, res) => {
+// Get All Revenue Reports
+router.get("/revenue_reports", authenticateToken, async (req, res) => {
   try {
     const revenueReports = await storeController.getAllRevenueReports();
     res.status(200).json(revenueReports);

@@ -1,4 +1,6 @@
 const oracledb = require("oracledb");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // Aktifkan Thick Mode
 oracledb.initOracleClient({
@@ -18,14 +20,69 @@ async function getConnection() {
   }
 }
 
+// User Registration
+async function registerUser(user) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const query = `
+      INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
+      VALUES (:name, :email, :phone_number, :password, :address, :city, :country, :zip_code)
+    `;
+    await connection.execute(
+      query,
+      {
+        ...user,
+        password: hashedPassword,
+      },
+      { autoCommit: true }
+    );
+    console.log("User registered successfully.");
+  } catch (error) {
+    console.error("Error registering user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// User Login
+async function loginUser(email, password) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT customer_id, password FROM customers WHERE email = :email AND deleted_at IS NULL`;
+    const result = await connection.execute(query, { email });
+    if (result.rows.length === 0) {
+      throw new Error("User not found.");
+    }
+    const user = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user[1]);
+    if (!isPasswordValid) {
+      throw new Error("Invalid password.");
+    }
+    const token = jwt.sign({ customer_id: user[0] }, "your_jwt_secret", {
+      expiresIn: "1h",
+    });
+    console.log("User logged in successfully.");
+    return { token };
+  } catch (error) {
+    console.error("Error logging in user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Products - Insert
 async function insertProduct(product) {
   let connection;
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO products (product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-      VALUES (:product_id, :product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
     `;
     await connection.execute(query, product, { autoCommit: true });
     console.log("Product added successfully.");
@@ -209,8 +266,8 @@ async function insertSale(sale) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO sales (sale_id, sale_channel, sale_date, total)
-      VALUES (:sale_id, :sale_channel, :sale_date, :total)
+      INSERT INTO sales (sale_channel, sale_date, total)
+      VALUES (:sale_channel, :sale_date, :total)
     `;
     await connection.execute(query, sale, { autoCommit: true });
     console.log("Sale added successfully.");
@@ -291,8 +348,8 @@ async function insertSaleItem(saleItem) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO sale_items (sale_item_id, sale_id, product_id, quantity, price, subtotal)
-      VALUES (:sale_item_id, :sale_id, :product_id, :quantity, :price, :subtotal)
+      INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+      VALUES (:sale_id, :product_id, :quantity, :price, :subtotal)
     `;
     await connection.execute(query, saleItem, { autoCommit: true });
     console.log("Sale item added successfully.");
@@ -379,8 +436,8 @@ async function insertCustomer(customer) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO customers (customer_id, name, email, phone_number, address, city, country, zip_code)
-      VALUES (:customer_id, :name, :email, :phone_number, :address, :city, :country, :zip_code)
+      INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
+      VALUES (:name, :email, :phone_number, :address, :city, :country, :zip_code)
     `;
     await connection.execute(query, customer, { autoCommit: true });
     console.log("Customer added successfully.");
@@ -469,8 +526,8 @@ async function insertCart(cart) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO carts (cart_id, customer_id)
-      VALUES (:cart_id, :customer_id)
+      INSERT INTO carts (customer_id)
+      VALUES (:customer_id)
     `;
     await connection.execute(query, cart, { autoCommit: true });
     console.log("Cart added successfully.");
@@ -549,8 +606,8 @@ async function insertCartItem(cartItem) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO cart_items (cart_item_id, cart_id, product_id, quantity, price, status)
-      VALUES (:cart_item_id, :cart_id, :product_id, :quantity, :price, :status)
+      INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+      VALUES (:cart_id, :product_id, :quantity, :price, :status)
     `;
     await connection.execute(query, cartItem, { autoCommit: true });
     console.log("Cart item added successfully.");
@@ -637,8 +694,8 @@ async function insertRevenueReport(report) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO revenue_reports (report_id, report_period, total_revenue, total_expenses, net_profit)
-      VALUES (:report_id, :report_period, :total_revenue, :total_expenses, :net_profit)
+      INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
+      VALUES (:report_period, :total_revenue, :total_expenses, :net_profit)
     `;
     await connection.execute(query, report, { autoCommit: true });
     console.log("Revenue report added successfully.");
@@ -718,6 +775,136 @@ async function getAllRevenueReports() {
   }
 }
 
+// Cart - Add to Cart
+async function addToCart(cartId, productId, quantity, price) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN add_to_cart(:cart_id, :product_id, :quantity, :price); END;`;
+    await connection.execute(
+      query,
+      { cart_id: cartId, product_id: productId, quantity, price },
+      { autoCommit: true }
+    );
+    console.log("Item added to cart successfully.");
+  } catch (error) {
+    console.error("Error adding item to cart:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Update Cart Item Quantity
+async function updateCartItemQuantity(cartItemId, quantity) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN update_cart_item_quantity(:cart_item_id, :quantity); END;`;
+    await connection.execute(
+      query,
+      { cart_item_id: cartItemId, quantity },
+      { autoCommit: true }
+    );
+    console.log("Cart item quantity updated successfully.");
+  } catch (error) {
+    console.error("Error updating cart item quantity:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Remove Item from Cart
+async function removeItemFromCart(cartItemId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN remove_item_from_cart(:cart_item_id); END;`;
+    await connection.execute(
+      query,
+      { cart_item_id: cartItemId },
+      { autoCommit: true }
+    );
+    console.log("Item removed from cart successfully.");
+  } catch (error) {
+    console.error("Error removing item from cart:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Checkout
+async function checkout(cartId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN checkout(:cart_id); END;`;
+    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
+    console.log("Checkout completed successfully.");
+  } catch (error) {
+    console.error("Error during checkout:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Calculate Cart Subtotal
+async function calculateCartSubtotal(cartId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN calculate_cart_subtotal(:cart_id, :total); END;`;
+    const result = await connection.execute(query, {
+      cart_id: cartId,
+      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    });
+    console.log("Cart subtotal calculated successfully.");
+    return result.outBinds.total;
+  } catch (error) {
+    console.error("Error calculating cart subtotal:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Offline Transaction
+async function offlineTransaction(
+  customerId,
+  saleChannel,
+  products,
+  quantities,
+  prices
+) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN offline_transaction(:customer_id, :sale_channel, :products, :quantities, :prices, :total); END;`;
+    const result = await connection.execute(query, {
+      customer_id: customerId,
+      sale_channel: saleChannel,
+      products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
+      quantities: {
+        type: oracledb.NUMBER,
+        dir: oracledb.BIND_IN,
+        val: quantities,
+      },
+      prices: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: prices },
+      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    });
+    console.log("Offline transaction completed successfully.");
+    return result.outBinds.total;
+  } catch (error) {
+    console.error("Error during offline transaction:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertProduct,
   updateProduct,
@@ -750,4 +937,12 @@ module.exports = {
   updateRevenueReport,
   softDeleteRevenueReport,
   getAllRevenueReports,
+  addToCart,
+  updateCartItemQuantity,
+  removeItemFromCart,
+  checkout,
+  calculateCartSubtotal,
+  offlineTransaction,
+  registerUser,
+  loginUser,
 };
