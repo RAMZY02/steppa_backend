@@ -161,8 +161,8 @@ async function getProductStock(productName, productSize) {
     const result = await connection.execute(
       `SELECT stok_qty
        FROM products
-       WHERE product_name = :product_name AND product_size = :product_size AND deleted_at IS NULL`,
-      { product_name: productName, product_size: productSize }
+       WHERE product_name like :product_name AND product_size = :product_size AND deleted_at IS NULL`,
+      { product_name: `%${productName}%`, product_size: productSize }
     );
 
     const productStock = result.rows.map((row) => {
