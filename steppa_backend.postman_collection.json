@@ -21,11 +21,11 @@
           "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone_number\": \"1234567890\",\n  \"password\": \"password123\",\n  \"address\": \"123 Main St\",\n  \"city\": \"Anytown\",\n  \"country\": \"USA\",\n  \"zip_code\": \"12345\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/register",
+          "raw": "http://localhost:3000/api/store/register",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["register"]
+          "path": ["api", "store", "register"]
         }
       },
       "response": []
@@ -45,11 +45,11 @@
           "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/login",
+          "raw": "http://localhost:3000/api/store/login",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["login"]
+          "path": ["api", "store", "login"]
         }
       },
       "response": []
@@ -73,11 +73,11 @@
           "raw": "{\n  \"product_name\": \"Product 1\",\n  \"product_description\": \"Description 1\",\n  \"product_category\": \"Category 1\",\n  \"product_size\": \"M\",\n  \"product_gender\": \"Unisex\",\n  \"product_image\": \"image1.jpg\",\n  \"stok_qty\": 100,\n  \"price\": 50\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/products",
+          "raw": "http://localhost:3000/api/store/products",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products"]
+          "path": ["api", "store", "products"]
         }
       },
       "response": []
@@ -101,11 +101,11 @@
           "raw": "{\n  \"product_id\": \"PROD001\",\n  \"product_name\": \"Updated Product 1\",\n  \"product_description\": \"Updated Description 1\",\n  \"product_category\": \"Updated Category 1\",\n  \"product_size\": \"L\",\n  \"product_gender\": \"Unisex\",\n  \"product_image\": \"updated_image1.jpg\",\n  \"stok_qty\": 150,\n  \"price\": 60\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/products",
+          "raw": "http://localhost:3000/api/store/products",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products"]
+          "path": ["api", "store", "products"]
         }
       },
       "response": []
@@ -129,11 +129,11 @@
           "raw": "{\n  \"product_id\": \"PROD001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/products/delete",
+          "raw": "http://localhost:3000/api/store/products/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products", "delete"]
+          "path": ["api", "store", "products", "delete"]
         }
       },
       "response": []
@@ -149,11 +149,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/products",
+          "raw": "http://localhost:3000/api/store/products",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products"]
+          "path": ["api", "store", "products"]
         }
       },
       "response": []
@@ -169,11 +169,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/products/stock?product_name=Product 1&product_size=M",
+          "raw": "http://localhost:3000/api/store/products/stock?product_name=Product 1&product_size=M",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products", "stock"],
+          "path": ["api", "store", "products", "stock"],
           "query": [
             {
               "key": "product_name",
@@ -199,11 +199,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/products/new_releases",
+          "raw": "http://localhost:3000/api/store/products/new_releases",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["products", "new_releases"]
+          "path": ["api", "store", "products", "new_releases"]
         }
       },
       "response": []
@@ -227,11 +227,11 @@
           "raw": "{\n  \"sale_channel\": \"Online\",\n  \"sale_date\": \"2023-10-01\",\n  \"total\": 100\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sales",
+          "raw": "http://localhost:3000/api/store/sales",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sales"]
+          "path": ["api", "store", "sales"]
         }
       },
       "response": []
@@ -255,11 +255,11 @@
           "raw": "{\n  \"sale_id\": \"SLS001\",\n  \"sale_channel\": \"Offline\",\n  \"sale_date\": \"2023-10-02\",\n  \"total\": 200\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sales",
+          "raw": "http://localhost:3000/api/store/sales",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sales"]
+          "path": ["api", "store", "sales"]
         }
       },
       "response": []
@@ -283,11 +283,11 @@
           "raw": "{\n  \"sale_id\": \"SLS001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sales/delete",
+          "raw": "http://localhost:3000/api/store/sales/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sales", "delete"]
+          "path": ["api", "store", "sales", "delete"]
         }
       },
       "response": []
@@ -303,11 +303,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/sales",
+          "raw": "http://localhost:3000/api/store/sales",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sales"]
+          "path": ["api", "store", "sales"]
         }
       },
       "response": []
@@ -331,11 +331,11 @@
           "raw": "{\n  \"sale_id\": \"SLS001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50,\n  \"subtotal\": 100\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sale_items",
+          "raw": "http://localhost:3000/api/store/sale_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sale_items"]
+          "path": ["api", "store", "sale_items"]
         }
       },
       "response": []
@@ -359,11 +359,11 @@
           "raw": "{\n  \"sale_item_id\": \"SLI001\",\n  \"sale_id\": \"SLS001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 3,\n  \"price\": 50,\n  \"subtotal\": 150\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sale_items",
+          "raw": "http://localhost:3000/api/store/sale_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sale_items"]
+          "path": ["api", "store", "sale_items"]
         }
       },
       "response": []
@@ -387,11 +387,11 @@
           "raw": "{\n  \"sale_item_id\": \"SLI001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/sale_items/delete",
+          "raw": "http://localhost:3000/api/store/sale_items/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sale_items", "delete"]
+          "path": ["api", "store", "sale_items", "delete"]
         }
       },
       "response": []
@@ -407,11 +407,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/sale_items",
+          "raw": "http://localhost:3000/api/store/sale_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["sale_items"]
+          "path": ["api", "store", "sale_items"]
         }
       },
       "response": []
@@ -435,11 +435,11 @@
           "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"phone_number\": \"0987654321\",\n  \"address\": \"456 Main St\",\n  \"city\": \"Anytown\",\n  \"country\": \"USA\",\n  \"zip_code\": \"54321\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/customers",
+          "raw": "http://localhost:3000/api/store/customers",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["customers"]
+          "path": ["api", "store", "customers"]
         }
       },
       "response": []
@@ -463,11 +463,11 @@
           "raw": "{\n  \"customer_id\": \"CUS001\",\n  \"name\": \"Updated Jane Doe\",\n  \"email\": \"updated.jane.doe@example.com\",\n  \"phone_number\": \"1234567890\",\n  \"address\": \"789 Main St\",\n  \"city\": \"Anytown\",\n  \"country\": \"USA\",\n  \"zip_code\": \"67890\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/customers",
+          "raw": "http://localhost:3000/api/store/customers",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["customers"]
+          "path": ["api", "store", "customers"]
         }
       },
       "response": []
@@ -491,11 +491,11 @@
           "raw": "{\n  \"customer_id\": \"CUS001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/customers/delete",
+          "raw": "http://localhost:3000/api/store/customers/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["customers", "delete"]
+          "path": ["api", "store", "customers", "delete"]
         }
       },
       "response": []
@@ -511,11 +511,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/customers",
+          "raw": "http://localhost:3000/api/store/customers",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["customers"]
+          "path": ["api", "store", "customers"]
         }
       },
       "response": []
@@ -539,11 +539,11 @@
           "raw": "{\n  \"customer_id\": \"CUS001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/carts",
+          "raw": "http://localhost:3000/api/store/carts",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["carts"]
+          "path": ["api", "store", "carts"]
         }
       },
       "response": []
@@ -567,11 +567,11 @@
           "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"customer_id\": \"CUS002\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/carts",
+          "raw": "http://localhost:3000/api/store/carts",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["carts"]
+          "path": ["api", "store", "carts"]
         }
       },
       "response": []
@@ -595,11 +595,11 @@
           "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/carts/delete",
+          "raw": "http://localhost:3000/api/store/carts/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["carts", "delete"]
+          "path": ["api", "store", "carts", "delete"]
         }
       },
       "response": []
@@ -615,11 +615,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/carts",
+          "raw": "http://localhost:3000/api/store/carts",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["carts"]
+          "path": ["api", "store", "carts"]
         }
       },
       "response": []
@@ -643,11 +643,11 @@
           "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart_items",
+          "raw": "http://localhost:3000/api/store/cart_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart_items"]
+          "path": ["api", "store", "cart_items"]
         }
       },
       "response": []
@@ -671,11 +671,11 @@
           "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 3,\n  \"price\": 50\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart_items",
+          "raw": "http://localhost:3000/api/store/cart_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart_items"]
+          "path": ["api", "store", "cart_items"]
         }
       },
       "response": []
@@ -699,11 +699,11 @@
           "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart_items/delete",
+          "raw": "http://localhost:3000/api/store/cart_items/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart_items", "delete"]
+          "path": ["api", "store", "cart_items", "delete"]
         }
       },
       "response": []
@@ -719,11 +719,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/cart_items",
+          "raw": "http://localhost:3000/api/store/cart_items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart_items"]
+          "path": ["api", "store", "cart_items"]
         }
       },
       "response": []
@@ -747,11 +747,11 @@
           "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart/add",
+          "raw": "http://localhost:3000/api/store/cart/add",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "add"]
+          "path": ["api", "store", "cart", "add"]
         }
       },
       "response": []
@@ -775,11 +775,11 @@
           "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"quantity\": 3\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart/update_quantity",
+          "raw": "http://localhost:3000/api/store/cart/update_quantity",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "update_quantity"]
+          "path": ["api", "store", "cart", "update_quantity"]
         }
       },
       "response": []
@@ -803,11 +803,11 @@
           "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart/remove_item",
+          "raw": "http://localhost:3000/api/store/cart/remove_item",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "remove_item"]
+          "path": ["api", "store", "cart", "remove_item"]
         }
       },
       "response": []
@@ -831,11 +831,11 @@
           "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart/checkout",
+          "raw": "http://localhost:3000/api/store/cart/checkout",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "checkout"]
+          "path": ["api", "store", "cart", "checkout"]
         }
       },
       "response": []
@@ -851,11 +851,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/cart/subtotal?cart_id=CRT001",
+          "raw": "http://localhost:3000/api/store/cart/subtotal?cart_id=CRT001",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "subtotal"],
+          "path": ["api", "store", "cart", "subtotal"],
           "query": [
             {
               "key": "cart_id",
@@ -885,11 +885,11 @@
           "raw": "{\n  \"customer_id\": \"CUS001\",\n  \"sale_channel\": \"Offline\",\n  \"products\": [\"PROD001\", \"PROD002\"],\n  \"quantities\": [2, 3],\n  \"prices\": [50, 60]\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/cart/offline_transaction",
+          "raw": "http://localhost:3000/api/store/cart/offline_transaction",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["cart", "offline_transaction"]
+          "path": ["api", "store", "cart", "offline_transaction"]
         }
       },
       "response": []
@@ -913,11 +913,11 @@
           "raw": "{\n  \"report_period\": \"2023-10-01\",\n  \"total_revenue\": 1000,\n  \"total_expenses\": 500,\n  \"net_profit\": 500\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/revenue_reports",
+          "raw": "http://localhost:3000/api/store/revenue_reports",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["revenue_reports"]
+          "path": ["api", "store", "revenue_reports"]
         }
       },
       "response": []
@@ -941,11 +941,11 @@
           "raw": "{\n  \"report_id\": \"REV001\",\n  \"report_period\": \"2023-10-02\",\n  \"total_revenue\": 2000,\n  \"total_expenses\": 1000,\n  \"net_profit\": 1000\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/revenue_reports",
+          "raw": "http://localhost:3000/api/store/revenue_reports",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["revenue_reports"]
+          "path": ["api", "store", "revenue_reports"]
         }
       },
       "response": []
@@ -969,11 +969,11 @@
           "raw": "{\n  \"report_id\": \"REV001\"\n}"
         },
         "url": {
-          "raw": "http://localhost:3000/revenue_reports/delete",
+          "raw": "http://localhost:3000/api/store/revenue_reports/delete",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["revenue_reports", "delete"]
+          "path": ["api", "store", "revenue_reports", "delete"]
         }
       },
       "response": []
@@ -989,11 +989,11 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/revenue_reports",
+          "raw": "http://localhost:3000/api/store/revenue_reports",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["revenue_reports"]
+          "path": ["api", "store", "revenue_reports"]
         }
       },
       "response": []
