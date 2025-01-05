@@ -229,28 +229,169 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE PROCEDURE add_to_cart(
+    p_cart_id IN VARCHAR2,
+    p_product_id IN VARCHAR2,
+    p_quantity IN NUMBER,
+    p_price IN NUMBER
+) AS
+BEGIN
+    DECLARE
+        v_existing_quantity NUMBER;
+    BEGIN
+        SELECT quantity
+        INTO v_existing_quantity
+        FROM cart_items
+        WHERE cart_id = p_cart_id
+          AND product_id = p_product_id
+          AND status = 'active';
+        
+        IF v_existing_quantity IS NOT NULL THEN
+            UPDATE cart_items
+            SET quantity = v_existing_quantity + p_quantity
+            WHERE cart_id = p_cart_id
+              AND product_id = p_product_id
+              AND status = 'active';
+        ELSE
+            INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+            VALUES (p_cart_id, p_product_id, p_quantity, p_price, 'active');
+        END IF;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+            VALUES (p_cart_id, p_product_id, p_quantity, p_price, 'active');
+    END;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE update_cart_item_quantity(
+    p_cart_item_id IN VARCHAR2,
+    p_quantity IN NUMBER
+) AS
+BEGIN
+    UPDATE cart_items
+    SET quantity = p_quantity
+    WHERE cart_item_id = p_cart_item_id
+      AND status = 'active';
+    
+    IF p_quantity <= 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Quantity must be greater than zero');
+    END IF;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE remove_item_from_cart(
+    p_cart_item_id IN VARCHAR2
+) AS
+BEGIN
+    UPDATE cart_items
+    SET deleted_at = SYSDATE 
+    WHERE cart_item_id = p_cart_item_id
+      AND status = 'active';
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE checkout(
+    p_cart_id IN VARCHAR2
+) AS
+    v_sale_id VARCHAR2(10);
+    v_total NUMBER := 0;
+BEGIN
+    INSERT INTO sales (sale_id, sale_channel, sale_date, total)
+    VALUES (v_sale_id, 'Online', SYSDATE, 0)
+    RETURNING sale_id INTO v_sale_id;
+
+    FOR r IN (SELECT ci.product_id, ci.quantity, ci.price
+              FROM cart_items ci
+              WHERE ci.cart_id = p_cart_id AND ci.status = 'active') LOOP
+        v_total := v_total + (r.quantity * r.price);
+
+        INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+        VALUES (v_sale_id, r.product_id, r.quantity, r.price, r.quantity * r.price);
+    END LOOP;
+
+    UPDATE sales
+    SET total = v_total
+    WHERE sale_id = v_sale_id;
+
+    UPDATE cart_items
+    SET status = 'purchased'
+    WHERE cart_id = p_cart_id AND status = 'active';
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE calculate_cart_subtotal(
+    p_cart_id IN VARCHAR2,
+    p_total OUT NUMBER
+) AS
+BEGIN
+    p_total := 0;
+
+    FOR r IN (SELECT ci.quantity, ci.price
+              FROM cart_items ci
+              WHERE ci.cart_id = p_cart_id AND ci.status = 'active') LOOP
+        p_total := p_total + (r.quantity * r.price);
+    END LOOP;
+END;
+/
+
+CREATE OR REPLACE TRIGGER before_insert_sale_item
+BEFORE INSERT ON sale_items
+FOR EACH ROW
+BEGIN
+    :NEW.subtotal := :NEW.quantity * :NEW.price;
+END;
+/
+
+CREATE OR REPLACE TRIGGER after_checkout_update_stock
+AFTER INSERT ON sale_items
+FOR EACH ROW
+DECLARE
+    v_stock NUMBER;
+BEGIN
+    SELECT stok_qty
+    INTO v_stock
+    FROM products
+    WHERE product_id = :NEW.product_id;
+
+    IF v_stock - :NEW.quantity < 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ' || :NEW.product_id);
+    END IF;
+
+    UPDATE products
+    SET stok_qty = stok_qty - :NEW.quantity
+    WHERE product_id = :NEW.product_id;
+END;
+/
+
+
+
 
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '40', 'Male', 'image1.jpg', 100, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '43', 'Male', 'image1.jpg', 100, 70);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '41', 'Male', 'image1.jpg', 200, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '44', 'Male', 'image1.jpg', 200, 70);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 1', 'Description 1', 'Category 1', '42', 'Male', 'image1.jpg', 150, 70);
+VALUES ('Product 1', 'Description 1', 'Category 1', '45', 'Male', 'image1.jpg', 150, 70);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 4', 'Description 4', 'Category 4', 'M', 'Female', 'image4.jpg', 120, 80);
+VALUES ('Product 4', 'Description 4', 'Category 4', '40', 'Female', 'image4.jpg', 120, 80);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 5', 'Description 5', 'Category 5', 'L', 'Male', 'image5.jpg', 130, 90);
+VALUES ('Product 5', 'Description 5', 'Category 5', '40', 'Male', 'image5.jpg', 130, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 6', 'Description 6', 'Category 6', 'S', 'Female', 'image6.jpg', 140, 100);
+VALUES ('Product 6', 'Description 6', 'Category 6', '40', 'Female', 'image6.jpg', 140, 100);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 7', 'Description 7', 'Category 7', 'M', 'Male', 'image7.jpg', 110, 110);
+VALUES ('Product 7', 'Description 7', 'Category 7', '40', 'Male', 'image7.jpg', 110, 110);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 8', 'Description 8', 'Category 8', 'L', 'Female', 'image8.jpg', 160, 120);
+VALUES ('Product 8', 'Description 8', 'Category 8', '40', 'Female', 'image8.jpg', 160, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 9', 'Description 9', 'Category 9', 'S', 'Male', 'image9.jpg', 170, 130);
+VALUES ('Product 9', 'Description 9', 'Category 9', '40', 'Male', 'image9.jpg', 170, 130);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Product 10', 'Description 10', 'Category 10', 'M', 'Female', 'image10.jpg', 180, 140);
+VALUES ('Product 10', 'Description 10', 'Category 10', '40', 'Female', 'image10.jpg', 180, 140);
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
@@ -319,32 +460,36 @@ INSERT INTO customers (name, email, phone_number, address, city, country, zip_co
 VALUES ('Customer 10', 'customer10@example.com', '1122334455', 'Address 10', 'City 10', 'Country 10', '12345');
 
 -- Insert dummy data into carts
-INSERT INTO carts (customer_id)
-VALUES ('CUS0001');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0002');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0003');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0004');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0005');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0006');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0007');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0008');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0009');
-INSERT INTO carts (customer_id)
-VALUES ('CUS0010');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0001');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0002');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0003');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0004');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0005');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0006');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0007');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0008');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0009');
+    INSERT INTO carts (customer_id)
+    VALUES ('CUS0010');
 
 -- Insert dummy data into cart_items
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0001', 'PRO0001', 2, 50, 'active');
+VALUES ('CRT0001', 'PRO0004', 2, 50, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-VALUES ('CRT0002', 'PRO0002', 3, 60, 'active');
+VALUES ('CRT0001', 'PRO0003', 1, 70, 'active');
+INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+VALUES ('CRT0002', 'PRO0005', 3, 60, 'active');
+INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
+VALUES ('CRT0002', 'PRO0004', 2, 50, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
 VALUES ('CRT0003', 'PRO0003', 4, 70, 'active');
 INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
@@ -383,3 +528,55 @@ INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_p
 VALUES (SYSDATE, 9000, 4500, 4500);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
 VALUES (SYSDATE, 10000, 5000, 5000);
+
+CREATE OR REPLACE TRIGGER trg_update_trans_status
+AFTER UPDATE OF transaction_status ON transactions
+FOR EACH ROW
+WHEN (NEW.transaction_status = 'Completed')
+DECLARE
+    v_material_id VARCHAR2(10);
+    v_quantity NUMBER;
+    CURSOR transaction_details_cursor IS
+        SELECT material_id, quantity
+        FROM transaction_detail
+        WHERE transaction_id = :NEW.transaction_id;
+BEGIN
+    FOR detail IN transaction_details_cursor LOOP
+        v_material_id := detail.material_id;
+        v_quantity := detail.quantity;
+
+        UPDATE raw_materials
+        SET stock_quantity = stock_quantity + v_quantity,
+            last_update = SYSDATE
+        WHERE material_id = v_material_id;
+    END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE update_transaction_status (
+    p_transaction_id IN VARCHAR2,
+    p_new_status IN VARCHAR2
+) AS
+    v_current_status VARCHAR2(20);
+BEGIN
+    IF p_new_status NOT IN ('Pending', 'Completed') THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Invalid transaction status.');
+    END IF;
+
+    SELECT transaction_status
+    INTO v_current_status
+    FROM transactions
+    WHERE transaction_id = p_transaction_id;
+
+    IF v_current_status = 'Completed' THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Transaction already completed, cannot be updated further.');
+    END IF;
+
+    UPDATE transactions
+    SET transaction_status = p_new_status,
+        transaction_date = SYSDATE 
+    WHERE transaction_id = p_transaction_id;
+
+    COMMIT;
+END;
+/
