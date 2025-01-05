@@ -67,7 +67,7 @@ CREATE TABLE customers (
     name VARCHAR2(100) NOT NULL,
     email VARCHAR2(100),
     phone_number VARCHAR2(15),
-    password VARCHAR2(20),
+    password VARCHAR2(60),
     address VARCHAR2(200),
     city VARCHAR2(50),
     country VARCHAR2(50),

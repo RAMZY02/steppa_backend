@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
 
 // Product routes
 // Insert product
-router.post("/products", authenticateToken, async (req, res) => {
+router.post("/products", async (req, res) => {
   try {
     await storeController.insertProduct(req.body);
     res.status(201).json({ message: "Product added successfully." });
@@ -36,7 +36,7 @@ router.post("/products", authenticateToken, async (req, res) => {
 });
 
 // Update product
-router.put("/products", authenticateToken, async (req, res) => {
+router.put("/products", async (req, res) => {
   try {
     await storeController.updateProduct(req.body);
     res.status(200).json({ message: "Product updated successfully." });
@@ -46,7 +46,7 @@ router.put("/products", authenticateToken, async (req, res) => {
 });
 
 // Soft delete product
-router.put("/products/delete", authenticateToken, async (req, res) => {
+router.put("/products/delete", async (req, res) => {
   try {
     await storeController.softDeleteProduct(req.body.product_id);
     res
@@ -58,7 +58,7 @@ router.put("/products/delete", authenticateToken, async (req, res) => {
 });
 
 // Get All Products
-router.get("/products", authenticateToken, async (req, res) => {
+router.get("/products", async (req, res) => {
   try {
     const products = await storeController.getAllProducts();
     res.status(200).json(products);
@@ -68,7 +68,7 @@ router.get("/products", authenticateToken, async (req, res) => {
 });
 
 // Get Stock
-router.get("/products/stock", authenticateToken, async (req, res) => {
+router.get("/products/stock", async (req, res) => {
   try {
     const { product_name, product_size } = req.query;
     const productDetail = await storeController.getProductStock(
@@ -82,7 +82,7 @@ router.get("/products/stock", authenticateToken, async (req, res) => {
 });
 
 // Get New Releases
-router.get("/products/new_releases", authenticateToken, async (req, res) => {
+router.get("/products/new_releases", async (req, res) => {
   try {
     const newReleases = await storeController.getNewReleaseProducts();
     res.status(200).json(newReleases);
@@ -230,7 +230,7 @@ router.put("/carts", authenticateToken, async (req, res) => {
 });
 
 // Soft delete cart
-router.delete("/carts/delete", authenticateToken, async (req, res) => {
+router.put("/carts/delete", authenticateToken, async (req, res) => {
   try {
     await storeController.softDeleteCart(req.body.cart_id);
     res.status(200).json({ message: "Cart marked as deleted successfully." });
