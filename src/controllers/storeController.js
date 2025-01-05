@@ -85,6 +85,7 @@ async function getAllProducts() {
     const result = await connection.execute(
       `SELECT 
         product_name,
+        product_description,
         product_category,
         product_gender,
         price,
