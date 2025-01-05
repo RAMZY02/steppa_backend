@@ -209,7 +209,7 @@ router.put("/customers/delete", authenticateToken, async (req, res) => {
 });
 
 // Get All Customers
-router.get("/customers", authenticateToken, async (req, res) => {
+router.get("/customers", async (req, res) => {
   try {
     const customers = await storeController.getAllCustomers();
     res.status(200).json(customers);
