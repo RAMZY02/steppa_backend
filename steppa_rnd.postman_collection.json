@@ -407,7 +407,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/api/rnd/production/3",
+							"raw": "http://localhost:3000/api/rnd/production/1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -417,7 +417,7 @@
 								"api",
 								"rnd",
 								"production",
-								"3"
+								"1"
 							]
 						}
 					},
@@ -468,6 +468,11 @@
 									"key": "status",
 									"value": "PENDING",
 									"type": "text"
+								},
+								{
+									"key": "productionSize",
+									"value": "40",
+									"type": "text"
 								}
 							]
 						},
@@ -497,7 +502,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "9",
+									"value": "10",
 									"type": "text"
 								},
 								{
@@ -512,12 +517,17 @@
 								},
 								{
 									"key": "actualQty",
-									"value": "",
+									"value": "2",
 									"type": "text"
 								},
 								{
 									"key": "status",
 									"value": "PENDING",
+									"type": "text"
+								},
+								{
+									"key": "productionSize",
+									"value": "1",
 									"type": "text"
 								}
 							]
@@ -548,7 +558,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "9",
+									"value": "10",
 									"type": "text"
 								}
 							]
@@ -579,7 +589,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "9",
+									"value": "10",
 									"type": "text"
 								},
 								{
