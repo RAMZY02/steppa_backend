@@ -1,8 +1,7 @@
 {
   "info": {
     "name": "Steppa Backend API",
-    "_postman_id": "12345678-1234-1234-1234-123456789012",
-    "description": "API collection for Steppa Backend",
+    "description": "Postman collection for Steppa Backend API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -27,8 +26,7 @@
           "port": "3000",
           "path": ["api", "store", "register"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "User Login",
@@ -51,8 +49,7 @@
           "port": "3000",
           "path": ["api", "store", "login"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Insert Product",
@@ -62,15 +59,11 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"product_name\": \"Product 1\",\n  \"product_description\": \"Description 1\",\n  \"product_category\": \"Category 1\",\n  \"product_size\": \"M\",\n  \"product_gender\": \"Unisex\",\n  \"product_image\": \"image1.jpg\",\n  \"stok_qty\": 100,\n  \"price\": 50\n}"
+          "raw": "{\n  \"product_name\": \"Nike Air Max\",\n  \"product_description\": \"High-quality running shoes\",\n  \"product_category\": \"Running Shoes\",\n  \"product_size\": \"40\",\n  \"product_gender\": \"male\",\n  \"product_image\": \"https://example.com/image.jpg\",\n  \"stok_qty\": 50,\n  \"price\": 150\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/products",
@@ -79,8 +72,7 @@
           "port": "3000",
           "path": ["api", "store", "products"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Product",
@@ -90,15 +82,11 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"product_id\": \"PROD001\",\n  \"product_name\": \"Updated Product 1\",\n  \"product_description\": \"Updated Description 1\",\n  \"product_category\": \"Updated Category 1\",\n  \"product_size\": \"L\",\n  \"product_gender\": \"Unisex\",\n  \"product_image\": \"updated_image1.jpg\",\n  \"stok_qty\": 150,\n  \"price\": 60\n}"
+          "raw": "{\n  \"product_id\": \"PRO0001\",\n  \"product_name\": \"Nike Air Max Updated\",\n  \"product_description\": \"Updated description\",\n  \"product_category\": \"Running Shoes\",\n  \"product_size\": \"40\",\n  \"product_gender\": \"male\",\n  \"product_image\": \"https://example.com/image_updated.jpg\",\n  \"stok_qty\": 60,\n  \"price\": 160\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/products",
@@ -107,8 +95,7 @@
           "port": "3000",
           "path": ["api", "store", "products"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Product",
@@ -118,15 +105,11 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
           }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"product_id\": \"PROD001\"\n}"
+          "raw": "{\n  \"product_id\": \"PRO0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/products/delete",
@@ -135,19 +118,12 @@
           "port": "3000",
           "path": ["api", "store", "products", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Products",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
         "url": {
           "raw": "http://localhost:3000/api/store/products",
           "protocol": "http",
@@ -155,49 +131,12 @@
           "port": "3000",
           "path": ["api", "store", "products"]
         }
-      },
-      "response": []
-    },
-    {
-      "name": "Get Product Stock",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/api/store/products/stock?product_name=Product 1&product_size=M",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "store", "products", "stock"],
-          "query": [
-            {
-              "key": "product_name",
-              "value": "Product 1"
-            },
-            {
-              "key": "product_size",
-              "value": "M"
-            }
-          ]
-        }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get New Releases",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
         "url": {
           "raw": "http://localhost:3000/api/store/products/new_releases",
           "protocol": "http",
@@ -205,8 +144,56 @@
           "port": "3000",
           "path": ["api", "store", "products", "new_releases"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Product Stock",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/store/products/stock?product_name=Nike%20Air%20Max&product_size=40",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "products", "stock"],
+          "query": [
+            {
+              "key": "product_name",
+              "value": "Nike Air Max"
+            },
+            {
+              "key": "product_size",
+              "value": "40"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Product by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/store/products/PRO0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "products", "PRO0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Product by Name",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/store/products/name/Nike%20Air%20Max",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "products", "name", "Nike Air Max"]
+        }
+      }
     },
     {
       "name": "Insert Sale",
@@ -224,7 +211,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_channel\": \"Online\",\n  \"sale_date\": \"2023-10-01\",\n  \"total\": 100\n}"
+          "raw": "{\n  \"sale_channel\": \"Online\",\n  \"sale_date\": \"2023-10-01\",\n  \"total\": 300\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sales",
@@ -233,8 +220,7 @@
           "port": "3000",
           "path": ["api", "store", "sales"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Sale",
@@ -252,7 +238,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_id\": \"SLS001\",\n  \"sale_channel\": \"Offline\",\n  \"sale_date\": \"2023-10-02\",\n  \"total\": 200\n}"
+          "raw": "{\n  \"sale_id\": \"SLS0001\",\n  \"sale_channel\": \"Offline\",\n  \"sale_date\": \"2023-10-02\",\n  \"total\": 400\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sales",
@@ -261,8 +247,7 @@
           "port": "3000",
           "path": ["api", "store", "sales"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Sale",
@@ -280,7 +265,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_id\": \"SLS001\"\n}"
+          "raw": "{\n  \"sale_id\": \"SLS0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sales/delete",
@@ -289,8 +274,7 @@
           "port": "3000",
           "path": ["api", "store", "sales", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Sales",
@@ -309,8 +293,90 @@
           "port": "3000",
           "path": ["api", "store", "sales"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Sale by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/sales/SLS0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "sales", "SLS0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Sale by Channel",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/sales/channel/Online",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "sales", "channel", "Online"]
+        }
+      }
+    },
+    {
+      "name": "Get Sale by Date",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/sales/date/2023-10-01",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "sales", "date", "2023-10-01"]
+        }
+      }
+    },
+    {
+      "name": "Get Sale by Date Range",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/sales/daterange/2023-10-01/2023-10-31",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": [
+            "api",
+            "store",
+            "sales",
+            "daterange",
+            "2023-10-01",
+            "2023-10-31"
+          ]
+        }
+      }
     },
     {
       "name": "Insert Sale Item",
@@ -328,7 +394,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_id\": \"SLS001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50,\n  \"subtotal\": 100\n}"
+          "raw": "{\n  \"sale_id\": \"SLS0001\",\n  \"product_id\": \"PRO0001\",\n  \"quantity\": 2,\n  \"price\": 150,\n  \"subtotal\": 300\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sale_items",
@@ -337,8 +403,7 @@
           "port": "3000",
           "path": ["api", "store", "sale_items"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Sale Item",
@@ -356,7 +421,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_item_id\": \"SLI001\",\n  \"sale_id\": \"SLS001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 3,\n  \"price\": 50,\n  \"subtotal\": 150\n}"
+          "raw": "{\n  \"sale_item_id\": \"SLI0001\",\n  \"sale_id\": \"SLS0001\",\n  \"product_id\": \"PRO0001\",\n  \"quantity\": 3,\n  \"price\": 150,\n  \"subtotal\": 450\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sale_items",
@@ -365,8 +430,7 @@
           "port": "3000",
           "path": ["api", "store", "sale_items"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Sale Item",
@@ -384,7 +448,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"sale_item_id\": \"SLI001\"\n}"
+          "raw": "{\n  \"sale_item_id\": \"SLI0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/sale_items/delete",
@@ -393,8 +457,7 @@
           "port": "3000",
           "path": ["api", "store", "sale_items", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Sale Items",
@@ -413,8 +476,64 @@
           "port": "3000",
           "path": ["api", "store", "sale_items"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Sale Item by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/sale_items/SLI0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "sale_items", "SLI0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Sale Item by Sale ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/saleitems/sale/SLS0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "saleitems", "sale", "SLS0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Sale Item by Product ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/saleitems/product/PRO0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "saleitems", "product", "PRO0001"]
+        }
+      }
     },
     {
       "name": "Insert Customer",
@@ -441,8 +560,7 @@
           "port": "3000",
           "path": ["api", "store", "customers"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Customer",
@@ -460,7 +578,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customer_id\": \"CUS001\",\n  \"name\": \"Updated Jane Doe\",\n  \"email\": \"updated.jane.doe@example.com\",\n  \"phone_number\": \"1234567890\",\n  \"address\": \"789 Main St\",\n  \"city\": \"Anytown\",\n  \"country\": \"USA\",\n  \"zip_code\": \"67890\"\n}"
+          "raw": "{\n  \"customer_id\": \"CUS0001\",\n  \"name\": \"Jane Doe Updated\",\n  \"email\": \"jane.doe.updated@example.com\",\n  \"phone_number\": \"0987654321\",\n  \"address\": \"456 Main St\",\n  \"city\": \"Anytown\",\n  \"country\": \"USA\",\n  \"zip_code\": \"54321\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/customers",
@@ -469,8 +587,7 @@
           "port": "3000",
           "path": ["api", "store", "customers"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Customer",
@@ -488,7 +605,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customer_id\": \"CUS001\"\n}"
+          "raw": "{\n  \"customer_id\": \"CUS0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/customers/delete",
@@ -497,11 +614,23 @@
           "port": "3000",
           "path": ["api", "store", "customers", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Customers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/store/customers",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "customers"]
+        }
+      }
+    },
+    {
+      "name": "Get Customer by ID",
       "request": {
         "method": "GET",
         "header": [
@@ -511,42 +640,13 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/api/store/customers",
+          "raw": "http://localhost:3000/api/store/customers/CUS0001",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
-          "path": ["api", "store", "customers"]
+          "path": ["api", "store", "customers", "CUS0001"]
         }
-      },
-      "response": []
-    },
-    {
-      "name": "Insert Cart",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{token}}"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"customer_id\": \"CUS001\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/store/carts",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["api", "store", "carts"]
-        }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Cart",
@@ -564,7 +664,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"customer_id\": \"CUS002\"\n}"
+          "raw": "{\n  \"cart_id\": \"CRT0001\",\n  \"customer_id\": \"CUS0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/carts",
@@ -573,13 +673,12 @@
           "port": "3000",
           "path": ["api", "store", "carts"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Cart",
       "request": {
-        "method": "DELETE",
+        "method": "PUT",
         "header": [
           {
             "key": "Content-Type",
@@ -592,7 +691,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
+          "raw": "{\n  \"cart_id\": \"CRT0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/carts/delete",
@@ -601,8 +700,7 @@
           "port": "3000",
           "path": ["api", "store", "carts", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Carts",
@@ -621,8 +719,64 @@
           "port": "3000",
           "path": ["api", "store", "carts"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Cart by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/carts/CRT0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "carts", "CRT0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Cart by Customer ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/carts/customer/CUS0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "carts", "customer", "CUS0001"]
+        }
+      }
+    },
+    {
+      "name": "Get Cart Items by Cart ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/cartitems/cart/CRT0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "cartitems", "cart", "CRT0001"]
+        }
+      }
     },
     {
       "name": "Insert Cart Item",
@@ -640,7 +794,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
+          "raw": "{\n  \"cart_id\": \"CRT0001\",\n  \"product_id\": \"PRO0001\",\n  \"quantity\": 2,\n  \"price\": 150\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart_items",
@@ -649,8 +803,7 @@
           "port": "3000",
           "path": ["api", "store", "cart_items"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Cart Item",
@@ -668,7 +821,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 3,\n  \"price\": 50\n}"
+          "raw": "{\n  \"cart_item_id\": \"CIT0001\",\n  \"cart_id\": \"CRT0001\",\n  \"product_id\": \"PRO0001\",\n  \"quantity\": 3,\n  \"price\": 150\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart_items",
@@ -677,8 +830,7 @@
           "port": "3000",
           "path": ["api", "store", "cart_items"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Cart Item",
@@ -696,7 +848,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
+          "raw": "{\n  \"cart_item_id\": \"CIT0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart_items/delete",
@@ -705,8 +857,7 @@
           "port": "3000",
           "path": ["api", "store", "cart_items", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Cart Items",
@@ -725,8 +876,26 @@
           "port": "3000",
           "path": ["api", "store", "cart_items"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Cart Item by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/cart_items/CIT0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "cart_items", "CIT0001"]
+        }
+      }
     },
     {
       "name": "Add to Cart",
@@ -744,7 +913,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_id\": \"CRT001\",\n  \"product_id\": \"PROD001\",\n  \"quantity\": 2,\n  \"price\": 50\n}"
+          "raw": "{\n  \"cart_id\": \"CRT0001\",\n  \"product_id\": \"PRO0001\",\n  \"quantity\": 2,\n  \"price\": 150\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart/add",
@@ -753,8 +922,7 @@
           "port": "3000",
           "path": ["api", "store", "cart", "add"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Cart Item Quantity",
@@ -772,7 +940,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_item_id\": \"CIT001\",\n  \"quantity\": 3\n}"
+          "raw": "{\n  \"cart_item_id\": \"CIT0001\",\n  \"quantity\": 3\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart/update_quantity",
@@ -781,8 +949,7 @@
           "port": "3000",
           "path": ["api", "store", "cart", "update_quantity"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Remove Item from Cart",
@@ -800,7 +967,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_item_id\": \"CIT001\"\n}"
+          "raw": "{\n  \"cart_item_id\": \"CIT0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart/remove_item",
@@ -809,8 +976,7 @@
           "port": "3000",
           "path": ["api", "store", "cart", "remove_item"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Checkout",
@@ -828,7 +994,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cart_id\": \"CRT001\"\n}"
+          "raw": "{\n  \"cart_id\": \"CRT0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart/checkout",
@@ -837,8 +1003,7 @@
           "port": "3000",
           "path": ["api", "store", "cart", "checkout"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Calculate Cart Subtotal",
@@ -851,7 +1016,7 @@
           }
         ],
         "url": {
-          "raw": "http://localhost:3000/api/store/cart/subtotal?cart_id=CRT001",
+          "raw": "http://localhost:3000/api/store/cart/subtotal?cart_id=CRT0001",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3000",
@@ -859,12 +1024,11 @@
           "query": [
             {
               "key": "cart_id",
-              "value": "CRT001"
+              "value": "CRT0001"
             }
           ]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Offline Transaction",
@@ -882,7 +1046,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"customer_id\": \"CUS001\",\n  \"sale_channel\": \"Offline\",\n  \"products\": [\"PROD001\", \"PROD002\"],\n  \"quantities\": [2, 3],\n  \"prices\": [50, 60]\n}"
+          "raw": "{\n  \"customer_id\": \"CUS0001\",\n  \"sale_channel\": \"Offline\",\n  \"products\": [\"PRO0001\", \"PRO0002\"],\n  \"quantities\": [2, 1],\n  \"prices\": [150, 180]\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/cart/offline_transaction",
@@ -891,8 +1055,7 @@
           "port": "3000",
           "path": ["api", "store", "cart", "offline_transaction"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Insert Revenue Report",
@@ -919,8 +1082,7 @@
           "port": "3000",
           "path": ["api", "store", "revenue_reports"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Update Revenue Report",
@@ -938,7 +1100,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"report_id\": \"REV001\",\n  \"report_period\": \"2023-10-02\",\n  \"total_revenue\": 2000,\n  \"total_expenses\": 1000,\n  \"net_profit\": 1000\n}"
+          "raw": "{\n  \"report_id\": \"REV0001\",\n  \"report_period\": \"2023-10-01\",\n  \"total_revenue\": 1200,\n  \"total_expenses\": 600,\n  \"net_profit\": 600\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/revenue_reports",
@@ -947,8 +1109,7 @@
           "port": "3000",
           "path": ["api", "store", "revenue_reports"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Soft Delete Revenue Report",
@@ -966,7 +1127,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"report_id\": \"REV001\"\n}"
+          "raw": "{\n  \"report_id\": \"REV0001\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/api/store/revenue_reports/delete",
@@ -975,8 +1136,7 @@
           "port": "3000",
           "path": ["api", "store", "revenue_reports", "delete"]
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Get All Revenue Reports",
@@ -995,8 +1155,108 @@
           "port": "3000",
           "path": ["api", "store", "revenue_reports"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "Get Revenue Report by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/store/revenue_reports/REV0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "revenue_reports", "REV0001"]
+        }
+      }
+    },
+    {
+      "name": "Insert User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"newpassword\",\n  \"full_name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"phone_number\": \"1234567890\",\n  \"role\": \"employee\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/store/users",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "users"]
+        }
+      }
+    },
+    {
+      "name": "Update User",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"USR0001\",\n  \"username\": \"updateduser\",\n  \"password\": \"updatedpassword\",\n  \"full_name\": \"Updated User\",\n  \"email\": \"updateduser@example.com\",\n  \"phone_number\": \"0987654321\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/store/users",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "users"]
+        }
+      }
+    },
+    {
+      "name": "Soft Delete User",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"USR0001\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/store/users/delete",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "users", "delete"]
+        }
+      }
+    },
+    {
+      "name": "Get User by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/store/users/USR0001",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "store", "users", "USR0001"]
+        }
+      }
     }
   ]
 }
