@@ -30,15 +30,19 @@ async function getConnection() {
 }
 
 // Insert Design
-async function insertDesign(name, image) {
+async function insertDesign(name, image, description, category, gender, status) {
   let connection;
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO design (name, image, created_at)
-      VALUES (:name, :image, SYSDATE)
+      INSERT INTO design (name, image, description, category, gender, status, created_at)
+      VALUES (:name, :image, :description, :category, :gender, :status, SYSDATE)
     `;
-    await connection.execute(query, { name, image }, { autoCommit: true });
+    await connection.execute(
+      query,
+      { name, image, description, category, gender, status },
+      { autoCommit: true }
+    );
     console.log("Design added successfully.");
   } catch (error) {
     console.error("Error inserting design:", error.message);
@@ -52,7 +56,7 @@ async function insertDesign(name, image) {
 async function updateDesign(req, res) {
   let connection;
   try {
-    const { id, name, image } = req.body;
+    const { id, name, image, description, category, gender, status } = req.body;
     connection = await getConnection();
 
     let query = "UPDATE design SET ";
@@ -67,6 +71,30 @@ async function updateDesign(req, res) {
       if (name) query += ", ";
       query += "image = :image";
       binds.image = image;
+    }
+
+    if (description) {
+      if (name || image) query += ", ";
+      query += "description = :description";
+      binds.description = description;
+    }
+
+    if (category) {
+      if (name || image || description) query += ", ";
+      query += "category = :category";
+      binds.category = category;
+    }
+
+    if (gender) {
+      if (name || image || description || category) query += ", ";
+      query += "gender = :gender";
+      binds.gender = gender;
+    }
+
+    if (status) {
+      if (name || image || description || category || gender) query += ", ";
+      query += "status = :status";
+      binds.status = status;
     }
 
     query += " WHERE id = :id";
@@ -108,7 +136,7 @@ async function getAllDesigns() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, description, category, gender, status 
        FROM design 
        WHERE deleted_at IS NULL`
     );
@@ -126,7 +154,7 @@ async function getDesignById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, description, category, gender, status 
        FROM design 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -145,7 +173,7 @@ async function getDesignByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, image 
+      `SELECT id, name, image, description, category, gender, status 
        FROM design 
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
@@ -654,6 +682,88 @@ async function updateProduct(req, res) {
   }
 }
 
+// Insert or Update Product
+async function insertOrUpdateProduct(req, res) {
+  let connection;
+  try {
+    const {
+      product_name,
+      product_description,
+      product_category,
+      product_size,
+      product_gender,
+      product_image,
+      actual_qty,
+      price
+    } = req.body;
+
+    connection = await getConnection();
+
+    // Check if a product with the same name, size, category, and gender exists
+    const checkQuery = `
+      SELECT product_id, stok_qty 
+      FROM products 
+      WHERE LOWER(product_name) = LOWER(:product_name) 
+        AND product_size = :product_size 
+        AND product_category = :product_category 
+        AND product_gender = :product_gender 
+        AND deleted_at IS NULL
+    `;
+    const result = await connection.execute(
+      checkQuery,
+      { product_name, product_size, product_category, product_gender }
+    );
+
+    if (result.rows.length > 0) {
+      // Product exists, update the stock quantity
+      console.log(result.rows[0]);
+      const product_id = result.rows[0][0];
+      const stok_qty = result.rows[0][1];
+      console.log(product_id, stok_qty);
+      
+      const newStokQty = stok_qty + parseInt(actual_qty);
+
+      const updateQuery = `
+        UPDATE products 
+        SET stok_qty = :newStokQty, last_update = SYSDATE 
+        WHERE product_id = :product_id
+      `;
+      await connection.execute(
+        updateQuery,
+        { newStokQty, product_id },
+        { autoCommit: true }
+      );
+      res.status(200).json({ message: "Product stock updated successfully." });
+    } else {
+      // Product does not exist, insert a new product
+      const insertQuery = `
+        INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, created_at)
+        VALUES (:product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :actual_qty, :price, SYSDATE)
+      `;
+      await connection.execute(
+        insertQuery,
+        {
+          product_name,
+          product_description,
+          product_category,
+          product_size,
+          product_gender,
+          product_image,
+          actual_qty,
+          price
+        },
+        { autoCommit: true }
+      );
+      res.status(201).json({ message: "Product inserted successfully." });
+    }
+  } catch (error) {
+    console.error("Error inserting or updating product:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Soft Delete Product
 async function softDeleteProduct(req, res) {
   let connection;
@@ -1149,6 +1259,7 @@ module.exports = {
   updateProductionStatus,
   insertProduct,
   updateProduct,
+  insertOrUpdateProduct,
   softDeleteProduct,
   getAllProducts,
   getProductById,
