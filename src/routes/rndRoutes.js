@@ -39,7 +39,13 @@ const {
   getLogsByActionType,
   getLogsByTableName,
   getLogsByActionTime,
-  getLogsByActionUser
+  getLogsByActionUser,
+  insertUser,
+  updateUser,
+  softDeleteUser,
+  getAllUsers,
+  getUserById,
+  getUserByUsername
 } = require("../controllers/rndController");
 
 router.post("/design", async (req, res) => {
@@ -323,6 +329,49 @@ router.get("/logs/action-user/:username", async (req, res) => {
     const { username } = req.params;
     const logs = await getLogsByActionUser(username);
     res.status(200).json(logs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/user", async (req, res) => {
+  try {
+    const { user_id, username, password, full_name, email, phone_number, role } = req.body;
+    await insertUser(user_id, username, password, full_name, email, phone_number, role);
+    res.status(201).json({ message: "User inserted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/user", updateUser);
+
+router.delete("/user", softDeleteUser);
+
+router.get("/user", async (req, res) => {
+  try {
+    const users = await getAllUsers();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await getUserById(id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/user/username/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await getUserByUsername(username);
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

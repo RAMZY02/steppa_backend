@@ -1,9 +1,20 @@
 const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
+//tolong bikin punya masing masing kasi nama
+// Rama
 oracledb.initOracleClient({
-  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
+
+// Melvin
+// oracledb.initOracleClient({
+//   libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+// });
+
+// Niko
+
+// Steven
 
 async function getConnection() {
   try {
@@ -961,6 +972,160 @@ const getLogsByActionUser = async (username) => {
   }
 };
 
+// Insert User
+async function insertUser(user_id, username, password, full_name, email, phone_number, role) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      INSERT INTO users (user_id, username, password, full_name, email, phone_number, role, created_at)
+      VALUES (:user_id, :username, :password, :full_name, :email, :phone_number, :role, SYSDATE)
+    `;
+    await connection.execute(query, { user_id, username, password, full_name, email, phone_number, role }, { autoCommit: true });
+    console.log("User added successfully.");
+  } catch (error) {
+    console.error("Error inserting user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Update User
+async function updateUser(req, res) {
+  let connection;
+  try {
+    const { user_id, username, password, full_name, email, phone_number, role } = req.body;
+    connection = await getConnection();
+
+    let query = "UPDATE users SET ";
+    const binds = { user_id };
+
+    if (username) {
+      query += "username = :username";
+      binds.username = username;
+    }
+
+    if (password) {
+      if (username) query += ", ";
+      query += "password = :password";
+      binds.password = password;
+    }
+
+    if (full_name) {
+      if (username || password) query += ", ";
+      query += "full_name = :full_name";
+      binds.full_name = full_name;
+    }
+
+    if (email) {
+      if (username || password || full_name) query += ", ";
+      query += "email = :email";
+      binds.email = email;
+    }
+
+    if (phone_number) {
+      if (username || password || full_name || email) query += ", ";
+      query += "phone_number = :phone_number";
+      binds.phone_number = phone_number;
+    }
+
+    if (role) {
+      if (username || password || full_name || email || phone_number) query += ", ";
+      query += "role = :role";
+      binds.role = role;
+    }
+
+    query += " WHERE user_id = :user_id";
+
+    await connection.execute(query, binds, { autoCommit: true });
+    res.status(200).json({ message: "User updated successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Soft Delete User
+async function softDeleteUser(req, res) {
+  let connection;
+  try {
+    const { user_id } = req.body;
+    connection = await getConnection();
+    await connection.execute(
+      `UPDATE users 
+       SET deleted_at = SYSDATE 
+       WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id },
+      { autoCommit: true }
+    );
+    res.status(200).json({ message: "User marked as deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Users
+async function getAllUsers() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT user_id, username, full_name, email, phone_number, role, created_at 
+       FROM users 
+       WHERE deleted_at IS NULL`
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching users", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get User by ID
+async function getUserById(user_id) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT user_id, username, full_name, email, phone_number, role, created_at 
+       FROM users 
+       WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id }
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching user by ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get User by Username
+async function getUserByUsername(username) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT user_id, username, full_name, email, phone_number, role, created_at 
+       FROM users 
+       WHERE LOWER(username) LIKE LOWER(:username) AND deleted_at IS NULL`,
+      [`%${username}%`]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching user by username", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 module.exports = {
   insertDesign,
   updateDesign,
@@ -1000,4 +1165,10 @@ module.exports = {
   getLogsByTableName,
   getLogsByActionTime,
   getLogsByActionUser,
+  insertUser,
+  updateUser,
+  softDeleteUser,
+  getAllUsers,
+  getUserById,
+  getUserByUsername,
 };
