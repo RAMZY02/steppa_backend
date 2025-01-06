@@ -76,21 +76,11 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// Get Product by ID
-router.get("/products/:id", async (req, res) => {
+// Get New Releases
+router.get("/products/new_releases", async (req, res) => {
   try {
-    const product = await storeController.getProductById(req.params.id);
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get Product by Name
-router.get("/products/name/:name", async (req, res) => {
-  try {
-    const product = await storeController.getProductByName(req.params.name);
-    res.status(200).json(product);
+    const newReleases = await storeController.getNewReleaseProducts();
+    res.status(200).json(newReleases);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -110,11 +100,21 @@ router.get("/products/stock", async (req, res) => {
   }
 });
 
-// Get New Releases
-router.get("/products/new_releases", async (req, res) => {
+// Get Product by ID
+router.get("/products/:id", async (req, res) => {
   try {
-    const newReleases = await storeController.getNewReleaseProducts();
-    res.status(200).json(newReleases);
+    const product = await storeController.getProductById(req.params.id);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Product by Name
+router.get("/products/name/:name", async (req, res) => {
+  try {
+    const product = await storeController.getProductByName(req.params.name);
+    res.status(200).json(product);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

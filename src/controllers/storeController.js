@@ -12,7 +12,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.18.18:1521/steppa_store",
+      connectString: "localhost:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -216,7 +216,7 @@ async function getProductStock(productName, productSize) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT stok_qty
+      `SELECT product_id, stok_qty
        FROM products
        WHERE product_name like :product_name AND product_size = :product_size AND deleted_at IS NULL`,
       { product_name: `%${productName}%`, product_size: productSize }
@@ -224,7 +224,8 @@ async function getProductStock(productName, productSize) {
 
     const productStock = result.rows.map((row) => {
       return {
-        stok_qty: row[0],
+        product_id: row[0],
+        stok_qty: row[1],
       };
     });
     return productStock;
