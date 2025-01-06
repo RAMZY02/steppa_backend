@@ -431,45 +431,45 @@ END;
 
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'airmax.jpg', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'airmax.jpg', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '42', 'male', 'airmax.jpg', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '42', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '43', 'male', 'airmax.jpg', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '43', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '44', 'male', 'airmax.jpg', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '44', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '40', 'female', 'ultraboost.jpg', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '40', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '41', 'female', 'ultraboost.jpg', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '41', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '42', 'female', 'ultraboost.jpg', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '42', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '43', 'female', 'ultraboost.jpg', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '43', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '44', 'female', 'ultraboost.jpg', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '44', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '40', 'male', 'puma.jpg', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '40', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '41', 'male', 'puma.jpg', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '41', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '42', 'male', 'puma.jpg', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '42', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '43', 'male', 'puma.jpg', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '43', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '44', 'male', 'puma.jpg', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '44', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '40', 'female', 'reebok.jpg', 25, 120);
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '40', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '41', 'female', 'reebok.jpg', 25, 120);
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '41', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '42', 'female', 'reebok.jpg', 25, 120);
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '42', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '43', 'female', 'reebok.jpg', 25, 120);
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '43', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '44', 'female', 'reebok.jpg', 25, 120);
+VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '44', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
