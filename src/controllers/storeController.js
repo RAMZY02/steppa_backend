@@ -2,9 +2,9 @@ const oracledb = require("oracledb");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Aktifkan Thick Mode
+// Melvin
 oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -12,7 +12,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "localhost:1521/steppa_store",
+      connectString: "192.168.195.213:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1257,7 +1257,7 @@ async function getUserById(userId) {
 async function getSaleByChannel(channel) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_sale_by_channel(:channel, :sales); END;`,
       {
@@ -1283,7 +1283,7 @@ async function getSaleByChannel(channel) {
 async function getSaleByDate(date) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_sale_by_date(:date, :sales); END;`,
       {
@@ -1309,7 +1309,7 @@ async function getSaleByDate(date) {
 async function getSaleByDateRange(startDate, endDate) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_sale_by_date_range(:startDate, :endDate, :sales); END;`,
       {
@@ -1336,7 +1336,7 @@ async function getSaleByDateRange(startDate, endDate) {
 async function getSaleItemBySaleId(saleId) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_sale_item_by_sale_id(:saleId, :saleItems); END;`,
       {
@@ -1364,7 +1364,7 @@ async function getSaleItemBySaleId(saleId) {
 async function getSaleItemByProductId(productId) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_sale_item_by_product_id(:productId, :saleItems); END;`,
       {
@@ -1392,19 +1392,18 @@ async function getSaleItemByProductId(productId) {
 async function getCartByCustomerId(customerId) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
-      `BEGIN get_cart_by_customer_id(:customerId, :carts); END;`,
-      {
-        customerId,
-        carts: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
-      }
+      `SELECT cart_id FROM carts WHERE customer_id = :customerId`,
+      [customerId]
     );
-    const carts = await result.outBinds.carts.getRows();
-    return carts.map((cart) => ({
-      cart_id: cart[0],
-      customer_id: cart[1],
-    }));
+
+    const carts = result.rows.map((row) => {
+      return {
+        cart_id: row[0],
+      };
+    });
+    return carts;
   } catch (error) {
     console.error("Error fetching carts by customer ID:", error);
     throw error;
@@ -1416,7 +1415,7 @@ async function getCartByCustomerId(customerId) {
 async function getCartItemsByCartId(cartId) {
   let connection;
   try {
-    connection = await oracledb.getConnection();
+    connection = await getConnection();
     const result = await connection.execute(
       `BEGIN get_cart_items_by_cart_id(:cartId, :cartItems); END;`,
       {
