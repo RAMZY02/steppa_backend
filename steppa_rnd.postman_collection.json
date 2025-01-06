@@ -92,6 +92,26 @@
 									"key": "image",
 									"value": "nike air jordan 2.jpg",
 									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "ini sepatu keren",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "sports",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "unaccepted",
+									"type": "text"
 								}
 							]
 						},
@@ -121,7 +141,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "41",
+									"value": "1",
 									"type": "text"
 								},
 								{
@@ -132,6 +152,26 @@
 								{
 									"key": "image",
 									"value": "nike air jordan 3.jpg",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "ini sepatu keren",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "sports",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "unaccepted",
 									"type": "text"
 								}
 							]
@@ -162,7 +202,7 @@
 							"urlencoded": [
 								{
 									"key": "id",
-									"value": "41",
+									"value": "64",
 									"type": "text"
 								}
 							]
@@ -850,6 +890,73 @@
 								"api",
 								"rnd",
 								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "insertOrUpdateProduct",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "product_name",
+									"value": "nike air jordan 22",
+									"type": "text"
+								},
+								{
+									"key": "product_description",
+									"value": "nike air jordan sepatu mahal dan ganteng",
+									"type": "text"
+								},
+								{
+									"key": "product_category",
+									"value": "dewasa",
+									"type": "text"
+								},
+								{
+									"key": "product_size",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "product_gender",
+									"value": "male",
+									"type": "text"
+								},
+								{
+									"key": "product_image",
+									"value": "image.jpg",
+									"type": "text"
+								},
+								{
+									"key": "actual_qty",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "10000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/rnd/product/insert-or-update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"rnd",
+								"product",
+								"insert-or-update"
 							]
 						}
 					},

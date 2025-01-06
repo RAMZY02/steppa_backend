@@ -45,13 +45,14 @@ const {
   softDeleteUser,
   getAllUsers,
   getUserById,
-  getUserByUsername
+  getUserByUsername,
+  insertOrUpdateProduct
 } = require("../controllers/rndController");
 
 router.post("/design", async (req, res) => {
   try {
-    const { name, image } = req.body;
-    await insertDesign(name, image);
+    const { name, image, description, category, gender, status } = req.body;
+    await insertDesign(name, image, description, category, gender, status);
     res.status(201).json({ message: "Design inserted successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -231,6 +232,8 @@ router.get("/product/name/:name", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.post("/product/insert-or-update", insertOrUpdateProduct);
 
 router.post("/material", async (req, res) => {
   try {
