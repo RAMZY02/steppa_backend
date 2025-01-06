@@ -408,16 +408,6 @@ router.get("/cartitems/cart/:cartId", authenticateToken, async (req, res) => {
 });
 
 // Cart Item routes
-// Insert cart item
-router.post("/cart_items", authenticateToken, async (req, res) => {
-  try {
-    await storeController.insertCartItem(req.body);
-    res.status(201).json({ message: "Cart item added successfully." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Update cart item
 router.put("/cart_items", authenticateToken, async (req, res) => {
   try {

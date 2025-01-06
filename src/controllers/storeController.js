@@ -1254,6 +1254,7 @@ async function getUserById(userId) {
   }
 }
 
+// get sale by channel
 async function getSaleByChannel(channel) {
   let connection;
   try {
@@ -1280,6 +1281,7 @@ async function getSaleByChannel(channel) {
   }
 }
 
+// get sale by date
 async function getSaleByDate(date) {
   let connection;
   try {
@@ -1306,6 +1308,7 @@ async function getSaleByDate(date) {
   }
 }
 
+// get sale by date range
 async function getSaleByDateRange(startDate, endDate) {
   let connection;
   try {
@@ -1333,6 +1336,7 @@ async function getSaleByDateRange(startDate, endDate) {
   }
 }
 
+// get sale item by sale id
 async function getSaleItemBySaleId(saleId) {
   let connection;
   try {
@@ -1361,6 +1365,7 @@ async function getSaleItemBySaleId(saleId) {
   }
 }
 
+// get sale item by product id
 async function getSaleItemByProductId(productId) {
   let connection;
   try {
@@ -1389,6 +1394,7 @@ async function getSaleItemByProductId(productId) {
   }
 }
 
+// get cart by customer id
 async function getCartByCustomerId(customerId) {
   let connection;
   try {
@@ -1412,26 +1418,37 @@ async function getCartByCustomerId(customerId) {
   }
 }
 
+//  get cart items by cart id
 async function getCartItemsByCartId(cartId) {
   let connection;
   try {
     connection = await getConnection();
     const result = await connection.execute(
-      `BEGIN get_cart_items_by_cart_id(:cartId, :cartItems); END;`,
-      {
-        cartId,
-        cartItems: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
-      }
+      `SELECT ci.cart_item_id, ci.cart_id, ci.product_id, ci.quantity, ci.price, ci.status,
+              p.product_name, p.product_description, p.product_category, p.product_size, p.product_gender, p.product_image, p.stok_qty, p.price
+       FROM cart_items ci
+       JOIN products p ON ci.product_id = p.product_id
+       WHERE ci.cart_id = :cartId AND ci.deleted_at IS NULL`,
+      { cartId }
     );
-    const cartItems = await result.outBinds.cartItems.getRows();
-    return cartItems.map((item) => ({
+
+    const cartItems = result.rows.map((item) => ({
       cart_item_id: item[0],
       cart_id: item[1],
       product_id: item[2],
       quantity: item[3],
       price: item[4],
       status: item[5],
+      product_name: item[6],
+      product_description: item[7],
+      product_category: item[8],
+      product_size: item[9],
+      product_gender: item[10],
+      product_image: item[11],
+      stok_qty: item[12],
+      product_price: item[13],
     }));
+    return cartItems;
   } catch (error) {
     console.error("Error fetching cart items by cart ID:", error);
     throw error;

@@ -268,28 +268,31 @@ CREATE OR REPLACE PROCEDURE add_to_cart(
 BEGIN
     DECLARE
         v_existing_quantity NUMBER;
+        v_existing_price NUMBER;
     BEGIN
-        SELECT quantity
-        INTO v_existing_quantity
+        SELECT quantity, price
+        INTO v_existing_quantity, v_existing_price
         FROM cart_items
         WHERE cart_id = p_cart_id
           AND product_id = p_product_id
-          AND status = 'active';
+          AND status = 'active'
+          AND deleted_at IS NULL;
         
         IF v_existing_quantity IS NOT NULL THEN
             UPDATE cart_items
-            SET quantity = v_existing_quantity + p_quantity
+            SET quantity = v_existing_quantity + p_quantity,
+                price = v_existing_price + (p_quantity * p_price)
             WHERE cart_id = p_cart_id
               AND product_id = p_product_id
               AND status = 'active';
         ELSE
             INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-            VALUES (p_cart_id, p_product_id, p_quantity, p_price, 'active');
+            VALUES (p_cart_id, p_product_id, p_quantity, p_quantity*p_price, 'active');
         END IF;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-            VALUES (p_cart_id, p_product_id, p_quantity, p_price, 'active');
+            VALUES (p_cart_id, p_product_id, p_quantity, p_quantity*p_price, 'active');
     END;
 END;
 /
@@ -301,7 +304,8 @@ CREATE OR REPLACE PROCEDURE update_cart_item_quantity(
 ) AS
 BEGIN
     UPDATE cart_items
-    SET quantity = p_quantity
+    SET quantity = p_quantity,
+        price = p_quantity * (price / quantity)
     WHERE cart_item_id = p_cart_item_id
       AND status = 'active';
     
@@ -1010,7 +1014,10 @@ CREATE OR REPLACE PROCEDURE get_cart_items_by_cart_id(
 ) AS
 BEGIN
     OPEN p_cart_items FOR
-    SELECT * FROM cart_items
-    WHERE cart_id = p_cart_id;
+    SELECT ci.cart_item_id, ci.cart_id, ci.product_id, ci.quantity, ci.price, ci.status,
+           p.product_name, p.product_description, p.product_category, p.product_size, p.product_gender, p.product_image, p.stok_qty, p.price
+    FROM cart_items ci
+    JOIN products p ON ci.product_id = p.product_id
+    WHERE ci.cart_id = p_cart_id AND ci.deleted_at IS NULL;
 END;
 /
