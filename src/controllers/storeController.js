@@ -25,20 +25,38 @@ async function registerUser(user) {
   let connection;
   try {
     connection = await getConnection();
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const query = `
-      INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
-      VALUES (:name, :email, :phone_number, :password, :address, :city, :country, :zip_code)
+
+    const plsqlQuery = `
+      DECLARE
+        v_customer_id VARCHAR2(20);
+      BEGIN
+        INSERT INTO customers (name, email, phone_number, password, address, city, country, zip_code)
+        VALUES (:name, :email, :phone_number, :password, :address, :city, :country, :zip_code)
+        RETURNING customer_id INTO v_customer_id; 
+
+        INSERT INTO carts (customer_id)
+        VALUES (v_customer_id);
+
+        DBMS_OUTPUT.PUT_LINE('Customer ID: ' || v_customer_id);
+      END;
     `;
-    await connection.execute(
-      query,
-      {
-        ...user,
-        password: hashedPassword,
-      },
-      { autoCommit: true }
-    );
-    console.log("User registered successfully.");
+
+    const binds = {
+      name: user.name,
+      email: user.email,
+      phone_number: user.phone_number,
+      password: await bcrypt.hash(user.password, 10),
+      address: user.address,
+      city: user.city,
+      country: user.country,
+      zip_code: user.zip_code,
+    };
+
+    // Commit transaksi
+    await connection.execute(plsqlQuery, binds);
+
+    // Commit transaksi
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error registering user:", error.message);
     throw error;

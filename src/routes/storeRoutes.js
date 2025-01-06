@@ -16,7 +16,7 @@ const {
 router.post("/register", async (req, res) => {
   try {
     await storeController.registerUser(req.body);
-    res.status(201).json({ message: "User registered successfully." });
+    res.status(201).json({ message: "Customers registered successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
