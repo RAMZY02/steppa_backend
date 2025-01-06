@@ -2,6 +2,15 @@ const express = require("express");
 const router = express.Router();
 const storeController = require("../controllers/storeController");
 const authenticateToken = require("../middleware/authenticateToken");
+const {
+  getSaleByChannel,
+  getSaleByDate,
+  getSaleByDateRange,
+  getSaleItemBySaleId,
+  getSaleItemByProductId,
+  getCartByCustomerId,
+  getCartItemsByCartId,
+} = require("../controllers/storeController");
 
 // User Registration
 router.post("/register", async (req, res) => {
@@ -162,6 +171,43 @@ router.get("/sales/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Get sale by channel
+router.get("/sales/channel/:channel", authenticateToken, async (req, res) => {
+  const { channel } = req.params;
+  try {
+    const sales = await getSaleByChannel(channel);
+    res.status(200).json(sales);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get sale by date
+router.get("/sales/date/:date", authenticateToken, async (req, res) => {
+  const { date } = req.params;
+  try {
+    const sales = await getSaleByDate(date);
+    res.status(200).json(sales);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get sale by date range
+router.get(
+  "/sales/daterange/:startDate/:endDate",
+  authenticateToken,
+  async (req, res) => {
+    const { startDate, endDate } = req.params;
+    try {
+      const sales = await getSaleByDateRange(startDate, endDate);
+      res.status(200).json(sales);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
 // Sale Item routes
 // Insert sale item
 router.post("/sale_items", authenticateToken, async (req, res) => {
@@ -214,6 +260,32 @@ router.get("/sale_items/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Get sale item by sale id
+router.get("/saleitems/sale/:saleId", authenticateToken, async (req, res) => {
+  const { saleId } = req.params;
+  try {
+    const saleItems = await getSaleItemBySaleId(saleId);
+    res.status(200).json(saleItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get sale item by product id
+router.get(
+  "/saleitems/product/:productId",
+  authenticateToken,
+  async (req, res) => {
+    const { productId } = req.params;
+    try {
+      const saleItems = await getSaleItemByProductId(productId);
+      res.status(200).json(saleItems);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 
 // Customer routes
 // Insert customer
@@ -304,6 +376,32 @@ router.get("/carts/:id", authenticateToken, async (req, res) => {
   try {
     const cart = await storeController.getCartById(req.params.id);
     res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get cart by customer id
+router.get(
+  "/carts/customer/:customerId",
+  authenticateToken,
+  async (req, res) => {
+    const { customerId } = req.params;
+    try {
+      const carts = await getCartByCustomerId(customerId);
+      res.status(200).json(carts);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+// Get cart items by cart id
+router.get("/cartitems/cart/:cartId", authenticateToken, async (req, res) => {
+  const { cartId } = req.params;
+  try {
+    const cartItems = await getCartItemsByCartId(cartId);
+    res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

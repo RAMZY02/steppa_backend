@@ -285,8 +285,6 @@ async function getProductById(productId) {
       stok_qty: product[7],
       price: product[8],
       last_update: product[9],
-      created_at: product[10],
-      deleted_at: product[11],
     };
   } catch (error) {
     console.error("Error fetching product by ID:", error);
@@ -365,8 +363,6 @@ async function getAllSales() {
         sale_channel: row[1],
         sale_date: row[2],
         total: row[3],
-        created_at: row[4],
-        deleted_at: row[5],
       };
     });
     return sales;
@@ -397,8 +393,6 @@ async function getSaleById(saleId) {
       sale_channel: sale[1],
       sale_date: sale[2],
       total: sale[3],
-      created_at: sale[4],
-      deleted_at: sale[5],
     };
   } catch (error) {
     console.error("Error fetching sale by ID:", error);
@@ -483,8 +477,6 @@ async function getAllSaleItems() {
         quantity: row[3],
         price: row[4],
         subtotal: row[5],
-        created_at: row[6],
-        deleted_at: row[7],
       };
     });
     return saleItems;
@@ -517,8 +509,6 @@ async function getSaleItemById(saleItemId) {
       quantity: saleItem[3],
       price: saleItem[4],
       subtotal: saleItem[5],
-      created_at: saleItem[6],
-      deleted_at: saleItem[7],
     };
   } catch (error) {
     console.error("Error fetching sale item by ID:", error);
@@ -644,8 +634,6 @@ async function getAllCustomers() {
         city: row[5],
         country: row[6],
         zip_code: row[7],
-        created_at: row[8],
-        deleted_at: row[9],
       };
     });
     return customers;
@@ -680,8 +668,6 @@ async function getCustomerById(customerId) {
       city: customer[5],
       country: customer[6],
       zip_code: customer[7],
-      created_at: customer[8],
-      deleted_at: customer[9],
     };
   } catch (error) {
     console.error("Error fetching customer by ID:", error);
@@ -758,8 +744,6 @@ async function getAllCarts() {
       return {
         cart_id: row[0],
         customer_id: row[1],
-        created_at: row[2],
-        deleted_at: row[3],
       };
     });
     return carts;
@@ -788,8 +772,6 @@ async function getCartById(cartId) {
     return {
       cart_id: cart[0],
       customer_id: cart[1],
-      created_at: cart[2],
-      deleted_at: cart[3],
     };
   } catch (error) {
     console.error("Error fetching cart by ID:", error);
@@ -874,8 +856,6 @@ async function getAllCartItems() {
         quantity: row[3],
         price: row[4],
         status: row[5],
-        created_at: row[6],
-        deleted_at: row[7],
       };
     });
     return cartItems;
@@ -908,8 +888,6 @@ async function getCartItemById(cartItemId) {
       quantity: cartItem[3],
       price: cartItem[4],
       status: cartItem[5],
-      created_at: cartItem[6],
-      deleted_at: cartItem[7],
     };
   } catch (error) {
     console.error("Error fetching cart item by ID:", error);
@@ -993,8 +971,6 @@ async function getAllRevenueReports() {
         total_revenue: row[2],
         total_expenses: row[3],
         net_profit: row[4],
-        created_at: row[5],
-        deleted_at: row[6],
       };
     });
     return revenueReports;
@@ -1026,8 +1002,6 @@ async function getRevenueReportById(reportId) {
       total_revenue: revenueReport[2],
       total_expenses: revenueReport[3],
       net_profit: revenueReport[4],
-      created_at: revenueReport[5],
-      deleted_at: revenueReport[6],
     };
   } catch (error) {
     console.error("Error fetching revenue report by ID:", error);
@@ -1247,9 +1221,11 @@ async function getUserById(userId) {
     return {
       user_id: user[0],
       username: user[1],
-      email: user[2],
-      created_at: user[3],
-      deleted_at: user[4],
+      password: user[2],
+      full_name: user[3],
+      email: user[4],
+      phone_number: user[5],
+      role: user[6],
     };
   } catch (error) {
     console.error("Error fetching user by ID:", error);
@@ -1259,33 +1235,187 @@ async function getUserById(userId) {
   }
 }
 
-// Users - Get by ID
-async function getUserById(userId) {
-  const connection = await getConnection();
+async function getSaleByChannel(channel) {
+  let connection;
   try {
+    connection = await oracledb.getConnection();
     const result = await connection.execute(
-      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
-      { user_id: userId }
+      `BEGIN get_sale_by_channel(:channel, :sales); END;`,
+      {
+        channel,
+        sales: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
     );
-
-    if (result.rows.length === 0) {
-      throw new Error("User not found.");
-    }
-
-    const user = result.rows[0];
-    return {
-      user_id: user[0],
-      username: user[1],
-      password: user[2],
-      full_name: user[3],
-      email: user[4],
-      phone_number: user[5],
-      role: user[6],
-      created_at: user[7],
-      deleted_at: user[8],
-    };
+    const sales = await result.outBinds.sales.getRows();
+    return sales.map((sale) => ({
+      sale_id: sale[0],
+      sale_channel: sale[1],
+      sale_date: sale[2],
+      total: sale[3],
+    }));
   } catch (error) {
-    console.error("Error fetching user by ID:", error);
+    console.error("Error fetching sales by channel:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getSaleByDate(date) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_sale_by_date(:date, :sales); END;`,
+      {
+        date,
+        sales: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const sales = await result.outBinds.sales.getRows();
+    return sales.map((sale) => ({
+      sale_id: sale[0],
+      sale_channel: sale[1],
+      sale_date: sale[2],
+      total: sale[3],
+    }));
+  } catch (error) {
+    console.error("Error fetching sales by date:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getSaleByDateRange(startDate, endDate) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_sale_by_date_range(:startDate, :endDate, :sales); END;`,
+      {
+        startDate,
+        endDate,
+        sales: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const sales = await result.outBinds.sales.getRows();
+    return sales.map((sale) => ({
+      sale_id: sale[0],
+      sale_channel: sale[1],
+      sale_date: sale[2],
+      total: sale[3],
+    }));
+  } catch (error) {
+    console.error("Error fetching sales by date range:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getSaleItemBySaleId(saleId) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_sale_item_by_sale_id(:saleId, :saleItems); END;`,
+      {
+        saleId,
+        saleItems: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const saleItems = await result.outBinds.saleItems.getRows();
+    return saleItems.map((item) => ({
+      sale_item_id: item[0],
+      sale_id: item[1],
+      product_id: item[2],
+      quantity: item[3],
+      price: item[4],
+      subtotal: item[5],
+    }));
+  } catch (error) {
+    console.error("Error fetching sale items by sale ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getSaleItemByProductId(productId) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_sale_item_by_product_id(:productId, :saleItems); END;`,
+      {
+        productId,
+        saleItems: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const saleItems = await result.outBinds.saleItems.getRows();
+    return saleItems.map((item) => ({
+      sale_item_id: item[0],
+      sale_id: item[1],
+      product_id: item[2],
+      quantity: item[3],
+      price: item[4],
+      subtotal: item[5],
+    }));
+  } catch (error) {
+    console.error("Error fetching sale items by product ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getCartByCustomerId(customerId) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_cart_by_customer_id(:customerId, :carts); END;`,
+      {
+        customerId,
+        carts: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const carts = await result.outBinds.carts.getRows();
+    return carts.map((cart) => ({
+      cart_id: cart[0],
+      customer_id: cart[1],
+    }));
+  } catch (error) {
+    console.error("Error fetching carts by customer ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function getCartItemsByCartId(cartId) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const result = await connection.execute(
+      `BEGIN get_cart_items_by_cart_id(:cartId, :cartItems); END;`,
+      {
+        cartId,
+        cartItems: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
+      }
+    );
+    const cartItems = await result.outBinds.cartItems.getRows();
+    return cartItems.map((item) => ({
+      cart_item_id: item[0],
+      cart_id: item[1],
+      product_id: item[2],
+      quantity: item[3],
+      price: item[4],
+      status: item[5],
+    }));
+  } catch (error) {
+    console.error("Error fetching cart items by cart ID:", error);
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1343,4 +1473,11 @@ module.exports = {
   updateUser,
   softDeleteUser,
   getUserById,
+  getSaleByChannel,
+  getSaleByDate,
+  getSaleByDateRange,
+  getSaleItemBySaleId,
+  getSaleItemByProductId,
+  getCartByCustomerId,
+  getCartItemsByCartId,
 };

@@ -944,6 +944,39 @@ async function softDeleteUser(req, res) {
   }
 }
 
+// Users - Get by ID
+async function getUserById(userId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id: userId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("User not found.");
+    }
+
+    const user = result.rows[0];
+    return {
+      user_id: user[0],
+      username: user[1],
+      password: user[2],
+      full_name: user[3],
+      email: user[4],
+      phone_number: user[5],
+      role: user[6],
+      created_at: user[7],
+      deleted_at: user[8],
+    };
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertSupplier,
   updateSupplier,
@@ -978,4 +1011,5 @@ module.exports = {
   insertUser,
   updateUser,
   softDeleteUser,
+  getUserById,
 };

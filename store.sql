@@ -929,3 +929,88 @@ BEGIN
     END IF;
 END;
 /
+
+-- Endpoint to get sale by channel
+CREATE OR REPLACE PROCEDURE get_sale_by_channel(
+    p_sale_channel IN VARCHAR2,
+    p_sales OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_sales FOR
+    SELECT * FROM sales
+    WHERE sale_channel = p_sale_channel;
+END;
+/
+
+-- Endpoint to get sale by date
+CREATE OR REPLACE PROCEDURE get_sale_by_date(
+    p_sale_date IN DATE,
+    p_sales OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_sales FOR
+    SELECT * FROM sales
+    WHERE sale_date = p_sale_date;
+END;
+/
+
+-- Endpoint to get sale by date range
+CREATE OR REPLACE PROCEDURE get_sale_by_date_range(
+    p_start_date IN DATE,
+    p_end_date IN DATE,
+    p_sales OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_sales FOR
+    SELECT * FROM sales
+    WHERE sale_date BETWEEN p_start_date AND p_end_date;
+END;
+/
+
+-- Endpoint to get sale item by sale id
+CREATE OR REPLACE PROCEDURE get_sale_item_by_sale_id(
+    p_sale_id IN VARCHAR2,
+    p_sale_items OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_sale_items FOR
+    SELECT * FROM sale_items
+    WHERE sale_id = p_sale_id;
+END;
+/
+
+-- Endpoint to get sale item by product id
+CREATE OR REPLACE PROCEDURE get_sale_item_by_product_id(
+    p_product_id IN VARCHAR2,
+    p_sale_items OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_sale_items FOR
+    SELECT * FROM sale_items
+    WHERE product_id = p_product_id;
+END;
+/
+
+-- Endpoint to get cart by customer id
+CREATE OR REPLACE PROCEDURE get_cart_by_customer_id(
+    p_customer_id IN VARCHAR2,
+    p_carts OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_carts FOR
+    SELECT * FROM carts
+    WHERE customer_id = p_customer_id;
+END;
+/
+
+-- Endpoint to get cart items by cart id
+CREATE OR REPLACE PROCEDURE get_cart_items_by_cart_id(
+    p_cart_id IN VARCHAR2,
+    p_cart_items OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_cart_items FOR
+    SELECT * FROM cart_items
+    WHERE cart_id = p_cart_id;
+END;
+/
