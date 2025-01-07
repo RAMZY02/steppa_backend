@@ -163,7 +163,7 @@ async function softDeleteProduct(productId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE products SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE product_id = :product_id`;
+    const query = `UPDATE products SET deleted_at = SYSDATE WHERE product_id = :product_id`;
     await connection.execute(
       query,
       { product_id: productId },
@@ -347,7 +347,7 @@ async function softDeleteSale(saleId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sales SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE sale_id = :sale_id`;
+    const query = `UPDATE sales SET deleted_at = SYSDATE WHERE sale_id = :sale_id`;
     await connection.execute(query, { sale_id: saleId }, { autoCommit: true });
     console.log("Sale marked as deleted successfully.");
   } catch (error) {
@@ -372,6 +372,7 @@ async function getAllSales() {
         sale_channel: row[1],
         sale_date: row[2],
         total: row[3],
+        created_at: row[4],
       };
     });
     return sales;
@@ -456,7 +457,7 @@ async function softDeleteSaleItem(saleItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sale_items SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE sale_item_id = :sale_item_id`;
+    const query = `UPDATE sale_items SET deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
     await connection.execute(
       query,
       { sale_item_id: saleItemId },
@@ -556,26 +557,26 @@ async function getSaleByChannel(channel) {
 }
 
 // get sale by date
-async function getSaleByDate(date) {
+async function getSaleByDate(sale_date) {
   let connection;
   try {
     connection = await getConnection();
+
     const result = await connection.execute(
-      `BEGIN get_sale_by_date(:date, :sales); END;`,
-      {
-        date,
-        sales: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
-      }
+      `SELECT sale_id, sale_channel, sale_date, total
+       FROM sales
+       WHERE TRUNC(sale_date) = TO_DATE(:sale_date, 'DD-MM-YYYY')`,
+      { sale_date }
     );
-    const sales = await result.outBinds.sales.getRows();
-    return sales.map((sale) => ({
+
+    return result.rows.map((sale) => ({
       sale_id: sale[0],
       sale_channel: sale[1],
       sale_date: sale[2],
       total: sale[3],
     }));
   } catch (error) {
-    console.error("Error fetching sales by date:", error);
+    console.error("Error fetching sales by date:", error.message);
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -588,15 +589,13 @@ async function getSaleByDateRange(startDate, endDate) {
   try {
     connection = await getConnection();
     const result = await connection.execute(
-      `BEGIN get_sale_by_date_range(:startDate, :endDate, :sales); END;`,
-      {
-        startDate,
-        endDate,
-        sales: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
-      }
+      `SELECT sale_id, sale_channel, sale_date, total
+       FROM sales
+       WHERE TRUNC(sale_date) BETWEEN TO_DATE(:startDate, 'DD-MM-YYYY') AND TO_DATE(:endDate, 'DD-MM-YYYY')`,
+      { startDate, endDate }
     );
-    const sales = await result.outBinds.sales.getRows();
-    return sales.map((sale) => ({
+
+    return result.rows.map((sale) => ({
       sale_id: sale[0],
       sale_channel: sale[1],
       sale_date: sale[2],
@@ -752,7 +751,7 @@ async function softDeleteCustomer(customerId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE customers SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE customer_id = :customer_id`;
+    const query = `UPDATE customers SET deleted_at = SYSDATE WHERE customer_id = :customer_id`;
     await connection.execute(
       query,
       { customer_id: customerId },
@@ -834,7 +833,7 @@ async function softDeleteCart(cartId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE carts SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE cart_id = :cart_id`;
+    const query = `UPDATE carts SET deleted_at = SYSDATE WHERE cart_id = :cart_id`;
     await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
     console.log("Cart marked as deleted successfully.");
   } catch (error) {
@@ -892,6 +891,47 @@ async function getAllCartItems() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+// Cart Items - Get Purchased Items for a specific user
+async function getPurchasedCartItems(customerId) {
+  const connection = await getConnection();
+  console.log("Customer ID:", customerId);
+
+  try {
+    const result = await connection.execute(
+      `SELECT ci.cart_item_id, ci.cart_id, ci.product_id, ci.quantity, ci.price, ci.status,
+              p.product_name, p.product_description, p.product_category, p.product_size, p.product_gender, p.product_image, p.stok_qty, p.price
+       FROM cart_items ci
+       JOIN products p ON ci.product_id = p.product_id
+       JOIN carts c ON ci.cart_id = c.cart_id
+       WHERE ci.status = 'purchased' AND ci.deleted_at IS NULL AND c.customer_id = :customer_id`,
+      { customer_id: customerId }
+    );
+
+    const purchasedCartItems = result.rows.map((item) => ({
+      cart_item_id: item[0],
+      cart_id: item[1],
+      product_id: item[2],
+      quantity: item[3],
+      price: item[4],
+      status: item[5],
+      product_name: item[6],
+      product_description: item[7],
+      product_category: item[8],
+      product_size: item[9],
+      product_gender: item[10],
+      product_image: item[11],
+      stok_qty: item[12],
+      product_price: item[13],
+    }));
+    return purchasedCartItems;
+  } catch (error) {
+    console.error("Error fetching purchased cart items:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -1212,7 +1252,7 @@ async function softDeleteRevenueReport(reportId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE revenue_reports SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE report_id = :report_id`;
+    const query = `UPDATE revenue_reports SET deleted_at = SYSDATE WHERE report_id = :report_id`;
     await connection.execute(
       query,
       { report_id: reportId },
@@ -1334,7 +1374,7 @@ async function softDeleteUser(userId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE users SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE user_id = :user_id`;
+    const query = `UPDATE users SET deleted_at = SYSDATE WHERE user_id = :user_id`;
     await connection.execute(query, { user_id: userId }, { autoCommit: true });
     console.log("User marked as deleted successfully.");
   } catch (error) {
@@ -1428,4 +1468,5 @@ module.exports = {
   getCartByCustomerId,
   getCartItemsByCartId,
   createTransaction,
+  getPurchasedCartItems,
 };

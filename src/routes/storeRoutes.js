@@ -393,6 +393,22 @@ router.get("/cart_items", authenticateToken, async (req, res) => {
   }
 });
 
+// Get History
+router.get(
+  "/customer/history/:customerId",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const purchasedCartItems = await storeController.getPurchasedCartItems(
+        req.params.customerId
+      );
+      res.status(200).json(purchasedCartItems);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
 // Get Cart Item by ID
 router.get("/cart_items/:id", authenticateToken, async (req, res) => {
   try {

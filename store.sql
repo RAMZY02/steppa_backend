@@ -23,6 +23,15 @@ conn reki@steppa_store/reki
 --role admin
 set role admin identified by admin;
 
+drop table products cascade constraints;
+drop table sales cascade constraints;
+drop table sale_items cascade constraints;
+drop table customers cascade constraints;
+drop table carts cascade constraints;
+drop table cart_items cascade constraints;
+drop table revenue_reports cascade constraints;
+drop table users cascade constraints;
+drop table log_store cascade constraints;
 
 
 
@@ -37,8 +46,8 @@ CREATE TABLE products (
     product_image VARCHAR2(255) NOT NULL,
     stok_qty NUMBER NOT NULL,
     price NUMBER NOT NULL,
-    last_update DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    last_update DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -47,7 +56,7 @@ CREATE TABLE sales (
     sale_channel VARCHAR2(50) NOT NULL,
     sale_date DATE NOT NULL,
     total NUMBER NOT NULL,
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -58,7 +67,7 @@ CREATE TABLE sale_items (
     quantity NUMBER NOT NULL,
     price NUMBER NOT NULL,
     subtotal NUMBER NOT NULL,
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -72,14 +81,14 @@ CREATE TABLE customers (
     city VARCHAR2(50),
     country VARCHAR2(50),
     zip_code VARCHAR2(10),
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
 CREATE TABLE carts (
     cart_id VARCHAR2(10) PRIMARY KEY,
     customer_id VARCHAR2(10) NOT NULL REFERENCES customers(customer_id),
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -90,7 +99,7 @@ CREATE TABLE cart_items (
     quantity NUMBER NOT NULL CHECK (quantity > 0),
     price NUMBER NOT NULL,
     status VARCHAR2(20) DEFAULT 'active',
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -100,7 +109,7 @@ CREATE TABLE revenue_reports (
     total_revenue NUMBER NOT NULL,
     total_expenses NUMBER NOT NULL,
     net_profit NUMBER NOT NULL,
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -112,7 +121,7 @@ CREATE TABLE users (
     email VARCHAR2(100),
     phone_number VARCHAR2(20),
     role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
-    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
 
@@ -321,7 +330,7 @@ CREATE OR REPLACE PROCEDURE remove_item_from_cart(
 ) AS
 BEGIN
     UPDATE cart_items
-    SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') 
+    SET deleted_at = SYSDATE 
     WHERE cart_item_id = p_cart_item_id
       AND status = 'active';
 END;
@@ -335,7 +344,7 @@ CREATE OR REPLACE PROCEDURE checkout(
     v_total NUMBER := 0;
 BEGIN
     INSERT INTO sales (sale_id, sale_channel, sale_date, total)
-    VALUES (v_sale_id, 'Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
+    VALUES (v_sale_id, 'Online', SYSDATE, 0)
     RETURNING sale_id INTO v_sale_id;
 
     FOR r IN (SELECT ci.product_id, ci.quantity, ci.price
@@ -403,7 +412,7 @@ BEGIN
     WHERE customer_id = p_customer_id;
 
     INSERT INTO sales (sale_channel, sale_date, total)
-    VALUES (p_sale_channel, TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
+    VALUES (p_sale_channel, SYSDATE, 0)
     RETURNING sale_id INTO v_sale_id;
 
     FOR i IN 1 .. p_products.COUNT LOOP
@@ -453,7 +462,7 @@ BEGIN
     END LOOP;
     
     INSERT INTO sales (sale_channel, sale_date, total)
-    VALUES (p_sale_channel, TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
+    VALUES (p_sale_channel, SYSDATE, 0)
     RETURNING sale_id INTO v_sale_id;
 
     FOR i IN 1 .. p_products.COUNT LOOP
@@ -519,11 +528,11 @@ VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '44', 'f
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 100);
+VALUES ('Online', SYSDATE, 100);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 200);
+VALUES ('Offline', SYSDATE, 200);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 300);
+VALUES ('Online', SYSDATE, 300);
 
 -- Insert dummy data into sale_items
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
@@ -571,11 +580,11 @@ VALUES ('CRT0003', 'PRO0003', 2, 90, 'active');
 
 -- Insert dummy data into revenue_reports
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 1000, 500, 500);
+VALUES (SYSDATE, 1000, 500, 500);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 2000, 1000, 1000);
+VALUES (SYSDATE, 2000, 1000, 1000);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 3000, 1500, 1500);
+VALUES (SYSDATE, 3000, 1500, 1500);
 
 
 CREATE OR REPLACE TRIGGER after_checkout_update_stock
@@ -615,7 +624,7 @@ CREATE TABLE log_store (
     action_type CHAR(1), 
     table_name VARCHAR2(50),
     action_details VARCHAR2(255),
-    action_time DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    action_time DATE DEFAULT SYSDATE,
     action_user VARCHAR2(50)
 );
 
@@ -996,7 +1005,7 @@ CREATE OR REPLACE PROCEDURE get_sale_by_date(
 BEGIN
     OPEN p_sales FOR
     SELECT * FROM sales
-    WHERE sale_date = p_sale_date;
+    WHERE TRUNC(sale_date) = TO_DATE(p_sale_date, 'YYYY-MM-DD');
 END;
 /
 
@@ -1009,7 +1018,7 @@ CREATE OR REPLACE PROCEDURE get_sale_by_date_range(
 BEGIN
     OPEN p_sales FOR
     SELECT * FROM sales
-    WHERE TRUNC(sale_date) BETWEEN TO_DATE(p_start_date, 'YYYY-MM-DD') AND TO_DATE(p_end_date, 'YYYY-MM-DD');
+    WHERE TRUNC(sale_date) BETWEEN TO_DATE(p_start_date, 'DD-MM-YYYY') AND TO_DATE(p_end_date, 'DD-MM-YYYY');
 END;
 /
 
