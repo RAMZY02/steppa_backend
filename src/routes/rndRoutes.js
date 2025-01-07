@@ -32,6 +32,7 @@ const {
   updateRawMaterial,
   softDeleteRawMaterial,
   getAllRawMaterials,
+  getFilteredRawMaterials,
   getRawMaterialById,
   getRawMaterialByName,
   getAllLogs,
@@ -253,6 +254,15 @@ router.get("/material", async (req, res) => {
   try {
     const rawMaterials = await getAllRawMaterials();
     res.status(200).json(rawMaterials);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/filtered-material", async (req, res) => {
+  try {
+    const filteredMaterials = await getFilteredRawMaterials();
+    res.status(200).json(filteredMaterials);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
