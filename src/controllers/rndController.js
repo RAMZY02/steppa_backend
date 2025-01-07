@@ -1394,6 +1394,30 @@ async function getUserByUsername(username) {
   }
 }
 
+// Get Raw Materials with ID >= 3
+async function getFilteredRawMaterials() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT id, name 
+       FROM raw_materials 
+       WHERE deleted_at IS NULL AND id >= 3`
+    );
+    const filtermats = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+      };
+    });
+    return filtermats;
+  } catch (error) {
+    console.error("Error fetching filtered raw materials", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 module.exports = {
   insertDesign,
   updateDesign,
@@ -1440,4 +1464,5 @@ module.exports = {
   getAllUsers,
   getUserById,
   getUserByUsername,
+  getFilteredRawMaterials
 };
