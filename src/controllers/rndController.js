@@ -1141,7 +1141,17 @@ const getAllLogs = async () => {
       `SELECT LOG_ID, ACTION_TYPE, TABLE_NAME, ACTION_DETAILS, ACTION_TIME, ACTION_USER 
        FROM LOG_RND`
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs", error);
     throw error;
@@ -1159,7 +1169,17 @@ const getLogById = async (id) => {
        WHERE LOG_ID = :id`,
       { id }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching log by ID", error);
     throw error;
@@ -1177,7 +1197,17 @@ const getLogsByActionType = async (type) => {
        WHERE ACTION_TYPE = :type`,
       { type }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action type", error);
     throw error;
@@ -1195,7 +1225,17 @@ const getLogsByTableName = async (name) => {
        WHERE LOWER(TABLE_NAME) = LOWER(:name)`,
       { name }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by table name", error);
     throw error;
@@ -1213,7 +1253,17 @@ const getLogsByActionTime = async (time) => {
        WHERE TRUNC(ACTION_TIME) = TO_DATE(:time, 'DD-MM-YYYY')`,
       { time }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action time", error);
     throw error;
@@ -1231,7 +1281,17 @@ const getLogsByActionUser = async (username) => {
        WHERE LOWER(ACTION_USER) = LOWER(:username)`,
       { username }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action user", error);
     throw error;
