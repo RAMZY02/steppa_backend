@@ -1,6 +1,7 @@
 const oracledb = require("oracledb");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const midtransClient = require("midtrans-client");
 
 // Melvin
 oracledb.initOracleClient({
@@ -99,8 +100,27 @@ async function insertProduct(product) {
   try {
     connection = await getConnection();
     const query = `
+      BEGIN
+      
       INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-      VALUES (:product_name, :product_description, :product_category, :product_size, :product_gender, :product_image, :stok_qty, :price)
+      VALUES (:product_name, :product_description, :product_category, '40', :product_gender, :product_image, 0, :price)
+      
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, '41', :product_gender, :product_image, 0, :price)
+      
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, '42', :product_gender, :product_image, 0, :price)
+      
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, '43', :product_gender, :product_image, 0, :price)
+      
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, '44', :product_gender, :product_image, 0, :price)
+      
+      INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+      VALUES (:product_name, :product_description, :product_category, '45', :product_gender, :product_image, 0, :price)
+
+      END;
     `;
     await connection.execute(query, product, { autoCommit: true });
     console.log("Product added successfully.");
@@ -138,7 +158,7 @@ async function softDeleteProduct(productId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE products SET deleted_at = SYSDATE WHERE product_id = :product_id`;
+    const query = `UPDATE products SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE product_id = :product_id`;
     await connection.execute(
       query,
       { product_id: productId },
@@ -153,7 +173,7 @@ async function softDeleteProduct(productId) {
   }
 }
 
-// Products - Get All
+// Products - Get Catalog
 async function getAllProducts() {
   const connection = await getConnection();
   try {
@@ -190,8 +210,6 @@ async function getAllProducts() {
   }
 }
 
-// Products - Get Catalog
-
 // Products - Get New Releases
 async function getNewReleaseProducts() {
   const connection = await getConnection();
@@ -206,7 +224,7 @@ async function getNewReleaseProducts() {
        MAX(product_image)
        FROM products
        WHERE deleted_at IS NULL
-       AND created_at >= SYSDATE - 30
+       AND TRUNC(created_at) >= TRUNC(SYSDATE - 30)
        GROUP BY product_name, product_description, product_category, product_gender, price`
     );
 
@@ -279,40 +297,7 @@ async function addStock(productId, quantity) {
   }
 }
 
-// Products - Get by ID
-async function getProductById(productId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM products WHERE product_id = :product_id AND deleted_at IS NULL`,
-      { product_id: productId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("Product not found.");
-    }
-
-    const product = result.rows[0];
-    return {
-      product_id: product[0],
-      product_name: product[1],
-      product_description: product[2],
-      product_category: product[3],
-      product_size: product[4],
-      product_gender: product[5],
-      product_image: product[6],
-      stok_qty: product[7],
-      price: product[8],
-      last_update: product[9],
-    };
-  } catch (error) {
-    console.error("Error fetching product by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
+// Sales -------------------------------------------------------------------------------
 // Sales - Insert
 async function insertSale(sale) {
   let connection;
@@ -357,7 +342,7 @@ async function softDeleteSale(saleId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sales SET deleted_at = SYSDATE WHERE sale_id = :sale_id`;
+    const query = `UPDATE sales SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE sale_id = :sale_id`;
     await connection.execute(query, { sale_id: saleId }, { autoCommit: true });
     console.log("Sale marked as deleted successfully.");
   } catch (error) {
@@ -421,6 +406,7 @@ async function getSaleById(saleId) {
   }
 }
 
+// Sale Items -------------------------------------------------------------------------------
 // Sale Items - Insert
 async function insertSaleItem(saleItem) {
   let connection;
@@ -465,7 +451,7 @@ async function softDeleteSaleItem(saleItemId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `UPDATE sale_items SET deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
+    const query = `UPDATE sale_items SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE sale_item_id = :sale_item_id`;
     await connection.execute(
       query,
       { sale_item_id: saleItemId },
@@ -531,723 +517,6 @@ async function getSaleItemById(saleItemId) {
     };
   } catch (error) {
     console.error("Error fetching sale item by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Customers - Insert
-async function insertCustomer(customer) {
-  let connection;
-  try {
-    connection = await getConnection();
-
-    // Mulai transaksi
-    await connection.execute("BEGIN");
-
-    // Query untuk memasukkan data ke tabel customers
-    const insertCustomerQuery = `
-      INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
-      VALUES (:name, :email, :phone_number, :address, :city, :country, :zip_code)
-      RETURNING customer_id INTO :customer_id
-    `;
-
-    const binds = {
-      name: customer.name,
-      email: customer.email,
-      phone_number: customer.phone_number,
-      address: customer.address,
-      city: customer.city,
-      country: customer.country,
-      zip_code: customer.zip_code,
-      customer_id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    };
-
-    // Menjalankan query dan mendapatkan customer_id yang baru dibuat
-    await connection.execute(insertCustomerQuery, binds);
-
-    const customerId = binds.customer_id.val;
-    console.log("Customer added with ID:", customerId);
-
-    // Setelah berhasil menambah customer, insert cart untuk customer yang baru
-    const insertCartQuery = `
-      INSERT INTO carts (customer_id)
-      VALUES (:customer_id)
-    `;
-
-    await connection.execute(insertCartQuery, { customer_id: customerId });
-    console.log("Cart added successfully for customer with ID:", customerId);
-
-    // Commit transaksi
-    await connection.execute("COMMIT");
-  } catch (error) {
-    console.error("Error inserting customer and creating cart:", error.message);
-
-    // Rollback transaksi jika terjadi kesalahan
-    if (connection) {
-      await connection.execute("ROLLBACK");
-    }
-    throw error;
-  } finally {
-    // Tutup koneksi
-    if (connection) await connection.close();
-  }
-}
-
-// Customers - Update
-async function updateCustomer(customer) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      UPDATE customers
-      SET name = :name, email = :email, phone_number = :phone_number, address = :address, city = :city, country = :country, zip_code = :zip_code
-      WHERE customer_id = :customer_id
-    `;
-    await connection.execute(query, customer, { autoCommit: true });
-    console.log("Customer updated successfully.");
-  } catch (error) {
-    console.error("Error updating customer:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Customers - Delete
-async function softDeleteCustomer(customerId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `UPDATE customers SET deleted_at = SYSDATE WHERE customer_id = :customer_id`;
-    await connection.execute(
-      query,
-      { customer_id: customerId },
-      { autoCommit: true }
-    );
-    console.log("Customer marked as deleted successfully.");
-  } catch (error) {
-    console.error("Error deleting customer:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Customers - Get All
-async function getAllCustomers() {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM customers WHERE deleted_at IS NULL`
-    );
-
-    const customers = result.rows.map((row) => {
-      return {
-        customer_id: row[0],
-        name: row[1],
-        email: row[2],
-        phone_number: row[3],
-        address: row[4],
-        city: row[5],
-        country: row[6],
-        zip_code: row[7],
-      };
-    });
-    return customers;
-  } catch (error) {
-    console.error("Error fetching customers", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
-// Customers - Get by ID
-async function getCustomerById(customerId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM customers WHERE customer_id = :customer_id AND deleted_at IS NULL`,
-      { customer_id: customerId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("Customer not found.");
-    }
-
-    const customer = result.rows[0];
-    return {
-      customer_id: customer[0],
-      name: customer[1],
-      email: customer[2],
-      phone_number: customer[3],
-      address: customer[4],
-      city: customer[5],
-      country: customer[6],
-      zip_code: customer[7],
-    };
-  } catch (error) {
-    console.error("Error fetching customer by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Carts - Insert
-async function insertCart(cart) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      INSERT INTO carts (customer_id)
-      VALUES (:customer_id)
-    `;
-    await connection.execute(query, cart, { autoCommit: true });
-    console.log("Cart added successfully.");
-  } catch (error) {
-    console.error("Error inserting cart:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Carts - Update
-async function updateCart(cart) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      UPDATE carts
-      SET customer_id = :customer_id
-      WHERE cart_id = :cart_id
-    `;
-    await connection.execute(query, cart, { autoCommit: true });
-    console.log("Cart updated successfully.");
-  } catch (error) {
-    console.error("Error updating cart:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Carts - Delete
-async function softDeleteCart(cartId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `UPDATE carts SET deleted_at = SYSDATE WHERE cart_id = :cart_id`;
-    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
-    console.log("Cart marked as deleted successfully.");
-  } catch (error) {
-    console.error("Error deleting cart:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Carts - Get All
-async function getAllCarts() {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM carts WHERE deleted_at IS NULL`
-    );
-
-    const carts = result.rows.map((row) => {
-      return {
-        cart_id: row[0],
-        customer_id: row[1],
-      };
-    });
-    return carts;
-  } catch (error) {
-    console.error("Error fetching carts", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
-// Carts - Get by ID
-async function getCartById(cartId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM carts WHERE cart_id = :cart_id AND deleted_at IS NULL`,
-      { cart_id: cartId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("Cart not found.");
-    }
-
-    const cart = result.rows[0];
-    return {
-      cart_id: cart[0],
-      customer_id: cart[1],
-    };
-  } catch (error) {
-    console.error("Error fetching cart by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart Items - Insert
-async function insertCartItem(cartItem) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      INSERT INTO cart_items (cart_id, product_id, quantity, price, status)
-      VALUES (:cart_id, :product_id, :quantity, :price, :status)
-    `;
-    await connection.execute(query, cartItem, { autoCommit: true });
-    console.log("Cart item added successfully.");
-  } catch (error) {
-    console.error("Error inserting cart item:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart Items - Update
-async function updateCartItem(cartItem) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      UPDATE cart_items
-      SET cart_id = :cart_id, product_id = :product_id, quantity = :quantity, price = :price, status = :status
-      WHERE cart_item_id = :cart_item_id
-    `;
-    await connection.execute(query, cartItem, { autoCommit: true });
-    console.log("Cart item updated successfully.");
-  } catch (error) {
-    console.error("Error updating cart item:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart Items - Delete
-async function softDeleteCartItem(cartItemId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `UPDATE cart_items SET deleted_at = SYSDATE WHERE cart_item_id = :cart_item_id`;
-    await connection.execute(
-      query,
-      { cart_item_id: cartItemId },
-      { autoCommit: true }
-    );
-    console.log("Cart item marked as deleted successfully.");
-  } catch (error) {
-    console.error("Error deleting cart item:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart Items - Get All
-async function getAllCartItems() {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM cart_items WHERE deleted_at IS NULL`
-    );
-
-    const cartItems = result.rows.map((row) => {
-      return {
-        cart_item_id: row[0],
-        cart_id: row[1],
-        product_id: row[2],
-        quantity: row[3],
-        price: row[4],
-        status: row[5],
-      };
-    });
-    return cartItems;
-  } catch (error) {
-    console.error("Error fetching cart items", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
-// Cart Items - Get by ID
-async function getCartItemById(cartItemId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM cart_items WHERE cart_item_id = :cart_item_id AND deleted_at IS NULL`,
-      { cart_item_id: cartItemId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("Cart item not found.");
-    }
-
-    const cartItem = result.rows[0];
-    return {
-      cart_item_id: cartItem[0],
-      cart_id: cartItem[1],
-      product_id: cartItem[2],
-      quantity: cartItem[3],
-      price: cartItem[4],
-      status: cartItem[5],
-    };
-  } catch (error) {
-    console.error("Error fetching cart item by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Revenue Reports - Insert
-async function insertRevenueReport(report) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-      VALUES (:report_period, :total_revenue, :total_expenses, :net_profit)
-    `;
-    await connection.execute(query, report, { autoCommit: true });
-    console.log("Revenue report added successfully.");
-  } catch (error) {
-    console.error("Error inserting revenue report:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Revenue Reports - Update
-async function updateRevenueReport(report) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      UPDATE revenue_reports
-      SET report_period = :report_period, total_revenue = :total_revenue, total_expenses = :total_expenses, net_profit = :net_profit
-      WHERE report_id = :report_id
-    `;
-    await connection.execute(query, report, { autoCommit: true });
-    console.log("Revenue report updated successfully.");
-  } catch (error) {
-    console.error("Error updating revenue report:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Revenue Reports - Delete
-async function softDeleteRevenueReport(reportId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `UPDATE revenue_reports SET deleted_at = SYSDATE WHERE report_id = :report_id`;
-    await connection.execute(
-      query,
-      { report_id: reportId },
-      { autoCommit: true }
-    );
-    console.log("Revenue report marked as deleted successfully.");
-  } catch (error) {
-    console.error("Error deleting revenue report:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Revenue Reports - Get All
-async function getAllRevenueReports() {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM revenue_reports WHERE deleted_at IS NULL`
-    );
-
-    const revenueReports = result.rows.map((row) => {
-      return {
-        report_id: row[0],
-        report_period: row[1],
-        total_revenue: row[2],
-        total_expenses: row[3],
-        net_profit: row[4],
-      };
-    });
-    return revenueReports;
-  } catch (error) {
-    console.error("Error fetching revenue reports", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
-// Revenue Reports - Get by ID
-async function getRevenueReportById(reportId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM revenue_reports WHERE report_id = :report_id AND deleted_at IS NULL`,
-      { report_id: reportId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("Revenue report not found.");
-    }
-
-    const revenueReport = result.rows[0];
-    return {
-      report_id: revenueReport[0],
-      report_period: revenueReport[1],
-      total_revenue: revenueReport[2],
-      total_expenses: revenueReport[3],
-      net_profit: revenueReport[4],
-    };
-  } catch (error) {
-    console.error("Error fetching revenue report by ID:", error);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Add to Cart
-async function addToCart(cartId, productId, quantity, price) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN add_to_cart(:cart_id, :product_id, :quantity, :price); END;`;
-    await connection.execute(
-      query,
-      { cart_id: cartId, product_id: productId, quantity, price },
-      { autoCommit: true }
-    );
-    console.log("Item added to cart successfully.");
-  } catch (error) {
-    console.error("Error adding item to cart:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Update Cart Item Quantity
-async function updateCartItemQuantity(cartItemId, quantity) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN update_cart_item_quantity(:cart_item_id, :quantity); END;`;
-    await connection.execute(
-      query,
-      { cart_item_id: cartItemId, quantity },
-      { autoCommit: true }
-    );
-    console.log("Cart item quantity updated successfully.");
-  } catch (error) {
-    console.error("Error updating cart item quantity:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Remove Item from Cart
-async function removeItemFromCart(cartItemId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN remove_item_from_cart(:cart_item_id); END;`;
-    await connection.execute(
-      query,
-      { cart_item_id: cartItemId },
-      { autoCommit: true }
-    );
-    console.log("Item removed from cart successfully.");
-  } catch (error) {
-    console.error("Error removing item from cart:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Checkout
-async function checkout(cartId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN checkout(:cart_id); END;`;
-    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
-    console.log("Checkout completed successfully.");
-  } catch (error) {
-    console.error("Error during checkout:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Calculate Cart Subtotal
-async function calculateCartSubtotal(cartId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN calculate_cart_subtotal(:cart_id, :total); END;`;
-    const result = await connection.execute(query, {
-      cart_id: cartId,
-      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    });
-    console.log("Cart subtotal calculated successfully.");
-    return result.outBinds.total;
-  } catch (error) {
-    console.error("Error calculating cart subtotal:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Cart - Offline Transaction
-async function offlineTransaction(
-  customerId,
-  saleChannel,
-  products,
-  quantities,
-  prices
-) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN offline_transaction(:customer_id, :sale_channel, :products, :quantities, :prices, :total); END;`;
-    const result = await connection.execute(query, {
-      customer_id: customerId,
-      sale_channel: saleChannel,
-      products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
-      quantities: {
-        type: oracledb.NUMBER,
-        dir: oracledb.BIND_IN,
-        val: quantities,
-      },
-      prices: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: prices },
-      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    });
-    console.log("Offline transaction completed successfully.");
-    return result.outBinds.total;
-  } catch (error) {
-    console.error("Error during offline transaction:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Users - Insert
-async function insertUser(user) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const query = `
-      INSERT INTO users (username, email, password)
-      VALUES (:username, :email, :password)
-    `;
-    await connection.execute(
-      query,
-      {
-        ...user,
-        password: hashedPassword,
-      },
-      { autoCommit: true }
-    );
-    console.log("User added successfully.");
-  } catch (error) {
-    console.error("Error inserting user:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Users - Update
-async function updateUser(user) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      UPDATE users
-      SET username = :username, email = :email, password = :password
-      WHERE user_id = :user_id
-    `;
-    await connection.execute(query, user, { autoCommit: true });
-    console.log("User updated successfully.");
-  } catch (error) {
-    console.error("Error updating user:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Users - Delete
-async function softDeleteUser(userId) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `UPDATE users SET deleted_at = SYSDATE WHERE user_id = :user_id`;
-    await connection.execute(query, { user_id: userId }, { autoCommit: true });
-    console.log("User marked as deleted successfully.");
-  } catch (error) {
-    console.error("Error deleting user:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Users - Get by ID
-async function getUserById(userId) {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
-      { user_id: userId }
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error("User not found.");
-    }
-
-    const user = result.rows[0];
-    return {
-      user_id: user[0],
-      username: user[1],
-      password: user[2],
-      full_name: user[3],
-      email: user[4],
-      phone_number: user[5],
-      role: user[6],
-    };
-  } catch (error) {
-    console.error("Error fetching user by ID:", error);
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1394,7 +663,377 @@ async function getSaleItemByProductId(productId) {
   }
 }
 
-// get cart by customer id
+// Customers -------------------------------------------------------------------------------
+// Customers - Insert
+async function insertCustomer(customer) {
+  let connection;
+  try {
+    connection = await getConnection();
+
+    // Mulai transaksi
+    await connection.execute("BEGIN");
+
+    // Query untuk memasukkan data ke tabel customers
+    const insertCustomerQuery = `
+      INSERT INTO customers (name, email, phone_number, address, city, country, zip_code)
+      VALUES (:name, :email, :phone_number, :address, :city, :country, :zip_code)
+      RETURNING customer_id INTO :customer_id
+    `;
+
+    const binds = {
+      name: customer.name,
+      email: customer.email,
+      phone_number: customer.phone_number,
+      address: customer.address,
+      city: customer.city,
+      country: customer.country,
+      zip_code: customer.zip_code,
+      customer_id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    };
+
+    // Menjalankan query dan mendapatkan customer_id yang baru dibuat
+    await connection.execute(insertCustomerQuery, binds);
+
+    const customerId = binds.customer_id.val;
+    console.log("Customer added with ID:", customerId);
+
+    // Setelah berhasil menambah customer, insert cart untuk customer yang baru
+    const insertCartQuery = `
+      INSERT INTO carts (customer_id)
+      VALUES (:customer_id)
+    `;
+
+    await connection.execute(insertCartQuery, { customer_id: customerId });
+    console.log("Cart added successfully for customer with ID:", customerId);
+
+    // Commit transaksi
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error inserting customer and creating cart:", error.message);
+
+    // Rollback transaksi jika terjadi kesalahan
+    if (connection) {
+      await connection.execute("ROLLBACK");
+    }
+    throw error;
+  } finally {
+    // Tutup koneksi
+    if (connection) await connection.close();
+  }
+}
+
+// Customers - Update
+async function updateCustomer(customer) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE customers
+      SET name = :name, email = :email, phone_number = :phone_number, address = :address, city = :city, country = :country, zip_code = :zip_code
+      WHERE customer_id = :customer_id
+    `;
+    await connection.execute(query, customer, { autoCommit: true });
+    console.log("Customer updated successfully.");
+  } catch (error) {
+    console.error("Error updating customer:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Customers - Delete
+async function softDeleteCustomer(customerId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `UPDATE customers SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE customer_id = :customer_id`;
+    await connection.execute(
+      query,
+      { customer_id: customerId },
+      { autoCommit: true }
+    );
+    console.log("Customer marked as deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting customer:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Customers - Get All
+async function getAllCustomers() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM customers WHERE deleted_at IS NULL`
+    );
+
+    const customers = result.rows.map((row) => {
+      return {
+        customer_id: row[0],
+        name: row[1],
+        email: row[2],
+        phone_number: row[3],
+        address: row[4],
+        city: row[5],
+        country: row[6],
+        zip_code: row[7],
+      };
+    });
+    return customers;
+  } catch (error) {
+    console.error("Error fetching customers", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Customers - Get by ID
+async function getCustomerById(customerId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM customers WHERE customer_id = :customer_id AND deleted_at IS NULL`,
+      { customer_id: customerId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Customer not found.");
+    }
+
+    const customer = result.rows[0];
+    return {
+      customer_id: customer[0],
+      name: customer[1],
+      email: customer[2],
+      phone_number: customer[3],
+      address: customer[4],
+      city: customer[5],
+      country: customer[6],
+      zip_code: customer[7],
+    };
+  } catch (error) {
+    console.error("Error fetching customer by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Carts -------------------------------------------------------------------------------
+// Carts - Delete
+async function softDeleteCart(cartId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `UPDATE carts SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE cart_id = :cart_id`;
+    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
+    console.log("Cart marked as deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting cart:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Carts - Get All
+async function getAllCarts() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM carts WHERE deleted_at IS NULL`
+    );
+
+    const carts = result.rows.map((row) => {
+      return {
+        cart_id: row[0],
+        customer_id: row[1],
+      };
+    });
+    return carts;
+  } catch (error) {
+    console.error("Error fetching carts", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Cart Items - Get All
+async function getAllCartItems() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM cart_items WHERE deleted_at IS NULL`
+    );
+
+    const cartItems = result.rows.map((row) => {
+      return {
+        cart_item_id: row[0],
+        cart_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        price: row[4],
+        status: row[5],
+      };
+    });
+    return cartItems;
+  } catch (error) {
+    console.error("Error fetching cart items", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Cart - Add to Cart
+async function addToCart(cartId, productId, quantity, price) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN add_to_cart(:cart_id, :product_id, :quantity, :price); END;`;
+    await connection.execute(
+      query,
+      { cart_id: cartId, product_id: productId, quantity, price },
+      { autoCommit: true }
+    );
+    console.log("Item added to cart successfully.");
+  } catch (error) {
+    console.error("Error adding item to cart:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Update Cart Item Quantity
+async function updateCartItemQuantity(cartItemId, quantity) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN update_cart_item_quantity(:cart_item_id, :quantity); END;`;
+    await connection.execute(
+      query,
+      { cart_item_id: cartItemId, quantity },
+      { autoCommit: true }
+    );
+    console.log("Cart item quantity updated successfully.");
+  } catch (error) {
+    console.error("Error updating cart item quantity:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Remove Item from Cart
+async function removeItemFromCart(cartItemId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN remove_item_from_cart(:cart_item_id); END;`;
+    await connection.execute(
+      query,
+      { cart_item_id: cartItemId },
+      { autoCommit: true }
+    );
+    console.log("Item removed from cart successfully.");
+  } catch (error) {
+    console.error("Error removing item from cart:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Create Snap API instance
+const snap = new midtransClient.Snap({
+  isProduction: false,
+  serverKey: "SB-Mid-server-3o0aKsOiaojIGTnxC0iUw_xu",
+  clientKey: "SB-Mid-client-UZjYV-a03fWcJDo8",
+});
+
+async function createTransaction(orderId, grossAmount, customerDetails) {
+  try {
+    const parameter = {
+      transaction_details: {
+        order_id: orderId,
+        gross_amount: grossAmount,
+      },
+      credit_card: {
+        secure: true,
+      },
+      customer_details: customerDetails,
+    };
+
+    const transaction = await snap.createTransaction(parameter);
+    return transaction;
+  } catch (error) {
+    console.error("Error creating transaction:", error.message);
+    throw error;
+  }
+}
+
+// Cart - Checkout
+async function checkout(cartId, customerDetails) {
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const total = await calculateCartSubtotal(cartId);
+
+    const query = `BEGIN checkout(:cart_id); END;`;
+    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
+
+    // Calculate the total amount for the transaction
+    console.log("Total amount for transaction:", total);
+
+    // Create a Midtrans transaction
+    const orderId = `ORDER-${Date.now()}`;
+    const transaction = await createTransaction(
+      orderId,
+      total,
+      customerDetails
+    );
+
+    console.log("Checkout completed successfully.");
+    return transaction;
+  } catch (error) {
+    console.error("Error during checkout:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Calculate Cart Subtotal
+async function calculateCartSubtotal(cartId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN calculate_cart_subtotal(:cart_id, :total); END;`;
+    const result = await connection.execute(query, {
+      cart_id: cartId,
+      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    });
+    console.log(
+      "Cart subtotal calculated successfully. Total:",
+      result.outBinds.total
+    );
+    return result.outBinds.total;
+  } catch (error) {
+    console.error("Error calculating cart subtotal:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - get cart by customer id
 async function getCartByCustomerId(customerId) {
   let connection;
   try {
@@ -1418,7 +1057,7 @@ async function getCartByCustomerId(customerId) {
   }
 }
 
-//  get cart items by cart id
+//  Cart - get cart items by cart id
 async function getCartItemsByCartId(cartId) {
   let connection;
   try {
@@ -1428,7 +1067,7 @@ async function getCartItemsByCartId(cartId) {
               p.product_name, p.product_description, p.product_category, p.product_size, p.product_gender, p.product_image, p.stok_qty, p.price
        FROM cart_items ci
        JOIN products p ON ci.product_id = p.product_id
-       WHERE ci.cart_id = :cartId AND ci.deleted_at IS NULL`,
+       WHERE ci.cart_id = :cartId AND ci.deleted_at IS NULL AND ci.status = 'active'`,
       { cartId }
     );
 
@@ -1457,6 +1096,281 @@ async function getCartItemsByCartId(cartId) {
   }
 }
 
+// Cart - Offline Transaction Member
+async function offlineTransactionMember(
+  customerId,
+  saleChannel,
+  products,
+  quantities,
+  prices
+) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN offline_transaction_member(:customer_id, :sale_channel, :products, :quantities, :prices, :total); END;`;
+    const result = await connection.execute(query, {
+      customer_id: customerId,
+      sale_channel: saleChannel,
+      products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
+      quantities: {
+        type: oracledb.NUMBER,
+        dir: oracledb.BIND_IN,
+        val: quantities,
+      },
+      prices: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: prices },
+      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    });
+    console.log("Offline transaction completed successfully.");
+    return result.outBinds.total;
+  } catch (error) {
+    console.error("Error during offline transaction:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Cart - Offline Transaction Non Member
+async function offlineTransactionNonMember(
+  saleChannel,
+  products,
+  quantities,
+  prices
+) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN offline_transaction_non_member(:sale_channel, :products, :quantities, :prices, :total); END;`;
+    const result = await connection.execute(query, {
+      sale_channel: saleChannel,
+      products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
+      quantities: {
+        type: oracledb.NUMBER,
+        dir: oracledb.BIND_IN,
+        val: quantities,
+      },
+      prices: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: prices },
+      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    });
+    console.log("Offline transaction completed successfully.");
+    return result.outBinds.total;
+  } catch (error) {
+    console.error("Error during offline transaction:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Revenue Reports -------------------------------------------------------------------------------
+// Revenue Reports - Insert
+async function insertRevenueReport(report) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
+      VALUES (:report_period, :total_revenue, :total_expenses, :net_profit)
+    `;
+    await connection.execute(query, report, { autoCommit: true });
+    console.log("Revenue report added successfully.");
+  } catch (error) {
+    console.error("Error inserting revenue report:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Revenue Reports - Update
+async function updateRevenueReport(report) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE revenue_reports
+      SET report_period = :report_period, total_revenue = :total_revenue, total_expenses = :total_expenses, net_profit = :net_profit
+      WHERE report_id = :report_id
+    `;
+    await connection.execute(query, report, { autoCommit: true });
+    console.log("Revenue report updated successfully.");
+  } catch (error) {
+    console.error("Error updating revenue report:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Revenue Reports - Delete
+async function softDeleteRevenueReport(reportId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `UPDATE revenue_reports SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE report_id = :report_id`;
+    await connection.execute(
+      query,
+      { report_id: reportId },
+      { autoCommit: true }
+    );
+    console.log("Revenue report marked as deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting revenue report:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Revenue Reports - Get All
+async function getAllRevenueReports() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM revenue_reports WHERE deleted_at IS NULL`
+    );
+
+    const revenueReports = result.rows.map((row) => {
+      return {
+        report_id: row[0],
+        report_period: row[1],
+        total_revenue: row[2],
+        total_expenses: row[3],
+        net_profit: row[4],
+      };
+    });
+    return revenueReports;
+  } catch (error) {
+    console.error("Error fetching revenue reports", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Revenue Reports - Get by ID
+async function getRevenueReportById(reportId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM revenue_reports WHERE report_id = :report_id AND deleted_at IS NULL`,
+      { report_id: reportId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Revenue report not found.");
+    }
+
+    const revenueReport = result.rows[0];
+    return {
+      report_id: revenueReport[0],
+      report_period: revenueReport[1],
+      total_revenue: revenueReport[2],
+      total_expenses: revenueReport[3],
+      net_profit: revenueReport[4],
+    };
+  } catch (error) {
+    console.error("Error fetching revenue report by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Insert
+async function insertUser(user) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const query = `
+      INSERT INTO users (username, email, password)
+      VALUES (:username, :email, :password)
+    `;
+    await connection.execute(
+      query,
+      {
+        ...user,
+        password: hashedPassword,
+      },
+      { autoCommit: true }
+    );
+    console.log("User added successfully.");
+  } catch (error) {
+    console.error("Error inserting user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Update
+async function updateUser(user) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE users
+      SET username = :username, email = :email, password = :password
+      WHERE user_id = :user_id
+    `;
+    await connection.execute(query, user, { autoCommit: true });
+    console.log("User updated successfully.");
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Delete
+async function softDeleteUser(userId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `UPDATE users SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') WHERE user_id = :user_id`;
+    await connection.execute(query, { user_id: userId }, { autoCommit: true });
+    console.log("User marked as deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting user:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Users - Get by ID
+async function getUserById(userId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT * FROM users WHERE user_id = :user_id AND deleted_at IS NULL`,
+      { user_id: userId }
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("User not found.");
+    }
+
+    const user = result.rows[0];
+    return {
+      user_id: user[0],
+      username: user[1],
+      password: user[2],
+      full_name: user[3],
+      email: user[4],
+      phone_number: user[5],
+      role: user[6],
+    };
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertProduct,
   updateProduct,
@@ -1465,7 +1379,6 @@ module.exports = {
   getNewReleaseProducts,
   getProductStock,
   addStock,
-  getProductById,
   insertSale,
   updateSale,
   softDeleteSale,
@@ -1481,16 +1394,9 @@ module.exports = {
   softDeleteCustomer,
   getAllCustomers,
   getCustomerById,
-  insertCart,
-  updateCart,
   softDeleteCart,
   getAllCarts,
-  getCartById,
-  insertCartItem,
-  updateCartItem,
-  softDeleteCartItem,
   getAllCartItems,
-  getCartItemById,
   insertRevenueReport,
   updateRevenueReport,
   softDeleteRevenueReport,
@@ -1501,7 +1407,8 @@ module.exports = {
   removeItemFromCart,
   checkout,
   calculateCartSubtotal,
-  offlineTransaction,
+  offlineTransactionMember,
+  offlineTransactionNonMember,
   registerUser,
   loginUser,
   insertUser,
@@ -1515,4 +1422,5 @@ module.exports = {
   getSaleItemByProductId,
   getCartByCustomerId,
   getCartItemsByCartId,
+  createTransaction,
 };

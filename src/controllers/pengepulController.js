@@ -3,8 +3,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 // Aktifkan Thick Mode
+
+// Melvin
 oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
+  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -12,7 +14,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reti",
       password: "reti",
-      connectString: "localhost:1521/steppa_pengepul",
+      connectString: "192.168.195.213:1521/steppa_pengepul",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);

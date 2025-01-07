@@ -37,8 +37,8 @@ CREATE TABLE products (
     product_image VARCHAR2(255) NOT NULL,
     stok_qty NUMBER NOT NULL,
     price NUMBER NOT NULL,
-    last_update DATE DEFAULT SYSDATE,
-    created_at DATE DEFAULT SYSDATE,
+    last_update DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -47,7 +47,7 @@ CREATE TABLE sales (
     sale_channel VARCHAR2(50) NOT NULL,
     sale_date DATE NOT NULL,
     total NUMBER NOT NULL,
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE sale_items (
     quantity NUMBER NOT NULL,
     price NUMBER NOT NULL,
     subtotal NUMBER NOT NULL,
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -72,14 +72,14 @@ CREATE TABLE customers (
     city VARCHAR2(50),
     country VARCHAR2(50),
     zip_code VARCHAR2(10),
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
 CREATE TABLE carts (
     cart_id VARCHAR2(10) PRIMARY KEY,
     customer_id VARCHAR2(10) NOT NULL REFERENCES customers(customer_id),
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -90,7 +90,7 @@ CREATE TABLE cart_items (
     quantity NUMBER NOT NULL CHECK (quantity > 0),
     price NUMBER NOT NULL,
     status VARCHAR2(20) DEFAULT 'active',
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -100,7 +100,7 @@ CREATE TABLE revenue_reports (
     total_revenue NUMBER NOT NULL,
     total_expenses NUMBER NOT NULL,
     net_profit NUMBER NOT NULL,
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -112,7 +112,7 @@ CREATE TABLE users (
     email VARCHAR2(100),
     phone_number VARCHAR2(20),
     role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
-    created_at DATE DEFAULT SYSDATE,
+    created_at DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     deleted_at DATE
 );
 
@@ -321,7 +321,7 @@ CREATE OR REPLACE PROCEDURE remove_item_from_cart(
 ) AS
 BEGIN
     UPDATE cart_items
-    SET deleted_at = SYSDATE 
+    SET deleted_at = TO_DATE(SYSDATE, 'DD-MM-YYYY') 
     WHERE cart_item_id = p_cart_item_id
       AND status = 'active';
 END;
@@ -335,7 +335,7 @@ CREATE OR REPLACE PROCEDURE checkout(
     v_total NUMBER := 0;
 BEGIN
     INSERT INTO sales (sale_id, sale_channel, sale_date, total)
-    VALUES (v_sale_id, 'Online', SYSDATE, 0)
+    VALUES (v_sale_id, 'Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
     RETURNING sale_id INTO v_sale_id;
 
     FOR r IN (SELECT ci.product_id, ci.quantity, ci.price
@@ -368,7 +368,7 @@ BEGIN
     FOR r IN (SELECT ci.quantity, ci.price
               FROM cart_items ci
               WHERE ci.cart_id = p_cart_id AND ci.status = 'active') LOOP
-        p_total := p_total + (r.quantity * r.price);
+        p_total := p_total + r.price;
     END LOOP;
 END;
 /
@@ -384,7 +384,7 @@ END;
 
 
 
-CREATE OR REPLACE PROCEDURE offline_transaction( 
+CREATE OR REPLACE PROCEDURE offline_transaction_member(
     p_customer_id IN VARCHAR2,
     p_sale_channel IN VARCHAR2,
     p_products IN SYS.ODCIVARCHAR2LIST,
@@ -403,7 +403,7 @@ BEGIN
     WHERE customer_id = p_customer_id;
 
     INSERT INTO sales (sale_channel, sale_date, total)
-    VALUES (p_sale_channel, SYSDATE, 0)
+    VALUES (p_sale_channel, TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
     RETURNING sale_id INTO v_sale_id;
 
     FOR i IN 1 .. p_products.COUNT LOOP
@@ -433,37 +433,79 @@ BEGIN
 END;
 /
 
+
+CREATE OR REPLACE PROCEDURE offline_transaction_non_member(
+    p_sale_channel IN VARCHAR2,
+    p_products IN SYS.ODCIVARCHAR2LIST,
+    p_quantities IN SYS.ODCINUMBERLIST,
+    p_prices IN SYS.ODCINUMBERLIST,
+    p_total OUT NUMBER
+) AS
+    v_sale_id VARCHAR2(10);
+    v_total NUMBER := 0;
+    v_stok_qty NUMBER;
+BEGIN
+    FOR i IN 1 .. p_products.COUNT LOOP
+        SELECT stok_qty INTO v_stok_qty FROM products WHERE product_id = p_products(i);
+        IF v_stok_qty < p_quantities(i) THEN
+            RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ' || p_products(i));
+        END IF;
+    END LOOP;
+    
+    INSERT INTO sales (sale_channel, sale_date, total)
+    VALUES (p_sale_channel, TO_DATE(SYSDATE, 'DD-MM-YYYY'), 0)
+    RETURNING sale_id INTO v_sale_id;
+
+    FOR i IN 1 .. p_products.COUNT LOOP
+        INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+        VALUES (v_sale_id, p_products(i), p_quantities(i), p_prices(i), p_quantities(i) * p_prices(i));
+
+        UPDATE products
+        SET stok_qty = stok_qty - p_quantities(i)
+        WHERE product_id = p_products(i);
+
+        v_total := v_total + (p_quantities(i) * p_prices(i));
+    END LOOP;
+
+    UPDATE sales
+    SET total = v_total
+    WHERE sale_id = v_sale_id;
+
+    p_total := v_total;
+END;
+/
+
 -- Insert dummy data into products
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '42', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '42', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '43', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '43', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '44', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150),
+VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '44', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '40', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '40', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '41', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '41', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '42', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '42', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '43', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '43', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '44', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180),
+VALUES ('Adidas Ultraboost', 'Comfortable and stylish', 'Running Shoes', '44', 'female', 'https://drive.google.com/file/d/1j8LjNWCGye8-7YikgrXN5JKpjMtK3jGj/view?usp=sharing', 30, 180);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '40', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '40', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '41', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '41', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '42', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '42', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '43', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '43', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '44', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90),
+VALUES ('Puma Sneakers', 'Trendy streetwear shoes', 'Sneakers', '44', 'male', 'https://drive.google.com/file/d/179psE65OseXDL-OxcnJJgTnxlxImQp7l/view?usp=sharing', 20, 90);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
 VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '40', 'female', 'https://drive.google.com/file/d/13qMsSURIJ28tspj89LbxK8aCW8Nd7dNp/view?usp=sharing', 25, 120);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
@@ -477,11 +519,11 @@ VALUES ('Reebok Training', 'Durable and lightweight', 'Training Shoes', '44', 'f
 
 -- Insert dummy data into sales
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 100);
+VALUES ('Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 100);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Offline', SYSDATE, 200);
+VALUES ('Offline', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 200);
 INSERT INTO sales (sale_channel, sale_date, total)
-VALUES ('Online', SYSDATE, 300);
+VALUES ('Online', TO_DATE(SYSDATE, 'DD-MM-YYYY'), 300);
 
 -- Insert dummy data into sale_items
 INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
@@ -529,11 +571,11 @@ VALUES ('CRT0003', 'PRO0003', 2, 90, 'active');
 
 -- Insert dummy data into revenue_reports
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 1000, 500, 500);
+VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 1000, 500, 500);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 2000, 1000, 1000);
+VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 2000, 1000, 1000);
 INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
-VALUES (SYSDATE, 3000, 1500, 1500);
+VALUES (TO_DATE(SYSDATE, 'DD-MM-YYYY'), 3000, 1500, 1500);
 
 
 CREATE OR REPLACE TRIGGER after_checkout_update_stock
@@ -573,7 +615,7 @@ CREATE TABLE log_store (
     action_type CHAR(1), 
     table_name VARCHAR2(50),
     action_details VARCHAR2(255),
-    action_time DATE DEFAULT SYSDATE,
+    action_time DATE DEFAULT TO_DATE(SYSDATE, 'DD-MM-YYYY'),
     action_user VARCHAR2(50)
 );
 
@@ -967,7 +1009,7 @@ CREATE OR REPLACE PROCEDURE get_sale_by_date_range(
 BEGIN
     OPEN p_sales FOR
     SELECT * FROM sales
-    WHERE sale_date BETWEEN p_start_date AND p_end_date;
+    WHERE TRUNC(sale_date) BETWEEN TO_DATE(p_start_date, 'YYYY-MM-DD') AND TO_DATE(p_end_date, 'YYYY-MM-DD');
 END;
 /
 

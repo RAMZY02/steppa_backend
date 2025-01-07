@@ -3,9 +3,9 @@ const oracledb = require("oracledb");
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
 // Rama
-oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
-});
+// oracledb.initOracleClient({
+//   libDir: "D:/instantclient_23_6",
+// });
 
 // Melvin
 // oracledb.initOracleClient({
@@ -21,7 +21,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "localhost:1521/steppa_rnd",
+      connectString: "192.168.195.213:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1083,7 +1083,15 @@ const getLogsByActionUser = async (username) => {
 };
 
 // Insert User
-async function insertUser(user_id, username, password, full_name, email, phone_number, role) {
+async function insertUser(
+  user_id,
+  username,
+  password,
+  full_name,
+  email,
+  phone_number,
+  role
+) {
   let connection;
   try {
     connection = await getConnection();
@@ -1091,7 +1099,11 @@ async function insertUser(user_id, username, password, full_name, email, phone_n
       INSERT INTO users (user_id, username, password, full_name, email, phone_number, role, created_at)
       VALUES (:user_id, :username, :password, :full_name, :email, :phone_number, :role, SYSDATE)
     `;
-    await connection.execute(query, { user_id, username, password, full_name, email, phone_number, role }, { autoCommit: true });
+    await connection.execute(
+      query,
+      { user_id, username, password, full_name, email, phone_number, role },
+      { autoCommit: true }
+    );
     console.log("User added successfully.");
   } catch (error) {
     console.error("Error inserting user:", error.message);
@@ -1105,7 +1117,15 @@ async function insertUser(user_id, username, password, full_name, email, phone_n
 async function updateUser(req, res) {
   let connection;
   try {
-    const { user_id, username, password, full_name, email, phone_number, role } = req.body;
+    const {
+      user_id,
+      username,
+      password,
+      full_name,
+      email,
+      phone_number,
+      role,
+    } = req.body;
     connection = await getConnection();
 
     let query = "UPDATE users SET ";
@@ -1141,7 +1161,8 @@ async function updateUser(req, res) {
     }
 
     if (role) {
-      if (username || password || full_name || email || phone_number) query += ", ";
+      if (username || password || full_name || email || phone_number)
+        query += ", ";
       query += "role = :role";
       binds.role = role;
     }

@@ -17,7 +17,7 @@ GRANT CREATE SESSION TO reti;
 
 
 --login ke reki
-conn reti@steppa_pengepul/reti
+conn reti@steppa_supplier/reti
 
 
 
