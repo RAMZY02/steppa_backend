@@ -4,6 +4,11 @@ const jwt = require("jsonwebtoken");
 const midtransClient = require("midtrans-client");
 
 // Melvin
+// oracledb.initOracleClient({
+//   libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+// });
+
+// Rama & Steven
 oracledb.initOracleClient({
   libDir: "D:/instantclient_23_6",
 });

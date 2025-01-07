@@ -5,8 +5,13 @@ const bcrypt = require("bcrypt");
 // Aktifkan Thick Mode
 
 // Melvin
+// oracledb.initOracleClient({
+//   libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+// });
+
+// Rama & Steven
 oracledb.initOracleClient({
-  libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
 
 async function getConnection() {

@@ -2,10 +2,10 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
-// Rama
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
+// Rama & Steven
+oracledb.initOracleClient({
+  libDir: "D:/instantclient_23_6",
+});
 
 // Melvin
 // oracledb.initOracleClient({
@@ -13,8 +13,6 @@ const oracledb = require("oracledb");
 // });
 
 // Niko
-
-// Steven
 
 async function getConnection() {
   try {
@@ -929,6 +927,13 @@ async function getAllRawMaterials() {
        FROM raw_materials 
        WHERE deleted_at IS NULL`
     );
+    const allmats = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+      };
+    });
+    return filtermats;
     return result.rows;
   } catch (error) {
     console.error("Error fetching raw materials", error);
