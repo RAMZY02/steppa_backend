@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
-// Rama & Steven
+// Rama
 oracledb.initOracleClient({
   libDir: "D:/instantclient_23_6",
 });
@@ -14,12 +14,14 @@ oracledb.initOracleClient({
 
 // Niko
 
+// Steven
+
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "192.168.195.213:1521/steppa_rnd",
+      connectString: "localhost:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -138,7 +140,18 @@ async function getAllDesigns() {
        FROM design 
        WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const designs = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        image: row[2],
+        description: row[3],
+        category: row[4],
+        gender: row[5],
+        status: row[6]
+      };
+    });
+    return designs;
   } catch (error) {
     console.error("Error fetching designs", error);
     throw error;
@@ -157,7 +170,18 @@ async function getDesignById(id) {
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
-    return result.rows;
+    const designs = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        image: row[2],
+        description: row[3],
+        category: row[4],
+        gender: row[5],
+        status: row[6]
+      };
+    });
+    return designs;
   } catch (error) {
     console.error("Error fetching design by ID", error);
     throw error;
@@ -176,7 +200,18 @@ async function getDesignByName(name) {
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
-    return result.rows;
+    const designs = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        image: row[2],
+        description: row[3],
+        category: row[4],
+        gender: row[5],
+        status: row[6]
+      };
+    });
+    return designs;
   } catch (error) {
     console.error("Error fetching design by name", error);
     throw error;
@@ -280,7 +315,15 @@ async function getAllDesignMaterials() {
        FROM design_materials 
        WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const designMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        material_id: row[2],
+        qty: row[3]
+      };
+    });
+    return designMaterials;
   } catch (error) {
     console.error("Error fetching design materials", error);
     throw error;
@@ -299,7 +342,15 @@ async function getDesignMaterialById(id) {
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
-    return result.rows;
+    const designMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        material_id: row[2],
+        qty: row[3]
+      };
+    });
+    return designMaterials;
   } catch (error) {
     console.error("Error fetching design material by ID", error);
     throw error;
@@ -318,7 +369,15 @@ async function getDesignMaterialByDesignId(designId) {
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
     );
-    return result.rows;
+    const designMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        material_id: row[2],
+        qty: row[3]
+      };
+    });
+    return designMaterials;
   } catch (error) {
     console.error("Error fetching design material by design ID", error);
     throw error;
@@ -337,9 +396,17 @@ async function getDesignMaterialByMaterialId(materialId) {
        WHERE material_id = :materialId AND deleted_at IS NULL`,
       { materialId }
     );
-    return result.rows;
+    const designMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        material_id: row[2],
+        qty: row[3]
+      };
+    });
+    return designMaterials;
   } catch (error) {
-    console.error("Error fetching design material by design ID", error);
+    console.error("Error fetching design material by material ID", error);
     throw error;
   } finally {
     connection.close();
@@ -451,11 +518,21 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const productions = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        expected_qty: row[2],
+        actual_qty: row[3],
+        production_size: row[4],
+        status: row[5]
+      };
+    });
+    return productions;
   } catch (error) {
     console.error("Error fetching productions", error);
     throw error;
@@ -469,12 +546,22 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
-    return result.rows;
+    const productions = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        expected_qty: row[2],
+        actual_qty: row[3],
+        production_size: row[4],
+        status: row[5]
+      };
+    });
+    return productions;
   } catch (error) {
     console.error("Error fetching production by ID", error);
     throw error;
@@ -488,12 +575,22 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, PRODUCTION_SIZE, status 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
     );
-    return result.rows;
+    const productions = result.rows.map((row) => {
+      return {
+        id: row[0],
+        design_id: row[1],
+        expected_qty: row[2],
+        actual_qty: row[3],
+        production_size: row[4],
+        status: row[5]
+      };
+    });
+    return productions;
   } catch (error) {
     console.error("Error fetching production by design ID", error);
     throw error;
@@ -795,7 +892,20 @@ async function getAllProducts() {
        FROM products 
        WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const products = result.rows.map((row) => {
+      return {
+        product_id: row[0],
+        product_name: row[1],
+        product_description: row[2],
+        product_category: row[3],
+        product_size: row[4],
+        product_gender: row[5],
+        product_image: row[6],
+        stok_qty: row[7],
+        price: row[8]
+      };
+    });
+    return products;
   } catch (error) {
     console.error("Error fetching products", error);
     throw error;
@@ -814,7 +924,20 @@ async function getProductById(id) {
        WHERE product_id = :id AND deleted_at IS NULL`,
       { id }
     );
-    return result.rows;
+    const products = result.rows.map((row) => {
+      return {
+        product_id: row[0],
+        product_name: row[1],
+        product_description: row[2],
+        product_category: row[3],
+        product_size: row[4],
+        product_gender: row[5],
+        product_image: row[6],
+        stok_qty: row[7],
+        price: row[8]
+      };
+    });
+    return products;
   } catch (error) {
     console.error("Error fetching product by ID", error);
     throw error;
@@ -833,7 +956,20 @@ async function getProductByName(name) {
        WHERE LOWER(product_name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
-    return result.rows;
+    const products = result.rows.map((row) => {
+      return {
+        product_id: row[0],
+        product_name: row[1],
+        product_description: row[2],
+        product_category: row[3],
+        product_size: row[4],
+        product_gender: row[5],
+        product_image: row[6],
+        stok_qty: row[7],
+        price: row[8]
+      };
+    });
+    return products;
   } catch (error) {
     console.error("Error fetching product by name", error);
     throw error;
@@ -927,40 +1063,17 @@ async function getAllRawMaterials() {
        FROM raw_materials 
        WHERE deleted_at IS NULL`
     );
-    const allmats = result.rows.map((row) => {
+    const rawMaterials = result.rows.map((row) => {
       return {
         id: row[0],
         name: row[1],
+        stok_qty: row[2],
+        last_update: row[3]
       };
     });
-    return filtermats;
-    return result.rows;
+    return rawMaterials;
   } catch (error) {
     console.error("Error fetching raw materials", error);
-    throw error;
-  } finally {
-    connection.close();
-  }
-}
-
-// Get Raw Materials with ID >= 3
-async function getFilteredRawMaterials() {
-  const connection = await getConnection();
-  try {
-    const result = await connection.execute(
-      `SELECT id, name 
-       FROM raw_materials 
-       WHERE deleted_at IS NULL AND id >= 3`
-    );
-    const filtermats = result.rows.map((row) => {
-      return {
-        id: row[0],
-        name: row[1],
-      };
-    });
-    return filtermats;
-  } catch (error) {
-    console.error("Error fetching filtered raw materials", error);
     throw error;
   } finally {
     connection.close();
@@ -977,7 +1090,15 @@ async function getRawMaterialById(id) {
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
     );
-    return result.rows;
+    const rawMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        stok_qty: row[2],
+        last_update: row[3]
+      };
+    });
+    return rawMaterials;
   } catch (error) {
     console.error("Error fetching raw material by ID", error);
     throw error;
@@ -996,7 +1117,15 @@ async function getRawMaterialByName(name) {
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
-    return result.rows;
+    const rawMaterials = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        stok_qty: row[2],
+        last_update: row[3]
+      };
+    });
+    return rawMaterials;
   } catch (error) {
     console.error("Error fetching raw material by name", error);
     throw error;
@@ -1012,7 +1141,17 @@ const getAllLogs = async () => {
       `SELECT LOG_ID, ACTION_TYPE, TABLE_NAME, ACTION_DETAILS, ACTION_TIME, ACTION_USER 
        FROM LOG_RND`
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs", error);
     throw error;
@@ -1030,7 +1169,17 @@ const getLogById = async (id) => {
        WHERE LOG_ID = :id`,
       { id }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching log by ID", error);
     throw error;
@@ -1048,7 +1197,17 @@ const getLogsByActionType = async (type) => {
        WHERE ACTION_TYPE = :type`,
       { type }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action type", error);
     throw error;
@@ -1066,7 +1225,17 @@ const getLogsByTableName = async (name) => {
        WHERE LOWER(TABLE_NAME) = LOWER(:name)`,
       { name }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by table name", error);
     throw error;
@@ -1084,7 +1253,17 @@ const getLogsByActionTime = async (time) => {
        WHERE TRUNC(ACTION_TIME) = TO_DATE(:time, 'DD-MM-YYYY')`,
       { time }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action time", error);
     throw error;
@@ -1102,7 +1281,17 @@ const getLogsByActionUser = async (username) => {
        WHERE LOWER(ACTION_USER) = LOWER(:username)`,
       { username }
     );
-    return result.rows;
+    const logs = result.rows.map((row) => {
+      return {
+        log_id: row[0],
+        action_type: row[1],
+        table_name: row[2],
+        action_details: row[3],
+        action_time: row[4],
+        action_user: row[5]
+      };
+    });
+    return logs;
   } catch (error) {
     console.error("Error fetching logs by action user", error);
     throw error;
@@ -1112,15 +1301,7 @@ const getLogsByActionUser = async (username) => {
 };
 
 // Insert User
-async function insertUser(
-  user_id,
-  username,
-  password,
-  full_name,
-  email,
-  phone_number,
-  role
-) {
+async function insertUser(user_id, username, password, full_name, email, phone_number, role) {
   let connection;
   try {
     connection = await getConnection();
@@ -1128,11 +1309,7 @@ async function insertUser(
       INSERT INTO users (user_id, username, password, full_name, email, phone_number, role, created_at)
       VALUES (:user_id, :username, :password, :full_name, :email, :phone_number, :role, SYSDATE)
     `;
-    await connection.execute(
-      query,
-      { user_id, username, password, full_name, email, phone_number, role },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { user_id, username, password, full_name, email, phone_number, role }, { autoCommit: true });
     console.log("User added successfully.");
   } catch (error) {
     console.error("Error inserting user:", error.message);
@@ -1146,15 +1323,7 @@ async function insertUser(
 async function updateUser(req, res) {
   let connection;
   try {
-    const {
-      user_id,
-      username,
-      password,
-      full_name,
-      email,
-      phone_number,
-      role,
-    } = req.body;
+    const { user_id, username, password, full_name, email, phone_number, role } = req.body;
     connection = await getConnection();
 
     let query = "UPDATE users SET ";
@@ -1190,8 +1359,7 @@ async function updateUser(req, res) {
     }
 
     if (role) {
-      if (username || password || full_name || email || phone_number)
-        query += ", ";
+      if (username || password || full_name || email || phone_number) query += ", ";
       query += "role = :role";
       binds.role = role;
     }
@@ -1286,6 +1454,30 @@ async function getUserByUsername(username) {
   }
 }
 
+// Get Raw Materials with ID >= 3
+async function getFilteredRawMaterials() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT id, name 
+       FROM raw_materials 
+       WHERE deleted_at IS NULL AND id >= 3`
+    );
+    const filtermats = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+      };
+    });
+    return filtermats;
+  } catch (error) {
+    console.error("Error fetching filtered raw materials", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 module.exports = {
   insertDesign,
   updateDesign,
@@ -1318,7 +1510,6 @@ module.exports = {
   updateRawMaterial,
   softDeleteRawMaterial,
   getAllRawMaterials,
-  getFilteredRawMaterials,
   getRawMaterialById,
   getRawMaterialByName,
   getAllLogs,
@@ -1333,4 +1524,5 @@ module.exports = {
   getAllUsers,
   getUserById,
   getUserByUsername,
+  getFilteredRawMaterials
 };
