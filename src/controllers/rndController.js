@@ -1481,7 +1481,7 @@ async function getFilteredRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name 
+      `SELECT id, name, stok_qty, last_update 
        FROM raw_materials 
        WHERE deleted_at IS NULL AND id >= 3`
     );
@@ -1489,6 +1489,8 @@ async function getFilteredRawMaterials() {
       return {
         id: row[0],
         name: row[1],
+        stok_qty: row[2],
+        last_update: row[3],
       };
     });
     return filtermats;
