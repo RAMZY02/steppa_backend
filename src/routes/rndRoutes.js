@@ -11,6 +11,7 @@ const {
   insertDesignMaterial,
   updateDesignMaterial,
   softDeleteDesignMaterial,
+  softDeleteDesignMaterialByDesignId,
   getAllDesignMaterials,
   getDesignMaterialById,
   getDesignMaterialByDesignId,
@@ -106,6 +107,8 @@ router.post("/design-material", async (req, res) => {
 router.put("/design-material", updateDesignMaterial);
 
 router.delete("/design-material", softDeleteDesignMaterial);
+
+router.delete("/design-material-by-designId", softDeleteDesignMaterialByDesignId);
 
 router.get("/design-material", async (req, res) => {
   try {

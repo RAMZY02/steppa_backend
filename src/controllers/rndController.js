@@ -304,6 +304,30 @@ async function softDeleteDesignMaterial(req, res) {
   }
 }
 
+// Soft Delete Design Material
+async function softDeleteDesignMaterialByDesignId(req, res) {
+  let connection;
+  try {
+    const { id } = req.body;
+    connection = await getConnection();
+    await connection.execute(
+      `UPDATE design_materials 
+       SET deleted_at = SYSDATE 
+       WHERE design_id = :id AND deleted_at IS NULL`,
+      { id },
+      { autoCommit: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Some design materials marked as deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // Get All Design Materials
 async function getAllDesignMaterials() {
   const connection = await getConnection();
@@ -1486,6 +1510,7 @@ module.exports = {
   insertDesignMaterial,
   updateDesignMaterial,
   softDeleteDesignMaterial,
+  softDeleteDesignMaterialByDesignId,
   getAllDesignMaterials,
   getDesignMaterialById,
   getDesignMaterialByDesignId,
