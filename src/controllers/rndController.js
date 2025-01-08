@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
-// Rama
+// Rama & Steven
 oracledb.initOracleClient({
   libDir: "D:/instantclient_23_6",
 });
@@ -13,8 +13,6 @@ oracledb.initOracleClient({
 // });
 
 // Niko
-
-// Steven
 
 async function getConnection() {
   try {
