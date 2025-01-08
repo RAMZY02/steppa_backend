@@ -1072,3 +1072,19 @@ BEGIN
     WHERE ci.cart_id = p_cart_id AND ci.deleted_at IS NULL;
 END;
 /
+
+-- Create a database link to connect to the pengepul database
+CREATE DATABASE LINK pengepul_dblink
+CONNECT TO reti IDENTIFIED BY reti
+USING 'steppa_supplier';
+
+-- Test the database link
+SELECT * FROM products@pengepul_dblink;
+
+-- Create a database link to connect to the pengepul database
+CREATE DATABASE LINK rnd_dblink
+CONNECT TO rama IDENTIFIED BY rama
+USING 'conrnd';
+
+-- Test the database link
+SELECT * FROM products@rnd_dblink;

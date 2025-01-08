@@ -66,6 +66,23 @@ CREATE TABLE transaction_detail (
     deleted_at DATE
 );
 
+CREATE TABLE material_shipment (
+    shipment_id VARCHAR2(10) PRIMARY KEY,
+    shipment_date DATE DEFAULT SYSDATE NOT NULL,
+    shipment_status VARCHAR2(20) NOT NULL CHECK (shipment_status IN ('Shipped', 'Canceled', 'Delivered', 'Failed')),
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
+);
+
+CREATE TABLE material_shipment_detail (
+    shipment_detail_id VARCHAR2(10) PRIMARY KEY,
+    shipment_id VARCHAR2(10) REFERENCES material_shipment(shipment_id) ON DELETE CASCADE,
+    material_id VARCHAR2(10) REFERENCES raw_materials(material_id) ON DELETE CASCADE,
+    quantity NUMBER NOT NULL CHECK (quantity > 0),
+    created_at DATE DEFAULT SYSDATE,
+    deleted_at DATE
+);
+
 CREATE TABLE users (
     user_id VARCHAR2(10) PRIMARY KEY,
     username VARCHAR2(50) NOT NULL UNIQUE,

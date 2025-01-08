@@ -65,6 +65,7 @@ async function registerUser(user) {
     await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error registering user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -127,17 +128,19 @@ async function insertProduct(product) {
 
       END;
     `;
-    await connection.execute(query, product, { autoCommit: true });
+    await connection.execute(query, product);
+    await connection.execute("COMMIT");
     console.log("Product added successfully.");
   } catch (error) {
     console.error("Error inserting product:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
   }
 }
 
-// Products - Update
+// Products - update
 async function updateProduct(product) {
   let connection;
   try {
@@ -148,10 +151,12 @@ async function updateProduct(product) {
           product_size = :product_size, product_gender = :product_gender, product_image = :product_image, stok_qty = :stok_qty, price = :price
       WHERE product_id = :product_id
     `;
-    await connection.execute(query, product, { autoCommit: true });
+    await connection.execute(query, product);
     console.log("Product updated successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error updating product:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -164,14 +169,12 @@ async function softDeleteProduct(productId) {
   try {
     connection = await getConnection();
     const query = `UPDATE products SET deleted_at = SYSDATE WHERE product_id = :product_id`;
-    await connection.execute(
-      query,
-      { product_id: productId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { product_id: productId });
     console.log("Product marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting product:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -288,14 +291,12 @@ async function addStock(productId, quantity) {
       SET stok_qty = stok_qty + :quantity
       WHERE product_id = :product_id AND deleted_at IS NULL
     `;
-    await connection.execute(
-      query,
-      { product_id: productId, quantity },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { product_id: productId, quantity });
     console.log("Stock added successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error adding stock:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -312,10 +313,12 @@ async function insertSale(sale) {
       INSERT INTO sales (sale_channel, sale_date, total)
       VALUES (:sale_channel, :sale_date, :total)
     `;
-    await connection.execute(query, sale, { autoCommit: true });
+    await connection.execute(query, sale);
+    await connection.execute("COMMIT");
     console.log("Sale added successfully.");
   } catch (error) {
     console.error("Error inserting sale:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -332,10 +335,12 @@ async function updateSale(sale) {
       SET sale_channel = :sale_channel, sale_date = :sale_date, total = :total
       WHERE sale_id = :sale_id
     `;
-    await connection.execute(query, sale, { autoCommit: true });
+    await connection.execute(query, sale);
+    await connection.execute("COMMIT");
     console.log("Sale updated successfully.");
   } catch (error) {
     console.error("Error updating sale:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -348,10 +353,12 @@ async function softDeleteSale(saleId) {
   try {
     connection = await getConnection();
     const query = `UPDATE sales SET deleted_at = SYSDATE WHERE sale_id = :sale_id`;
-    await connection.execute(query, { sale_id: saleId }, { autoCommit: true });
+    await connection.execute(query, { sale_id: saleId });
     console.log("Sale marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting sale:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -422,10 +429,12 @@ async function insertSaleItem(saleItem) {
       INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
       VALUES (:sale_id, :product_id, :quantity, :price, :subtotal)
     `;
-    await connection.execute(query, saleItem, { autoCommit: true });
+    await connection.execute(query, saleItem);
     console.log("Sale item added successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error inserting sale item:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -442,10 +451,12 @@ async function updateSaleItem(saleItem) {
       SET sale_id = :sale_id, product_id = :product_id, quantity = :quantity, price = :price, subtotal = :subtotal
       WHERE sale_item_id = :sale_item_id
     `;
-    await connection.execute(query, saleItem, { autoCommit: true });
+    await connection.execute(query, saleItem);
     console.log("Sale item updated successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error updating sale item:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -458,14 +469,12 @@ async function softDeleteSaleItem(saleItemId) {
   try {
     connection = await getConnection();
     const query = `UPDATE sale_items SET deleted_at = SYSDATE WHERE sale_item_id = :sale_item_id`;
-    await connection.execute(
-      query,
-      { sale_item_id: saleItemId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { sale_item_id: saleItemId });
     console.log("Sale item marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting sale item:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -736,10 +745,12 @@ async function updateCustomer(customer) {
       SET name = :name, email = :email, phone_number = :phone_number, address = :address, city = :city, country = :country, zip_code = :zip_code
       WHERE customer_id = :customer_id
     `;
-    await connection.execute(query, customer, { autoCommit: true });
+    await connection.execute(query, customer);
     console.log("Customer updated successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error updating customer:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -752,14 +763,12 @@ async function softDeleteCustomer(customerId) {
   try {
     connection = await getConnection();
     const query = `UPDATE customers SET deleted_at = SYSDATE WHERE customer_id = :customer_id`;
-    await connection.execute(
-      query,
-      { customer_id: customerId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { customer_id: customerId });
     console.log("Customer marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting customer:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -941,14 +950,17 @@ async function addToCart(cartId, productId, quantity, price) {
   try {
     connection = await getConnection();
     const query = `BEGIN add_to_cart(:cart_id, :product_id, :quantity, :price); END;`;
-    await connection.execute(
-      query,
-      { cart_id: cartId, product_id: productId, quantity, price },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      cart_id: cartId,
+      product_id: productId,
+      quantity,
+      price,
+    });
     console.log("Item added to cart successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error adding item to cart:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -961,14 +973,12 @@ async function updateCartItemQuantity(cartItemId, quantity) {
   try {
     connection = await getConnection();
     const query = `BEGIN update_cart_item_quantity(:cart_item_id, :quantity); END;`;
-    await connection.execute(
-      query,
-      { cart_item_id: cartItemId, quantity },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { cart_item_id: cartItemId, quantity });
     console.log("Cart item quantity updated successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error updating cart item quantity:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -981,14 +991,12 @@ async function removeItemFromCart(cartItemId) {
   try {
     connection = await getConnection();
     const query = `BEGIN remove_item_from_cart(:cart_item_id); END;`;
-    await connection.execute(
-      query,
-      { cart_item_id: cartItemId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { cart_item_id: cartItemId });
     console.log("Item removed from cart successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error removing item from cart:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1034,10 +1042,8 @@ async function checkout(cartId, customerDetails) {
     const query = `BEGIN checkout(:cart_id); END;`;
     await connection.execute(query, { cart_id: cartId });
 
-    // Calculate the total amount for the transaction
     console.log("Total amount for transaction:", total);
 
-    // Create a Midtrans transaction
     const orderId = `ORDER-${Date.now()}`;
     const transaction = await createTransaction(
       orderId,
@@ -1047,6 +1053,8 @@ async function checkout(cartId, customerDetails) {
 
     console.log("Checkout completed successfully.");
     await connection.execute("COMMIT");
+    console.log(transaction);
+
     return transaction;
   } catch (error) {
     console.error("Error during checkout:", error.message);
@@ -1168,9 +1176,11 @@ async function offlineTransactionMember(
       total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     });
     console.log("Offline transaction completed successfully.");
+    await connection.execute("COMMIT");
     return result.outBinds.total;
   } catch (error) {
     console.error("Error during offline transaction:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1200,9 +1210,11 @@ async function offlineTransactionNonMember(
       total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     });
     console.log("Offline transaction completed successfully.");
+    await connection.execute("COMMIT");
     return result.outBinds.total;
   } catch (error) {
     console.error("Error during offline transaction:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1219,10 +1231,12 @@ async function insertRevenueReport(report) {
       INSERT INTO revenue_reports (report_period, total_revenue, total_expenses, net_profit)
       VALUES (:report_period, :total_revenue, :total_expenses, :net_profit)
     `;
-    await connection.execute(query, report, { autoCommit: true });
+    await connection.execute(query, report);
+    await connection.execute("COMMIT");
     console.log("Revenue report added successfully.");
   } catch (error) {
     console.error("Error inserting revenue report:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1239,10 +1253,12 @@ async function updateRevenueReport(report) {
       SET report_period = :report_period, total_revenue = :total_revenue, total_expenses = :total_expenses, net_profit = :net_profit
       WHERE report_id = :report_id
     `;
-    await connection.execute(query, report, { autoCommit: true });
+    await connection.execute(query, report);
+    await connection.execute("COMMIT");
     console.log("Revenue report updated successfully.");
   } catch (error) {
     console.error("Error updating revenue report:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1255,14 +1271,12 @@ async function softDeleteRevenueReport(reportId) {
   try {
     connection = await getConnection();
     const query = `UPDATE revenue_reports SET deleted_at = SYSDATE WHERE report_id = :report_id`;
-    await connection.execute(
-      query,
-      { report_id: reportId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { report_id: reportId });
     console.log("Revenue report marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting revenue report:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1334,17 +1348,15 @@ async function insertUser(user) {
       INSERT INTO users (username, email, password)
       VALUES (:username, :email, :password)
     `;
-    await connection.execute(
-      query,
-      {
-        ...user,
-        password: hashedPassword,
-      },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      ...user,
+      password: hashedPassword,
+    });
     console.log("User added successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error inserting user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1361,10 +1373,12 @@ async function updateUser(user) {
       SET username = :username, email = :email, password = :password
       WHERE user_id = :user_id
     `;
-    await connection.execute(query, user, { autoCommit: true });
+    await connection.execute(query, user);
+    await connection.execute("COMMIT");
     console.log("User updated successfully.");
   } catch (error) {
     console.error("Error updating user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1377,10 +1391,12 @@ async function softDeleteUser(userId) {
   try {
     connection = await getConnection();
     const query = `UPDATE users SET deleted_at = SYSDATE WHERE user_id = :user_id`;
-    await connection.execute(query, { user_id: userId }, { autoCommit: true });
+    await connection.execute(query, { user_id: userId });
     console.log("User marked as deleted successfully.");
+    await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error deleting user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
