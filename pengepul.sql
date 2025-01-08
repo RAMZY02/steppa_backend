@@ -13,6 +13,7 @@ GRANT CREATE ROLE TO admin;
 ALTER USER reti QUOTA UNLIMITED ON USERS;
 GRANT ADMIN TO reti;
 GRANT CONNECT TO reti;
+grant create database link to admin;
 GRANT CREATE SESSION TO reti;
 
 
@@ -172,6 +173,38 @@ BEFORE INSERT ON users
 FOR EACH ROW
 BEGIN
     :NEW.user_id := 'USR' || LPAD(seq_users_id.NEXTVAL, 4, '0');
+END;
+/
+
+CREATE SEQUENCE seq_material_shipment_id
+START WITH 1 
+INCREMENT BY 1 
+MINVALUE 1 
+MAXVALUE 9999 
+NOCYCLE 
+CACHE 10;
+
+CREATE OR REPLACE TRIGGER trg_bef_material_shipment
+BEFORE INSERT ON material_shipment
+FOR EACH ROW
+BEGIN
+    :NEW.shipment_id := 'SHP' || LPAD(seq_material_shipment_id.NEXTVAL, 4, '0');
+END;
+/
+
+CREATE SEQUENCE seq_shipment_detail_id
+START WITH 1 
+INCREMENT BY 1 
+MINVALUE 1 
+MAXVALUE 9999 
+NOCYCLE 
+CACHE 10;
+
+CREATE OR REPLACE TRIGGER trg_bef_shipment_detail
+BEFORE INSERT ON material_shipment_detail
+FOR EACH ROW
+BEGIN
+    :NEW.shipment_detail_id := 'SHD' || LPAD(seq_shipment_detail_id.NEXTVAL, 4, '0');
 END;
 /
 
@@ -484,6 +517,112 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER trg_log_material_shipment
+AFTER INSERT OR UPDATE OR DELETE ON material_shipment
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'material_shipment', 'Inserted shipment: ' || :NEW.shipment_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.shipment_id || ' ';
+
+        IF :OLD.shipment_date != :NEW.shipment_date THEN
+            v_action_details := v_action_details || 'Shipment date changed from ' || :OLD.shipment_date || ' to ' || :NEW.shipment_date || ', ';
+        END IF;
+        IF :OLD.shipment_status != :NEW.shipment_status THEN
+            v_action_details := v_action_details || 'Shipment status changed from ' || :OLD.shipment_status || ' to ' || :NEW.shipment_status || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'material_shipment', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'D', 'material_shipment', 'Deleted shipment: ' || :OLD.shipment_id, v_user);
+    END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_log_shipment_detail
+AFTER INSERT OR UPDATE OR DELETE ON material_shipment_detail
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(255);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'material_shipment_detail', 'Inserted shipment detail: ' || :NEW.shipment_detail_id, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.shipment_detail_id || ' ';
+
+        IF :OLD.shipment_id != :NEW.shipment_id THEN
+            v_action_details := v_action_details || 'Shipment ID changed from ' || :OLD.shipment_id || ' to ' || :NEW.shipment_id || ', ';
+        END IF;
+        IF :OLD.material_id != :NEW.material_id THEN
+            v_action_details := v_action_details || 'Material ID changed from ' || :OLD.material_id || ' to ' || :NEW.material_id || ', ';
+        END IF;
+        IF :OLD.quantity != :NEW.quantity THEN
+            v_action_details := v_action_details || 'Quantity changed from ' || :OLD.quantity || ' to ' || :NEW.quantity || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'material_shipment_detail', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_pengepul_seq.NEXTVAL, 'D', 'material_shipment_detail', 'Deleted shipment detail: ' || :OLD.shipment_detail_id, v_user);
+    END IF;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE insert_material_shipment(
+    p_shipment_date IN DATE,
+    p_shipment_status IN VARCHAR2,
+    p_materials IN SYS.ODCIVARCHAR2LIST,
+    p_quantities IN SYS.ODCINUMBERLIST
+) AS
+    v_shipment_id VARCHAR2(10);
+BEGIN
+    INSERT INTO material_shipment (shipment_date, shipment_status)
+    VALUES (p_shipment_date, p_shipment_status)
+    RETURNING shipment_id INTO v_shipment_id;
+
+    FOR i IN 1 .. p_materials.COUNT LOOP
+        INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+        VALUES (v_shipment_id, p_materials(i), p_quantities(i));
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
 -- Insert dummy data into suppliers
 INSERT INTO suppliers (name, location, contact_info)
 VALUES ('Supplier 1', 'Location 1', 'Contact 1');
@@ -580,3 +719,40 @@ VALUES ('employee1', 'employeepassword1', 'Employee One', 'employee1@example.com
 INSERT INTO users (username, password, full_name, email, phone_number, role)
 VALUES ('employee2', 'employeepassword2', 'Employee Two', 'employee2@example.com', '1122334455', 'employee');
 
+-- Insert dummy data into material_shipment
+INSERT INTO material_shipment (shipment_date, shipment_status)
+VALUES (SYSDATE, 'Shipped');
+INSERT INTO material_shipment (shipment_date, shipment_status)
+VALUES (SYSDATE, 'Delivered');
+INSERT INTO material_shipment (shipment_date, shipment_status)
+VALUES (SYSDATE, 'Failed');
+
+-- Insert dummy data into material_shipment_detail
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0001', 'MAT0001', 10);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0001', 'MAT0002', 20);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0001', 'MAT0003', 30);
+
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0002', 'MAT0004', 15);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0002', 'MAT0005', 25);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0002', 'MAT0006', 35);
+
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0003', 'MAT0007', 5);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0003', 'MAT0008', 10);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+VALUES ('SHP0003', 'MAT0009', 20);
+
+-- Create a database link to connect to the pengepul database
+CREATE DATABASE LINK rnd_dblink
+CONNECT TO rama IDENTIFIED BY rama
+USING 'conrnd';
+
+-- Test the database link
+SELECT * FROM products@rnd_dblink;
