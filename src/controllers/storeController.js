@@ -1032,7 +1032,7 @@ async function checkout(cartId, customerDetails) {
     const total = await calculateCartSubtotal(cartId);
 
     const query = `BEGIN checkout(:cart_id); END;`;
-    await connection.execute(query, { cart_id: cartId }, { autoCommit: true });
+    await connection.execute(query, { cart_id: cartId });
 
     // Calculate the total amount for the transaction
     console.log("Total amount for transaction:", total);
@@ -1046,9 +1046,11 @@ async function checkout(cartId, customerDetails) {
     );
 
     console.log("Checkout completed successfully.");
+    await connection.execute("COMMIT");
     return transaction;
   } catch (error) {
     console.error("Error during checkout:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
