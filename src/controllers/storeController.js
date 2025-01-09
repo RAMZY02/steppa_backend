@@ -1466,17 +1466,19 @@ async function getAllProductShipments() {
       WHERE ps.deleted_at IS NULL AND psd.deleted_at IS NULL
     `;
     const result = await connection.execute(query);
-    const shipments = result.rows.map((row) => ({
-      shipment_id: row[0],
-      shipment_date: row[1],
-      shipment_status: row[2],
-      details: {
-        shipment_detail_id: row[3],
-        product_id: row[4],
-        quantity: row[5],
-        product_name: row[6],
-      },
-    }));
+    const shipments = result.rows.map((row) => {
+      return {
+        shipment_id: row[0],
+        shipment_date: row[1],
+        shipment_status: row[2],
+        details: {
+          shipment_detail_id: row[3],
+          product_id: row[4],
+          quantity: row[5],
+          product_name: row[6],
+        },
+      };
+    });
     return shipments;
   } catch (error) {
     console.error(

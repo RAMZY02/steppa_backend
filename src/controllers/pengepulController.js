@@ -39,15 +39,14 @@ async function insertSupplier(name, location, contactInfo) {
             VALUES (:name, :location, :contactInfo)
         `;
 
-    await connection.execute(
-      query,
-      { name, location, contactInfo },
-      { autoCommit: true }
-    );
+    await connection.execute(query, { name, location, contactInfo });
+
+    await connection.execute("COMMIT");
 
     console.log("Supplier added successfully.");
   } catch (error) {
     console.error("Error inserting supplier:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -67,13 +66,15 @@ async function updateSupplier(req, res) {
       `UPDATE suppliers 
             SET name = :name, location = :location, contact_info = :contactInfo 
             WHERE supplier_id = :supplierId`,
-      { supplierId, name, location, contactInfo },
-      { autoCommit: true }
+      { supplierId, name, location, contactInfo }
     );
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({ message: "Supplier updated successfully." });
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -95,9 +96,10 @@ async function softDeleteSupplier(req, res) {
       `UPDATE suppliers 
             SET deleted_at = SYSDATE 
             WHERE supplier_id = :supplierId AND deleted_at IS NULL`,
-      { supplierId },
-      { autoCommit: true }
+      { supplierId }
     );
+
+    await connection.execute("COMMIT");
 
     if (result.rowsAffected > 0) {
       res
@@ -110,6 +112,7 @@ async function softDeleteSupplier(req, res) {
     }
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -127,7 +130,13 @@ async function getAllSupplier() {
                 FROM suppliers
                 WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const suppliers = result.rows.map((row) => ({
+      supplier_id: row[0],
+      name: row[1],
+      location: row[2],
+      contact_info: row[3],
+    }));
+    return { suppliers };
   } catch (error) {
     console.error("Error fetching suppliers", error);
     throw error;
@@ -146,7 +155,13 @@ async function getSupplierById(supplierId) {
                 WHERE supplier_id = :supplier_id AND deleted_at IS NULL`,
       [supplierId]
     );
-    return result.rows;
+    const supplier = result.rows.map((row) => ({
+      supplier_id: row[0],
+      name: row[1],
+      location: row[2],
+      contact_info: row[3],
+    }));
+    return { supplier };
   } catch (error) {
     console.error("Error fetching supplier by ID", error);
     throw error;
@@ -165,7 +180,13 @@ async function getSupplierByName(supplierName) {
                 WHERE name like :supplierName AND deleted_at IS NULL`,
       [`%${supplierName}%`]
     );
-    return result.rows;
+    const suppliers = result.rows.map((row) => ({
+      supplier_id: row[0],
+      name: row[1],
+      location: row[2],
+      contact_info: row[3],
+    }));
+    return { suppliers };
   } catch (error) {
     console.error("Error fetching supplier by name", error);
     throw error;
@@ -184,7 +205,13 @@ async function getSupplierByLocation(location) {
                 WHERE location like :location AND deleted_at IS NULL`,
       [`%${location}%`]
     );
-    return result.rows;
+    const suppliers = result.rows.map((row) => ({
+      supplier_id: row[0],
+      name: row[1],
+      location: row[2],
+      contact_info: row[3],
+    }));
+    return { suppliers };
   } catch (error) {
     console.error("Error fetching supplier by location", error);
     throw error;
@@ -205,15 +232,18 @@ async function insertRawMaterial(materialName, stockQuantity, supplierId) {
             VALUES (:materialName, :stockQuantity, :supplierId, SYSDATE)
         `;
 
-    await connection.execute(
-      query,
-      { materialName, stockQuantity, supplierId },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      materialName,
+      stockQuantity,
+      supplierId,
+    });
+
+    await connection.execute("COMMIT");
 
     console.log("Raw material added successfully.");
   } catch (error) {
     console.error("Error inserting raw material:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -234,13 +264,15 @@ async function updateRawMaterial(req, res) {
             SET material_name = :materialName, stock_quantity = :stockQuantity, 
                 supplier_id = :supplierId, last_update = SYSDATE 
             WHERE material_id = :materialId`,
-      { materialId, materialName, stockQuantity, supplierId },
-      { autoCommit: true }
+      { materialId, materialName, stockQuantity, supplierId }
     );
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({ message: "Raw material updated successfully." });
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -262,9 +294,10 @@ async function softDeleteRawMaterial(req, res) {
       `UPDATE raw_materials 
             SET deleted_at = SYSDATE 
             WHERE material_id = :materialId AND deleted_at IS NULL`,
-      { materialId },
-      { autoCommit: true }
+      { materialId }
     );
+
+    await connection.execute("COMMIT");
 
     if (result.rowsAffected > 0) {
       res
@@ -277,6 +310,7 @@ async function softDeleteRawMaterial(req, res) {
     }
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -294,7 +328,14 @@ async function getAllRawMaterial() {
                 FROM raw_materials
                 WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const materials = result.rows.map((row) => ({
+      material_id: row[0],
+      material_name: row[1],
+      stock_quantity: row[2],
+      supplier_id: row[3],
+      last_update: row[4],
+    }));
+    return { materials };
   } catch (error) {
     console.error("Error fetching raw materials", error);
     throw error;
@@ -313,7 +354,14 @@ async function getRawMaterialById(materialId) {
                 WHERE material_id = :material_id AND deleted_at IS NULL`,
       [materialId]
     );
-    return result.rows;
+    const material = result.rows.map((row) => ({
+      material_id: row[0],
+      material_name: row[1],
+      stock_quantity: row[2],
+      supplier_id: row[3],
+      last_update: row[4],
+    }));
+    return { material };
   } catch (error) {
     console.error("Error fetching raw material by ID", error);
     throw error;
@@ -332,7 +380,14 @@ async function getRawMaterialByName(materialName) {
                 WHERE material_name like :materialName AND deleted_at IS NULL`,
       [`%${materialName}%`]
     );
-    return result.rows;
+    const materials = result.rows.map((row) => ({
+      material_id: row[0],
+      material_name: row[1],
+      stock_quantity: row[2],
+      supplier_id: row[3],
+      last_update: row[4],
+    }));
+    return { materials };
   } catch (error) {
     console.error("Error fetching raw material by name", error);
     throw error;
@@ -351,7 +406,14 @@ async function getRawMaterialBySupplier(supplierId) {
                 WHERE supplier_id = :supplierId AND deleted_at IS NULL`,
       [supplierId]
     );
-    return result.rows;
+    const materials = result.rows.map((row) => ({
+      material_id: row[0],
+      material_name: row[1],
+      stock_quantity: row[2],
+      supplier_id: row[3],
+      last_update: row[4],
+    }));
+    return { materials };
   } catch (error) {
     console.error("Error fetching raw material by supplierId", error);
     throw error;
@@ -369,48 +431,51 @@ async function insertTransactionAndDetail(transactionData) {
 
     connection = await getConnection();
 
-    // Begin transaction
-    await connection.execute(`BEGIN NULL; END;`); // To start a transaction explicitly
-
-    // Insert into transactions
-    const transactionQuery = `
-            INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-            VALUES (SYSDATE, :transactionStatus, :supplierId, :remarks)
-            RETURNING transaction_id INTO :transactionId
-        `;
-
-    const transactionResult = await connection.execute(transactionQuery, {
+    const insertTransactionQuery = `    
+      INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
+      VALUES (SYSDATE, :transactionStatus, :supplierId, :remarks)
+    `;
+    await connection.execute(insertTransactionQuery, {
       transactionStatus: "Pending",
       supplierId: transaction.supplierId,
       remarks: transaction.remarks,
-      transactionId: { type: oracledb.STRING, dir: oracledb.BIND_OUT },
     });
 
-    const transactionId = transactionResult.outBinds.transactionId[0];
+    const result = await connection.execute(
+      "SELECT MAX(transaction_id) FROM transactions"
+    );
 
-    // Insert into transaction_detail
-    const detailQuery = `
-            INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-            VALUES (:transactionId, :materialId, :quantity)
-        `;
+    const transactionId = result.rows[0][0];
+    console.log("Transaction ID:", transactionId);
 
-    for (const detail of details) {
-      await connection.execute(detailQuery, {
-        transactionId,
-        materialId: detail.materialId,
-        quantity: detail.quantity,
+    const insertDetailQuery = `
+      INSERT INTO transaction_detail (transaction_id, material_id, quantity)
+      VALUES (:transaction_id, :material_id, :quantity)
+    `;
+
+    for (let i = 0; i < details.length; i++) {
+      console.log(
+        "Inserting detail:",
+        details[i].materialId,
+        details[i].quantity
+      );
+
+      await connection.execute(insertDetailQuery, {
+        transaction_id: transactionId,
+        material_id: details[i].materialId,
+        quantity: details[i].quantity,
       });
     }
 
-    // Commit transaction
-    await connection.commit();
+    await connection.execute("COMMIT");
+    console.log("Transaction and details inserted successfully.");
 
     return {
       message: "Transaction and details inserted successfully.",
       transactionId,
     };
   } catch (error) {
-    if (connection) await connection.rollback();
+    if (connection) await connection.execute("ROLLBACK");
     console.error("Error:", error.message);
     throw error;
   } finally {
@@ -430,22 +495,23 @@ async function softDeleteTransaction(req, res) {
     // Soft delete transaksi
     await connection.execute(
       `UPDATE transactions SET deleted_at = SYSDATE WHERE transaction_id = :transactionId`,
-      { transactionId },
-      { autoCommit: true }
+      { transactionId }
     );
 
     // Soft delete semua detail transaksi terkait
     await connection.execute(
       `UPDATE transaction_detail SET deleted_at = SYSDATE WHERE transaction_id = :transactionId`,
-      { transactionId },
-      { autoCommit: true }
+      { transactionId }
     );
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({
       message: "Transaction and its details marked as deleted successfully.",
     });
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -478,9 +544,10 @@ async function updateTransactionStatus(req, res) {
       {
         p_transaction_id: transactionId,
         p_new_status: "Completed",
-      },
-      { autoCommit: true }
+      }
     );
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({
       message: "Transaction status updated successfully.",
@@ -488,6 +555,7 @@ async function updateTransactionStatus(req, res) {
     });
   } catch (error) {
     console.error("Error updating transaction status:", error);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({
       error: "Failed to update transaction status.",
       details: error.message,
@@ -517,13 +585,15 @@ async function updateTransaction(req, res) {
             SET transaction_status = :transactionStatus, remarks = :remarks, 
                 supplier_id = :supplierId, transaction_date = SYSDATE 
             WHERE transaction_id = :transactionId`,
-      { transactionId, transactionStatus, remarks, supplierId },
-      { autoCommit: true }
+      { transactionId, transactionStatus, remarks, supplierId }
     );
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({ message: "Transaction updated successfully." });
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -541,7 +611,14 @@ async function getAllTransaction() {
                 FROM transactions
                 WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching pending transactions", error);
     throw error;
@@ -561,8 +638,17 @@ async function getTransactionById(transactionId) {
       WHERE t.transaction_id = :transactionId AND t.deleted_at IS NULL AND td.deleted_at IS NULL`,
       [transactionId]
     );
-
-    return result.rows;
+    const transaction = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+      detail_id: row[5],
+      material_id: row[6],
+      quantity: row[7],
+    }));
+    return { transaction };
   } catch (error) {
     console.error("Error fetching transaction details", error);
     throw error;
@@ -582,7 +668,14 @@ async function getPendingTransaction() {
                 FROM transactions
                 WHERE transaction_status = 'Pending' AND deleted_at IS NULL`
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching pending transactions", error);
     throw error;
@@ -600,7 +693,14 @@ async function getCompletedTransaction() {
                 FROM transactions
                 WHERE transaction_status = 'Completed' AND deleted_at IS NULL`
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching completed transactions", error);
     throw error;
@@ -625,7 +725,14 @@ async function getPendingTransactionByDate(startDate, endDate) {
         end_date: endDate,
       }
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching pending transactions by date", error);
     throw error;
@@ -650,7 +757,14 @@ async function getCompletedTransactionByDate(startDate, endDate) {
         end_date: endDate,
       }
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching completed transactions by date", error);
     throw error;
@@ -671,7 +785,14 @@ async function getPendingTransactionBySupplier(supplierId) {
          AND deleted_at IS NULL`,
       { supplier_id: supplierId }
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching pending transactions by supplier", error);
     throw error;
@@ -692,7 +813,14 @@ async function getCompletedTransactionBySupplier(supplierId) {
          AND deleted_at IS NULL`,
       { supplier_id: supplierId }
     );
-    return result.rows;
+    const transactions = result.rows.map((row) => ({
+      transaction_id: row[0],
+      transaction_date: row[1],
+      transaction_status: row[2],
+      supplier_id: row[3],
+      remarks: row[4],
+    }));
+    return { transactions };
   } catch (error) {
     console.error("Error fetching completed transactions by supplier", error);
     throw error;
@@ -715,15 +843,17 @@ async function updateTransactionDetail(req, res) {
       `UPDATE transaction_detail 
             SET material_id = :materialId, quantity = :quantity 
             WHERE detail_id = :detailId`,
-      { detailId, materialId, quantity },
-      { autoCommit: true }
+      { detailId, materialId, quantity }
     );
+
+    await connection.execute("COMMIT");
 
     res
       .status(200)
       .json({ message: "Transaction detail updated successfully." });
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -745,9 +875,10 @@ async function softDeleteTransactionDetail(req, res) {
     const result = await connection.execute(
       `UPDATE transaction_detail SET deleted_at = SYSDATE 
             WHERE detail_id = :detailId AND transaction_id = :transactionId`,
-      { detailId, transactionId },
-      { autoCommit: true }
+      { detailId, transactionId }
     );
+
+    await connection.execute("COMMIT");
 
     if (result.rowsAffected > 0) {
       res.status(200).json({
@@ -758,6 +889,7 @@ async function softDeleteTransactionDetail(req, res) {
     }
   } catch (err) {
     console.error(err);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: err.message });
   } finally {
     if (connection) {
@@ -779,22 +911,21 @@ async function register(req, res) {
       VALUES (:username, :password, :fullName, :email, :phoneNumber, :role)
     `;
 
-    await connection.execute(
-      query,
-      {
-        username,
-        password: hashedPassword,
-        fullName,
-        email,
-        phoneNumber,
-        role,
-      },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      username,
+      password: hashedPassword,
+      fullName,
+      email,
+      phoneNumber,
+      role,
+    });
+
+    await connection.execute("COMMIT");
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("Error registering user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
@@ -835,6 +966,7 @@ async function login(req, res) {
     res.status(200).json({ token });
   } catch (error) {
     console.error("Error logging in:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
@@ -854,22 +986,21 @@ async function insertUser(req, res) {
       VALUES (:username, :password, :fullName, :email, :phoneNumber, :role)
     `;
 
-    await connection.execute(
-      query,
-      {
-        username,
-        password: hashedPassword,
-        fullName,
-        email,
-        phoneNumber,
-        role,
-      },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      username,
+      password: hashedPassword,
+      fullName,
+      email,
+      phoneNumber,
+      role,
+    });
+
+    await connection.execute("COMMIT");
 
     res.status(201).json({ message: "User inserted successfully" });
   } catch (error) {
     console.error("Error inserting user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
@@ -896,23 +1027,22 @@ async function updateUser(req, res) {
       WHERE user_id = :userId
     `;
 
-    await connection.execute(
-      query,
-      {
-        userId,
-        username,
-        password: hashedPassword,
-        fullName,
-        email,
-        phoneNumber,
-        role,
-      },
-      { autoCommit: true }
-    );
+    await connection.execute(query, {
+      userId,
+      username,
+      password: hashedPassword,
+      fullName,
+      email,
+      phoneNumber,
+      role,
+    });
+
+    await connection.execute("COMMIT");
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     console.error("Error updating user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
@@ -932,11 +1062,9 @@ async function softDeleteUser(req, res) {
       WHERE user_id = :userId AND deleted_at IS NULL
     `;
 
-    const result = await connection.execute(
-      query,
-      { userId },
-      { autoCommit: true }
-    );
+    const result = await connection.execute(query, { userId });
+
+    await connection.execute("COMMIT");
 
     if (result.rowsAffected > 0) {
       res.status(200).json({ message: "User marked as deleted successfully" });
@@ -945,6 +1073,7 @@ async function softDeleteUser(req, res) {
     }
   } catch (error) {
     console.error("Error deleting user:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
@@ -988,14 +1117,11 @@ async function getUserById(userId) {
 async function insertMaterialShipment(materials, quantities) {
   let connection = await getConnection();
   try {
-    console.log("Inserting material shipment...");
-
     const insertShipmentQuery = `    
       INSERT INTO material_shipment (shipment_date, shipment_status)
       VALUES (SYSDATE, 'Shipped')
     `;
     await connection.execute(insertShipmentQuery);
-    console.log("Inserting material shipment...");
 
     const result = await connection.execute(
       "select MAX(shipment_id) from material_shipment"
@@ -1065,7 +1191,7 @@ async function getAllMaterialShipments() {
       created_at: row[3],
       deleted_at: row[4],
     }));
-    return shipments;
+    return { shipments };
   } catch (error) {
     console.error("Error fetching material shipments:", error.message);
     throw error;
