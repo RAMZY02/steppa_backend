@@ -1,4 +1,6 @@
 const oracledb = require("oracledb");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
@@ -540,7 +542,7 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE deleted_at IS NULL`
     );
@@ -549,9 +551,9 @@ async function getAllProductions() {
         id: row[0],
         design_id: row[1],
         expected_qty: row[2],
-        actual_qty: row[3],        
-        status: row[4],
-        production_size: row[5],
+        actual_qty: row[3],
+        production_size: row[4],
+        status: row[5]
       };
     });
     return productions;
@@ -568,7 +570,7 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -579,8 +581,8 @@ async function getProductionById(id) {
         design_id: row[1],
         expected_qty: row[2],
         actual_qty: row[3],
-        status: row[4],
-        production_size: row[5],
+        production_size: row[4],
+        status: row[5]
       };
     });
     return productions;
@@ -597,7 +599,7 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
+      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
        FROM production 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
@@ -607,9 +609,9 @@ async function getProductionByDesignId(designId) {
         id: row[0],
         design_id: row[1],
         expected_qty: row[2],
-        actual_qty: row[3],        
-        status: row[4],
-        production_size: row[5],
+        actual_qty: row[3],
+        production_size: row[4],
+        status: row[5]
       };
     });
     return productions;
@@ -1322,25 +1324,6 @@ const getLogsByActionUser = async (username) => {
   }
 };
 
-// Insert User
-async function insertUser(user_id, username, password, full_name, email, phone_number, role) {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `
-      INSERT INTO users (user_id, username, password, full_name, email, phone_number, role, created_at)
-      VALUES (:user_id, :username, :password, :full_name, :email, :phone_number, :role, SYSDATE)
-    `;
-    await connection.execute(query, { user_id, username, password, full_name, email, phone_number, role }, { autoCommit: true });
-    console.log("User added successfully.");
-  } catch (error) {
-    console.error("Error inserting user:", error.message);
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
 // Update User
 async function updateUser(req, res) {
   let connection;
@@ -1429,7 +1412,18 @@ async function getAllUsers() {
        FROM users 
        WHERE deleted_at IS NULL`
     );
-    return result.rows;
+    const users = result.rows.map((row) => {
+      return {
+        user_id: row[0],
+        username: row[1],
+        full_name: row[2],
+        email: row[3],
+        phone_number: row[4],
+        role: row[5],
+        created_at: row[6]
+      };
+    });
+    return users;
   } catch (error) {
     console.error("Error fetching users", error);
     throw error;
@@ -1448,7 +1442,18 @@ async function getUserById(user_id) {
        WHERE user_id = :user_id AND deleted_at IS NULL`,
       { user_id }
     );
-    return result.rows;
+    const users = result.rows.map((row) => {
+      return {
+        user_id: row[0],
+        username: row[1],
+        full_name: row[2],
+        email: row[3],
+        phone_number: row[4],
+        role: row[5],
+        created_at: row[6]
+      };
+    });
+    return users;
   } catch (error) {
     console.error("Error fetching user by ID", error);
     throw error;
@@ -1467,7 +1472,18 @@ async function getUserByUsername(username) {
        WHERE LOWER(username) LIKE LOWER(:username) AND deleted_at IS NULL`,
       [`%${username}%`]
     );
-    return result.rows;
+    const users = result.rows.map((row) => {
+      return {
+        user_id: row[0],
+        username: row[1],
+        full_name: row[2],
+        email: row[3],
+        phone_number: row[4],
+        role: row[5],
+        created_at: row[6]
+      };
+    });
+    return users;
   } catch (error) {
     console.error("Error fetching user by username", error);
     throw error;
@@ -1481,7 +1497,7 @@ async function getFilteredRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT id, name 
        FROM raw_materials 
        WHERE deleted_at IS NULL AND id >= 3`
     );
@@ -1489,8 +1505,6 @@ async function getFilteredRawMaterials() {
       return {
         id: row[0],
         name: row[1],
-        stok_qty: row[2],
-        last_update: row[3],
       };
     });
     return filtermats;
@@ -1499,6 +1513,80 @@ async function getFilteredRawMaterials() {
     throw error;
   } finally {
     connection.close();
+  }
+}
+
+async function login(req, res) {
+  const { username, password } = req.body;
+  let connection;
+
+  try {
+    connection = await getConnection();
+    
+    const result = await connection.execute(
+      `SELECT user_id, password, role FROM users WHERE username = :username`,
+      { username }
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user[1]);
+    if (!validPassword) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    const token = jwt.sign(
+      { id: user.USER_ID, role: user.ROLE },
+      "your_jwt_secret",
+      {
+        expiresIn: "1h",
+      }
+    );
+    
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Error logging in:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function register(req, res) {
+  const { username, password, fullName, email, phoneNumber, role } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  let connection;
+
+  try {
+    connection = await getConnection();
+
+    const query = `
+      INSERT INTO users (username, password, full_name, email, phone_number, role)
+      VALUES (:username, :password, :fullName, :email, :phoneNumber, :role)
+    `;
+
+    await connection.execute(
+      query,
+      {
+        username,
+        password: hashedPassword,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+      },
+      { autoCommit: true }
+    );
+
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error("Error registering user:", error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) await connection.close();
   }
 }
 
@@ -1543,11 +1631,12 @@ module.exports = {
   getLogsByTableName,
   getLogsByActionTime,
   getLogsByActionUser,
-  insertUser,
   updateUser,
   softDeleteUser,
   getAllUsers,
   getUserById,
   getUserByUsername,
-  getFilteredRawMaterials
+  getFilteredRawMaterials,
+  login,
+  register
 };
