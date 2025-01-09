@@ -692,6 +692,7 @@ END;
 /
 
 -- Trigger untuk sales
+DROP SEQUENCE seq_sales_id;
 CREATE OR REPLACE TRIGGER trg_log_sales
 AFTER INSERT OR UPDATE OR DELETE ON sales
 FOR EACH ROW
@@ -1088,3 +1089,14 @@ USING 'conrnd';
 
 -- Test the database link
 SELECT * FROM products@rnd_dblink;
+
+CREATE OR REPLACE PROCEDURE accept_material_shipment(
+    p_shipment_id IN VARCHAR2
+) AS
+BEGIN
+    UPDATE material_shipment@pengepul_dblink
+    SET shipment_status = 'Delivered'
+    WHERE shipment_id = p_shipment_id
+    AND shipment_status = 'Shipped';
+END;
+/

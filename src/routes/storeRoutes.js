@@ -359,19 +359,6 @@ router.get(
   }
 );
 
-// Cart Item routes
-// Soft delete cart item
-router.put("/cart_items/delete", authenticateToken, async (req, res) => {
-  try {
-    await storeController.softDeleteCartItem(req.body.cart_item_id);
-    res
-      .status(200)
-      .json({ message: "Cart item marked as deleted successfully." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Get cart items by cart id
 router.get("/cartitems/cart/:cartId", authenticateToken, async (req, res) => {
   const { cartId } = req.params;
@@ -596,6 +583,24 @@ router.get("/users/:id", async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Accept Material Shipment
+router.put("/accept-shipment", authenticateToken, async (req, res) => {
+  const { shipmentId } = req.body;
+  try {
+    await storeController.acceptMaterialShipment(shipmentId);
+    res
+      .status(200)
+      .json({ message: "Material shipment accepted successfully" });
+  } catch (error) {
+    console.error("Error accepting material shipment:", error.message);
+    res
+      .status(500)
+      .json({
+        error: "An error occurred while accepting the material shipment",
+      });
   }
 });
 
