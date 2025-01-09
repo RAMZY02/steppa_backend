@@ -540,7 +540,7 @@ async function getAllProductions() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
        FROM production 
        WHERE deleted_at IS NULL`
     );
@@ -549,9 +549,9 @@ async function getAllProductions() {
         id: row[0],
         design_id: row[1],
         expected_qty: row[2],
-        actual_qty: row[3],
-        production_size: row[4],
-        status: row[5]
+        actual_qty: row[3],        
+        status: row[4],
+        production_size: row[5],
       };
     });
     return productions;
