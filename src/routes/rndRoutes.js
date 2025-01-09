@@ -42,13 +42,31 @@ const {
   getLogsByTableName,
   getLogsByActionTime,
   getLogsByActionUser,
-  insertUser,
   updateUser,
   softDeleteUser,
+  login,
+  register,
   getAllUsers,
   getUserById,
   getUserByUsername,
-  insertOrUpdateProduct
+  insertOrUpdateProduct,
+  insertProductShipment,
+  updateProductShipment,
+  softDeleteProductShipment,
+  getAllProductShipments,
+  getProductShipmentById,
+  getProductShipmentByDate,
+  getProductShipmentByStatus,
+  insertProductShipmentDetail,
+  updateProductShipmentDetail,
+  softDeleteProductShipmentDetail,
+  getAllProductShipmentDetails,
+  getProductShipmentDetailByShipmentId,
+  getProductShipmentDetailByProductId,
+  getProductShipmentDetailById,
+  getAllMaterialShipments,
+  acceptMaterialShipment,
+  getAllMaterialsFromSupplier
 } = require("../controllers/rndController");
 
 router.post("/design", async (req, res) => {
@@ -350,15 +368,9 @@ router.get("/logs/action-user/:username", async (req, res) => {
   }
 });
 
-router.post("/user", async (req, res) => {
-  try {
-    const { user_id, username, password, full_name, email, phone_number, role } = req.body;
-    await insertUser(user_id, username, password, full_name, email, phone_number, role);
-    res.status(201).json({ message: "User inserted successfully." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.post("/login", login);
+
+router.post("/register", register);
 
 router.put("/user", updateUser);
 
@@ -388,6 +400,138 @@ router.get("/user/username/:username", async (req, res) => {
     const { username } = req.params;
     const user = await getUserByUsername(username);
     res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/product-shipment", insertProductShipment);
+
+router.put("/product-shipment", updateProductShipment);
+
+router.delete("/product-shipment", softDeleteProductShipment);
+
+router.get("/product-shipments", async (req, res) => {
+  try {
+    const shipments = await getAllProductShipments();
+    res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const shipment = await getProductShipmentById(id);
+    res.status(200).json(shipment);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment/date/:date", async (req, res) => {
+  try {
+    const { date } = req.params;
+    const shipments = await getProductShipmentByDate(date);
+    res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment/status/:status", async (req, res) => {
+  try {
+    const { status } = req.params;
+    const shipments = await getProductShipmentByStatus(status);
+    res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/product-shipment-detail", async (req, res) => {
+  try {
+    const { shipmentDetailId, shipmentId, productId, quantity } = req.body;
+    await insertProductShipmentDetail(shipmentDetailId, shipmentId, productId, quantity);
+    res.status(201).json({ message: "Product shipment detail inserted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/product-shipment-detail", updateProductShipmentDetail);
+
+router.delete("/product-shipment-detail", softDeleteProductShipmentDetail);
+
+router.get("/product-shipment-details", async (req, res) => {
+  try {
+    const shipmentDetails = await getAllProductShipmentDetails();
+    res.status(200).json(shipmentDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment-detail/shipment/:shipmentId", async (req, res) => {
+  try {
+    const { shipmentId } = req.params;
+    const shipmentDetails = await getProductShipmentDetailByShipmentId(shipmentId);
+    res.status(200).json(shipmentDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment-detail/product/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const shipmentDetails = await getProductShipmentDetailByProductId(productId);
+    res.status(200).json(shipmentDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/product-shipment-detail/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const shipmentDetail = await getProductShipmentDetailById(id);
+    res.status(200).json(shipmentDetail);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/material-shipments", async (req, res) => {
+  try {
+    const shipments = await getAllMaterialShipments();
+    res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Accept Material Shipment
+router.put("/accept-shipment", async (req, res) => {
+  const { shipmentId } = req.body;
+  try {
+    await acceptMaterialShipment(shipmentId);
+    res
+      .status(200)
+      .json({ message: "Material shipment accepted successfully" });
+  } catch (error) {
+    console.error("Error accepting material shipment:", error.message);
+    res.status(500).json({
+      error: "An error occurred while accepting the material shipment",
+    });
+  }
+});
+
+router.get("/materials-from-supplier", async (req, res) => {
+  try {
+    const materials = await getAllMaterialsFromSupplier();
+    res.status(200).json(materials);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

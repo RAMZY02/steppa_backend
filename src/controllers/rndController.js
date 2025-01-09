@@ -21,7 +21,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "localhost:1521/steppa_rnd",
+      connectString: "192.168.195.148:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1158,6 +1158,66 @@ async function getRawMaterialByName(name) {
   }
 }
 
+// Get All Material Shipments
+async function getAllMaterialShipments() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      SELECT ms.shipment_id, ms.shipment_date, ms.shipment_status,
+             msd.shipment_detail_id, msd.material_id, msd.quantity,
+             m.material_name
+      FROM material_shipment@db_link_supplier ms
+      JOIN material_shipment_detail@db_link_supplier msd ON ms.shipment_id = msd.shipment_id
+      JOIN raw_materials m ON msd.material_id = m.material_id
+      WHERE ms.deleted_at IS NULL AND msd.deleted_at IS NULL
+    `;
+    const result = await connection.execute(query);
+    const shipments = result.rows.map((row) => ({
+      shipment_id: row[0],
+      shipment_date: row[1],
+      shipment_status: row[2],
+      details: {
+        shipment_detail_id: row[3],
+        material_id: row[4],
+        quantity: row[5],
+        material_name: row[6],
+      },
+    }));
+    return shipments;
+  } catch (error) {
+    console.error(
+      "Error fetching material shipments with details and material names:",
+      error.message
+    );
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Materials from Supplier
+async function getAllMaterialsFromSupplier() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT * FROM raw_materials@db_link_supplier`;
+    const result = await connection.execute(query);
+    const materials = result.rows.map((row) => ({
+      id: row[0],
+      name: row[1],
+      stok_qty: row[2],
+      last_update: row[3],
+    }));
+    return materials;
+  } catch (error) {
+    console.error("Error fetching materials from supplier:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 const getAllLogs = async () => {
   const connection = await getConnection();
   try {
@@ -1590,6 +1650,418 @@ async function register(req, res) {
   }
 }
 
+// Insert Product Shipment
+// async function insertProductShipment(shipmentId, shipmentStatus) {
+//   let connection;
+//   try {
+//     connection = await getConnection();
+//     const query = `
+//       INSERT INTO product_shipment (shipment_id, shipment_status, created_at)
+//       VALUES (:shipmentId, :shipmentStatus, SYSDATE)
+//     `;
+//     await connection.execute(
+//       query,
+//       { shipmentId, shipmentStatus },
+//       { autoCommit: true }
+//     );
+//     console.log("Product shipment added successfully.");
+//   } catch (error) {
+//     console.error("Error inserting product shipment:", error.message);
+//     throw error;
+//   } finally {
+//     if (connection) await connection.close();
+//   }
+// }
+
+// Insert Product Shipment using Stored Procedure
+async function insertProductShipment(req, res) {
+  let connection;
+  try {
+    const { shipmentDate, shipmentStatus, products, quantities } = req.body;
+    connection = await getConnection();
+
+    await connection.execute(
+      `BEGIN
+        insert_product_shipment(:shipmentDate, :shipmentStatus, :products, :quantities);
+      END;`,
+      {
+        shipmentDate,
+        shipmentStatus,
+        products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
+        quantities: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: quantities }
+      },
+      { autoCommit: true }
+    );
+    res.status(201).json({ message: "Product shipment inserted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Update Product Shipment
+async function updateProductShipment(req, res) {
+  let connection;
+  try {
+    const { shipmentId, shipmentStatus } = req.body;
+    connection = await getConnection();
+
+    const query = `
+      UPDATE product_shipment
+      SET shipment_status = :shipmentStatus
+      WHERE shipment_id = :shipmentId
+    `;
+
+    await connection.execute(query, { shipmentId, shipmentStatus }, { autoCommit: true });
+    res.status(200).json({ message: "Product shipment updated successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Soft Delete Product Shipment
+async function softDeleteProductShipment(req, res) {
+  let connection;
+  try {
+    const { shipmentId } = req.body;
+    connection = await getConnection();
+    await connection.execute(
+      `UPDATE product_shipment 
+       SET deleted_at = SYSDATE 
+       WHERE shipment_id = :shipmentId AND deleted_at IS NULL`,
+      { shipmentId },
+      { autoCommit: true }
+    );
+    res.status(200).json({ message: "Product shipment marked as deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Product Shipments
+async function getAllProductShipments() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      SELECT ps.shipment_id, ps.shipment_date, ps.shipment_status,
+             psd.shipment_detail_id, psd.product_id, psd.quantity,
+             p.product_name
+      FROM product_shipment ps
+      JOIN product_shipment_detail psd ON ps.shipment_id = psd.shipment_id
+      JOIN products p ON psd.product_id = p.product_id
+      WHERE ps.deleted_at IS NULL AND psd.deleted_at IS NULL
+    `;
+    const result = await connection.execute(query);
+    const shipments = result.rows.map((row) => ({
+      shipment_id: row[0],
+      shipment_date: row[1],
+      shipment_status: row[2],
+      details: {
+        shipment_detail_id: row[3],
+        product_id: row[4],
+        quantity: row[5],
+        product_name: row[6],
+      },
+    }));
+    return shipments;
+  } catch (error) {
+    console.error(
+      "Error fetching product shipments with details and product names:",
+      error.message
+    );
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get Product Shipment by ID
+async function getProductShipmentById(shipmentId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_id, shipment_date, shipment_status, created_at 
+       FROM product_shipment 
+       WHERE shipment_id = :shipmentId AND deleted_at IS NULL`,
+      { shipmentId }
+    );
+    const shipments = result.rows.map((row) => {
+      return {
+        shipment_id: row[0],
+        shipment_date: row[1],
+        shipment_status: row[2],
+        created_at: row[3]
+      };
+    });
+    return shipments;
+  } catch (error) {
+    console.error("Error fetching product shipment by ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get Product Shipment by Date
+async function getProductShipmentByDate(shipmentDate) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_id, shipment_date, shipment_status, created_at 
+       FROM product_shipment 
+       WHERE TRUNC(shipment_date) = TO_DATE(:shipmentDate, 'DD-MM-YYYY') AND deleted_at IS NULL`,
+      { shipmentDate }
+    );
+    const shipments = result.rows.map((row) => {
+      return {
+        shipment_id: row[0],
+        shipment_date: row[1],
+        shipment_status: row[2],
+        created_at: row[3]
+      };
+    });
+    return shipments;
+  } catch (error) {
+    console.error("Error fetching product shipment by date", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get Product Shipment by Status
+async function getProductShipmentByStatus(shipmentStatus) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_id, shipment_date, shipment_status, created_at 
+       FROM product_shipment 
+       WHERE shipment_status = :shipmentStatus AND deleted_at IS NULL`,
+      { shipmentStatus }
+    );
+    const shipments = result.rows.map((row) => {
+      return {
+        shipment_id: row[0],
+        shipment_date: row[1],
+        shipment_status: row[2],
+        created_at: row[3]
+      };
+    });
+    return shipments;
+  } catch (error) {
+    console.error("Error fetching product shipment by status", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Insert Product Shipment Detail
+async function insertProductShipmentDetail(shipmentDetailId, shipmentId, productId, quantity) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      INSERT INTO product_shipment_detail (shipment_detail_id, shipment_id, product_id, quantity, created_at)
+      VALUES (:shipmentDetailId, :shipmentId, :productId, :quantity, SYSDATE)
+    `;
+    await connection.execute(
+      query,
+      { shipmentDetailId, shipmentId, productId, quantity },
+      { autoCommit: true }
+    );
+    console.log("Product shipment detail added successfully.");
+  } catch (error) {
+    console.error("Error inserting product shipment detail:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Update Product Shipment Detail
+async function updateProductShipmentDetail(req, res) {
+  let connection;
+  try {
+    const { shipmentDetailId, shipmentId, productId, quantity } = req.body;
+    connection = await getConnection();
+
+    const query = `
+      UPDATE product_shipment_detail
+      SET shipment_id = :shipmentId, product_id = :productId, quantity = :quantity
+      WHERE shipment_detail_id = :shipmentDetailId
+    `;
+
+    await connection.execute(query, { shipmentDetailId, shipmentId, productId, quantity }, { autoCommit: true });
+    res.status(200).json({ message: "Product shipment detail updated successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Soft Delete Product Shipment Detail
+async function softDeleteProductShipmentDetail(req, res) {
+  let connection;
+  try {
+    const { shipmentDetailId } = req.body;
+    connection = await getConnection();
+    await connection.execute(
+      `UPDATE product_shipment_detail 
+       SET deleted_at = SYSDATE 
+       WHERE shipment_detail_id = :shipmentDetailId AND deleted_at IS NULL`,
+      { shipmentDetailId },
+      { autoCommit: true }
+    );
+    res.status(200).json({ message: "Product shipment detail marked as deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Product Shipment Details
+async function getAllProductShipmentDetails() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_detail_id, shipment_id, product_id, quantity, created_at 
+       FROM product_shipment_detail 
+       WHERE deleted_at IS NULL`
+    );
+    const shipmentDetails = result.rows.map((row) => {
+      return {
+        shipment_detail_id: row[0],
+        shipment_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        created_at: row[4]
+      };
+    });
+    return shipmentDetails;
+  } catch (error) {
+    console.error("Error fetching product shipment details", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get Product Shipment Detail by Shipment ID
+async function getProductShipmentDetailByShipmentId(shipmentId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_detail_id, shipment_id, product_id, quantity, created_at 
+       FROM product_shipment_detail 
+       WHERE shipment_id = :shipmentId AND deleted_at IS NULL`,
+      { shipmentId }
+    );
+    const shipmentDetails = result.rows.map((row) => {
+      return {
+        shipment_detail_id: row[0],
+        shipment_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        created_at: row[4]
+      };
+    });
+    return shipmentDetails;
+  } catch (error) {
+    console.error("Error fetching product shipment detail by shipment ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get Product Shipment Detail by Product ID
+async function getProductShipmentDetailByProductId(productId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_detail_id, shipment_id, product_id, quantity, created_at 
+       FROM product_shipment_detail 
+       WHERE product_id = :productId AND deleted_at IS NULL`,
+      { productId }
+    );
+    const shipmentDetails = result.rows.map((row) => {
+      return {
+        shipment_detail_id: row[0],
+        shipment_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        created_at: row[4]
+      };
+    });
+    return shipmentDetails;
+  } catch (error) {
+    console.error("Error fetching product shipment detail by product ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Get Product Shipment Detail by ID
+async function getProductShipmentDetailById(shipmentDetailId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT shipment_detail_id, shipment_id, product_id, quantity, created_at 
+       FROM product_shipment_detail 
+       WHERE shipment_detail_id = :shipmentDetailId AND deleted_at IS NULL`,
+      { shipmentDetailId }
+    );
+    const shipmentDetails = result.rows.map((row) => {
+      return {
+        shipment_detail_id: row[0],
+        shipment_id: row[1],
+        product_id: row[2],
+        quantity: row[3],
+        created_at: row[4]
+      };
+    });
+    return shipmentDetails;
+  } catch (error) {
+    console.error("Error fetching product shipment detail by ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+// Accept Material Shipment
+async function acceptMaterialShipment(shipmentId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN accept_material_shipment(:shipment_id); END;`;
+    await connection.execute(query, { shipment_id: shipmentId });
+    console.log("Material shipment accepted successfully.");
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error accepting material shipment:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertDesign,
   updateDesign,
@@ -1625,6 +2097,8 @@ module.exports = {
   getAllRawMaterials,
   getRawMaterialById,
   getRawMaterialByName,
+  getAllMaterialShipments,
+  getAllMaterialsFromSupplier,
   getAllLogs,
   getLogById,
   getLogsByActionType,
@@ -1638,5 +2112,20 @@ module.exports = {
   getUserByUsername,
   getFilteredRawMaterials,
   login,
-  register
+  register,
+  insertProductShipment,
+  updateProductShipment,
+  softDeleteProductShipment,
+  getAllProductShipments,
+  getProductShipmentById,
+  getProductShipmentByDate,
+  getProductShipmentByStatus,
+  insertProductShipmentDetail,
+  updateProductShipmentDetail,
+  softDeleteProductShipmentDetail,
+  getAllProductShipmentDetails,
+  getProductShipmentDetailByShipmentId,
+  getProductShipmentDetailByProductId,
+  getProductShipmentDetailById,
+  acceptMaterialShipment
 };
