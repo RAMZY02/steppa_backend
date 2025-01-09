@@ -568,7 +568,7 @@ async function getProductionById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
        FROM production 
        WHERE id = :id AND deleted_at IS NULL`,
       { id }
@@ -579,8 +579,8 @@ async function getProductionById(id) {
         design_id: row[1],
         expected_qty: row[2],
         actual_qty: row[3],
-        production_size: row[4],
-        status: row[5]
+        status: row[4],
+        production_size: row[5],
       };
     });
     return productions;
@@ -597,7 +597,7 @@ async function getProductionByDesignId(designId) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, design_id, expected_qty, actual_qty, production_size, status 
+      `SELECT id, design_id, expected_qty, actual_qty, status, production_size 
        FROM production 
        WHERE design_id = :designId AND deleted_at IS NULL`,
       { designId }
@@ -607,9 +607,9 @@ async function getProductionByDesignId(designId) {
         id: row[0],
         design_id: row[1],
         expected_qty: row[2],
-        actual_qty: row[3],
-        production_size: row[4],
-        status: row[5]
+        actual_qty: row[3],        
+        status: row[4],
+        production_size: row[5],
       };
     });
     return productions;
