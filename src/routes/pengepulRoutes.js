@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authenticateToken = require("../middleware/authenticateToken");
+const pengepulController = require("../controllers/pengepulController");
 
 const {
   insertSupplier,
@@ -132,6 +133,67 @@ router.get(
     const supplierId = req.params.supplierId;
     const materials = await getRawMaterialBySupplier(supplierId);
     res.status(200).json(materials);
+  }
+);
+
+// Routes for Material Shipments
+// Material Shipment - Insert
+router.post("/material-shipment", authenticateToken, async (req, res) => {
+  try {
+    const { shipment_date, shipment_status, materials, quantities } = req.body;
+    await pengepulController.insertMaterialShipment(
+      shipment_date,
+      shipment_status,
+      materials,
+      quantities
+    );
+    res
+      .status(201)
+      .json({ message: "Material shipment inserted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Material Shipment - Update Status
+router.put("/material-shipment/status", authenticateToken, async (req, res) => {
+  try {
+    const { shipment_id, new_status } = req.body;
+    await pengepulController.updateMaterialShipmentStatus(
+      shipment_id,
+      new_status
+    );
+    res
+      .status(200)
+      .json({ message: "Material shipment status updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Material Shipment - Get All
+router.get("/material-shipments", authenticateToken, async (req, res) => {
+  try {
+    const shipments = await pengepulController.getAllMaterialShipments();
+    res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Material Shipment - Get by ID
+router.get(
+  "/material-shipment/:shipment_id",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const shipment = await pengepulController.getMaterialShipmentById(
+        req.params.shipment_id
+      );
+      res.status(200).json(shipment);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 );
 

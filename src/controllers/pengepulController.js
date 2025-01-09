@@ -19,7 +19,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reti",
       password: "reti",
-      connectString: "192.168.195.213:1521/steppa_pengepul",
+      connectString: "192.168.195.213:1521/steppa_supplier",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -984,6 +984,126 @@ async function getUserById(userId) {
   }
 }
 
+// Insert Material Shipment
+async function insertMaterialShipment(
+  shipment_date,
+  shipment_status,
+  materials,
+  quantities
+) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      BEGIN
+        insert_material_shipment(:shipment_date, :shipment_status, :materials, :quantities);
+      END;
+    `;
+
+    begin;
+    insert_material_shipment(
+      SYSDATE,
+      "Shipped",
+      ["MAT0001", "MAT0002"],
+      [100, 200]
+    );
+    end;
+    await connection.execute(query, {
+      shipment_date,
+      shipment_status,
+      materials: {
+        type: oracledb.STRING,
+        dir: oracledb.BIND_IN,
+        val: materials,
+      },
+      quantities: {
+        type: oracledb.NUMBER,
+        dir: oracledb.BIND_IN,
+        val: quantities,
+      },
+    });
+    await connection.execute("COMMIT");
+    console.log("Material shipment inserted successfully.");
+  } catch (error) {
+    console.error("Error inserting material shipment:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Update Material Shipment Status
+async function updateMaterialShipmentStatus(shipment_id, new_status) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      UPDATE material_shipment
+      SET shipment_status = :new_status
+      WHERE shipment_id = :shipment_id
+    `;
+    await connection.execute(query, { shipment_id, new_status });
+    await connection.execute("COMMIT");
+    console.log("Material shipment status updated successfully.");
+  } catch (error) {
+    console.error("Error updating material shipment status:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Material Shipments
+async function getAllMaterialShipments() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT * FROM material_shipment WHERE deleted_at IS NULL`;
+    const result = await connection.execute(query);
+    const shipments = result.rows.map((row) => ({
+      shipment_id: row[0],
+      shipment_date: row[1],
+      shipment_status: row[2],
+      created_at: row[3],
+      deleted_at: row[4],
+    }));
+    return shipments;
+  } catch (error) {
+    console.error("Error fetching material shipments:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get Material Shipment by ID
+async function getMaterialShipmentById(shipment_id) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT * FROM material_shipment WHERE shipment_id = :shipment_id AND deleted_at IS NULL`;
+    const result = await connection.execute(query, { shipment_id });
+    if (result.rows.length === 0) {
+      throw new Error("Material shipment not found.");
+    }
+    const shipment = result.rows[0];
+    return {
+      shipment_id: shipment[0],
+      shipment_date: shipment[1],
+      shipment_status: shipment[2],
+      created_at: shipment[3],
+      deleted_at: shipment[4],
+    };
+  } catch (error) {
+    console.error("Error fetching material shipment by ID:", error.message);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertSupplier,
   updateSupplier,
@@ -1019,4 +1139,8 @@ module.exports = {
   updateUser,
   softDeleteUser,
   getUserById,
+  insertMaterialShipment,
+  updateMaterialShipmentStatus,
+  getAllMaterialShipments,
+  getMaterialShipmentById,
 };

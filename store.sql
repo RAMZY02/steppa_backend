@@ -1100,3 +1100,32 @@ BEGIN
     AND shipment_status = 'Shipped';
 END;
 /
+
+
+INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
+VALUES (SYSDATE, 'Shipped');
+INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
+VALUES (SYSDATE, 'Delivered');
+INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
+VALUES (SYSDATE, 'Failed');
+
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0001', 'PRO0011', 10);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0001', 'PRO0012', 20);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0001', 'PRO0013', 30);
+
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0002', 'PRO0014', 15);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0002', 'PRO0015', 25);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0002', 'PRO0016', 35);
+
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0003', 'PRO0017', 5);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0003', 'PRO0018', 10);
+  INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
+  VALUES ('SHP0003', 'PRO0019', 20);

@@ -379,7 +379,6 @@ async function getAllSales() {
         sale_channel: row[1],
         sale_date: row[2],
         total: row[3],
-        created_at: row[4],
       };
     });
     return sales;
@@ -1452,6 +1451,62 @@ async function acceptMaterialShipment(shipmentId) {
   }
 }
 
+// Get All Material Shipment
+async function getAllMaterialShipment() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `select * from material_shipment`;
+    await connection.execute(query, { shipment_id: shipmentId });
+    console.log("Material shipment accepted successfully.");
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error accepting material shipment:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get All Product Shipments with Details and Product Names
+async function getAllProductShipments() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `
+      SELECT ps.shipment_id, ps.shipment_date, ps.shipment_status,
+             psd.shipment_detail_id, psd.product_id, psd.quantity,
+             p.product_name
+      FROM product_shipment@rnd_dblink ps
+      JOIN product_shipment_detail@rnd_dblink psd ON ps.shipment_id = psd.shipment_id
+      JOIN products p ON psd.product_id = p.product_id
+      WHERE ps.deleted_at IS NULL AND psd.deleted_at IS NULL
+    `;
+    const result = await connection.execute(query);
+    const shipments = result.rows.map((row) => ({
+      shipment_id: row[0],
+      shipment_date: row[1],
+      shipment_status: row[2],
+      details: {
+        shipment_detail_id: row[3],
+        product_id: row[4],
+        quantity: row[5],
+        product_name: row[6],
+      },
+    }));
+    return shipments;
+  } catch (error) {
+    console.error(
+      "Error fetching product shipments with details and product names:",
+      error.message
+    );
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertProduct,
   updateProduct,
@@ -1506,4 +1561,5 @@ module.exports = {
   createTransaction,
   getPurchasedCartItems,
   acceptMaterialShipment,
+  getAllProductShipments,
 };

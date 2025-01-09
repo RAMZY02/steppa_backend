@@ -91,6 +91,23 @@ router.get("/products/stock", async (req, res) => {
   }
 });
 
+// Get All Product Shipments with Details and Product Names
+router.get("/product-shipments", authenticateToken, async (req, res) => {
+  try {
+    const shipments = await storeController.getAllProductShipments();
+    res.status(200).json(shipments);
+  } catch (error) {
+    console.error(
+      "Error fetching product shipments with details and product names:",
+      error.message
+    );
+    res.status(500).json({
+      error:
+        "An error occurred while fetching product shipments with details and product names",
+    });
+  }
+});
+
 // Sale routes
 // Insert sale
 router.post("/sales", authenticateToken, async (req, res) => {
@@ -596,11 +613,9 @@ router.put("/accept-shipment", authenticateToken, async (req, res) => {
       .json({ message: "Material shipment accepted successfully" });
   } catch (error) {
     console.error("Error accepting material shipment:", error.message);
-    res
-      .status(500)
-      .json({
-        error: "An error occurred while accepting the material shipment",
-      });
+    res.status(500).json({
+      error: "An error occurred while accepting the material shipment",
+    });
   }
 });
 
