@@ -985,43 +985,40 @@ async function getUserById(userId) {
 }
 
 // Insert Material Shipment
-async function insertMaterialShipment(
-  shipment_date,
-  shipment_status,
-  materials,
-  quantities
-) {
-  let connection;
+async function insertMaterialShipment(materials, quantities) {
+  let connection = await getConnection();
   try {
-    connection = await getConnection();
-    const query = `
-      BEGIN
-        insert_material_shipment(:shipment_date, :shipment_status, :materials, :quantities);
-      END;
+    console.log("Inserting material shipment...");
+
+    const insertShipmentQuery = `    
+      INSERT INTO material_shipment (shipment_date, shipment_status)
+      VALUES (SYSDATE, 'Shipped')
+    `;
+    await connection.execute(insertShipmentQuery);
+    console.log("Inserting material shipment...");
+
+    const result = await connection.execute(
+      "select MAX(shipment_id) from material_shipment"
+    );
+
+    const shipmentId = result.rows[0][0];
+    console.log("Shipment ID:", shipmentId);
+
+    const insertDetailQuery = `
+      INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
+      VALUES (:shipment_id, :material_id, :quantity)
     `;
 
-    begin;
-    insert_material_shipment(
-      SYSDATE,
-      "Shipped",
-      ["MAT0001", "MAT0002"],
-      [100, 200]
-    );
-    end;
-    await connection.execute(query, {
-      shipment_date,
-      shipment_status,
-      materials: {
-        type: oracledb.STRING,
-        dir: oracledb.BIND_IN,
-        val: materials,
-      },
-      quantities: {
-        type: oracledb.NUMBER,
-        dir: oracledb.BIND_IN,
-        val: quantities,
-      },
-    });
+    for (let i = 0; i < materials.length; i++) {
+      console.log("Inserting detail:", materials[i], quantities[i]);
+
+      await connection.execute(insertDetailQuery, {
+        shipment_id: shipmentId,
+        material_id: materials[i],
+        quantity: quantities[i],
+      });
+    }
+
     await connection.execute("COMMIT");
     console.log("Material shipment inserted successfully.");
   } catch (error) {
@@ -1032,7 +1029,6 @@ async function insertMaterialShipment(
     if (connection) await connection.close();
   }
 }
-
 // Update Material Shipment Status
 async function updateMaterialShipmentStatus(shipment_id, new_status) {
   let connection;

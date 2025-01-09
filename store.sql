@@ -1090,11 +1090,11 @@ USING 'conrnd';
 -- Test the database link
 SELECT * FROM products@rnd_dblink;
 
-CREATE OR REPLACE PROCEDURE accept_material_shipment(
+CREATE OR REPLACE PROCEDURE accept_product_shipment(
     p_shipment_id IN VARCHAR2
 ) AS
 BEGIN
-    UPDATE material_shipment@pengepul_dblink
+    UPDATE product_shipment@rnd_dblink
     SET shipment_status = 'Delivered'
     WHERE shipment_id = p_shipment_id
     AND shipment_status = 'Shipped';

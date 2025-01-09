@@ -140,13 +140,8 @@ router.get(
 // Material Shipment - Insert
 router.post("/material-shipment", authenticateToken, async (req, res) => {
   try {
-    const { shipment_date, shipment_status, materials, quantities } = req.body;
-    await pengepulController.insertMaterialShipment(
-      shipment_date,
-      shipment_status,
-      materials,
-      quantities
-    );
+    const { materials, quantities } = req.body;
+    await pengepulController.insertMaterialShipment(materials, quantities);
     res
       .status(201)
       .json({ message: "Material shipment inserted successfully" });

@@ -1434,31 +1434,13 @@ async function getUserById(userId) {
 }
 
 // Accept Material Shipment
-async function acceptMaterialShipment(shipmentId) {
+async function acceptProductShipment(shipmentId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `BEGIN accept_material_shipment(:shipment_id); END;`;
+    const query = `BEGIN accept_product_shipment(:shipment_id); END;`;
     await connection.execute(query, { shipment_id: shipmentId });
-    console.log("Material shipment accepted successfully.");
-    await connection.execute("COMMIT");
-  } catch (error) {
-    console.error("Error accepting material shipment:", error.message);
-    if (connection) await connection.execute("ROLLBACK");
-    throw error;
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-// Get All Material Shipment
-async function getAllMaterialShipment() {
-  let connection;
-  try {
-    connection = await getConnection();
-    const query = `select * from material_shipment`;
-    await connection.execute(query, { shipment_id: shipmentId });
-    console.log("Material shipment accepted successfully.");
+    console.log("Product shipment accepted successfully.");
     await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error accepting material shipment:", error.message);
@@ -1560,6 +1542,6 @@ module.exports = {
   getCartItemsByCartId,
   createTransaction,
   getPurchasedCartItems,
-  acceptMaterialShipment,
+  acceptProductShipment,
   getAllProductShipments,
 };

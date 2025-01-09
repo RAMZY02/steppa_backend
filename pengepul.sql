@@ -603,15 +603,13 @@ END;
 /
 
 CREATE OR REPLACE PROCEDURE insert_material_shipment(
-    p_shipment_date IN DATE,
-    p_shipment_status IN VARCHAR2,
     p_materials IN SYS.ODCIVARCHAR2LIST,
     p_quantities IN SYS.ODCINUMBERLIST
 ) AS
     v_shipment_id VARCHAR2(10);
 BEGIN
     INSERT INTO material_shipment (shipment_date, shipment_status)
-    VALUES (p_shipment_date, p_shipment_status)
+    VALUES (SYSDATE, 'Shipped')
     RETURNING shipment_id INTO v_shipment_id;
 
     FOR i IN 1 .. p_materials.COUNT LOOP
@@ -622,7 +620,6 @@ BEGIN
     COMMIT;
 END;
 /
-
 -- Insert dummy data into suppliers
 INSERT INTO suppliers (name, location, contact_info)
 VALUES ('Supplier 1', 'Location 1', 'Contact 1');

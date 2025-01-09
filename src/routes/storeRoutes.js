@@ -607,7 +607,7 @@ router.get("/users/:id", async (req, res) => {
 router.put("/accept-shipment", authenticateToken, async (req, res) => {
   const { shipmentId } = req.body;
   try {
-    await storeController.acceptMaterialShipment(shipmentId);
+    await storeController.acceptProductShipment(shipmentId);
     res
       .status(200)
       .json({ message: "Material shipment accepted successfully" });
