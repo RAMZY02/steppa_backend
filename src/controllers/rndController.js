@@ -5,9 +5,9 @@ const bcrypt = require("bcrypt");
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
 // Rama & Steven
-oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
-});
+// oracledb.initOracleClient({
+//   libDir: "D:/instantclient_23_6",
+// });
 
 // Melvin
 // oracledb.initOracleClient({
@@ -15,13 +15,16 @@ oracledb.initOracleClient({
 // });
 
 // Niko
+oracledb.initOracleClient({
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+});
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "192.168.195.148:1521/steppa_rnd",
+      connectString: "192.168.195.5:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);

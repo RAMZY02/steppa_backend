@@ -23,5 +23,5 @@ app.use("/api/rnd", rndRoutes);
 
 // Mulai server
 app.listen(port, () => {
-  console.log(`Server berjalan di http://192.168.195.213:${port}`);
+  console.log(`Server berjalan di http://192.168.195.5:${port}`);
 });

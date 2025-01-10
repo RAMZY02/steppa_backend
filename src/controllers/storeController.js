@@ -9,8 +9,12 @@ const midtransClient = require("midtrans-client");
 // });
 
 // Rama & Steven
+// oracledb.initOracleClient({
+//   libDir: "D:/instantclient_23_6",
+// });
+
 oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
 });
 
 async function getConnection() {
@@ -18,7 +22,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.213:1521/steppa_store",
+      connectString: "192.168.195.5:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1490,13 +1494,10 @@ async function getAllProductShipments() {
   try {
     connection = await getConnection();
     const query = `
-      SELECT ps.shipment_id, ps.shipment_date, ps.shipment_status,
-             psd.shipment_detail_id, psd.product_id, psd.quantity,
-             p.product_name
+      SELECT ps.shipment_id, ps.shipment_date, ps.shipment_status
       FROM product_shipment@rnd_dblink ps
-      JOIN product_shipment_detail@rnd_dblink psd ON ps.shipment_id = psd.shipment_id
-      JOIN products p ON psd.product_id = p.product_id
-      WHERE ps.deleted_at IS NULL AND psd.deleted_at IS NULL
+      WHERE ps.deleted_at IS NULL
+
     `;
     const result = await connection.execute(query);
     const shipments = result.rows.map((row) => {
@@ -1504,12 +1505,6 @@ async function getAllProductShipments() {
         shipment_id: row[0],
         shipment_date: row[1],
         shipment_status: row[2],
-        details: {
-          shipment_detail_id: row[3],
-          product_id: row[4],
-          quantity: row[5],
-          product_name: row[6],
-        },
       };
     });
     return shipments;
