@@ -224,17 +224,17 @@ async function getDesignByName(name) {
 }
 
 // Insert Design Material
-async function insertDesignMaterial(designId, materialId, qty) {
+async function insertDesignMaterial(designId, material_id, qty) {
   let connection;
   try {
     connection = await getConnection();
     const query = `
       INSERT INTO design_materials (design_id, material_id, qty, created_at)
-      VALUES (:designId, :materialId, :qty, SYSDATE)
+      VALUES (:designId, :material_id, :qty, SYSDATE)
     `;
     await connection.execute(
       query,
-      { designId, materialId, qty },
+      { designId, material_id, qty },
       { autoCommit: true }
     );
     console.log("Design material added successfully.");
@@ -1011,7 +1011,7 @@ async function insertRawMaterial(name, stokQty) {
   try {
     connection = await getConnection();
     const query = `
-      INSERT INTO raw_materials (name, stok_qty, last_update)
+      INSERT INTO raw_materials (material_name, stock_quantity, last_update)
       VALUES (:name, :stokQty, SYSDATE)
     `;
     await connection.execute(query, { name, stokQty }, { autoCommit: true });
@@ -1028,24 +1028,24 @@ async function insertRawMaterial(name, stokQty) {
 async function updateRawMaterial(req, res) {
   let connection;
   try {
-    const { id, name, stokQty } = req.body;
+    const { material_id, material_name, stock_quantity } = req.body;
     connection = await getConnection();
 
     let query = "UPDATE raw_materials SET ";
-    const binds = { id };
+    const binds = { material_id };
 
-    if (name) {
-      query += "name = :name";
-      binds.name = name;
+    if (material_name) {
+      query += "material_name = :material_name";
+      binds.material_name = material_name;
     }
 
-    if (stokQty) {
-      if (name) query += ", ";
-      query += "stok_qty = :stokQty";
-      binds.stokQty = stokQty;
+    if (stock_quantity) {
+      if (material_name) query += ", ";
+      query += "stock_quantity = :stock_quantity";
+      binds.stock_quantity = stock_quantity;
     }
 
-    query += ", last_update = SYSDATE WHERE id = :id";
+    query += ", last_update = SYSDATE WHERE material_id = :material_id";
 
     await connection.execute(query, binds, { autoCommit: true });
     res.status(200).json({ message: "Raw material updated successfully." });
@@ -1066,7 +1066,7 @@ async function softDeleteRawMaterial(req, res) {
     await connection.execute(
       `UPDATE raw_materials 
        SET deleted_at = SYSDATE 
-       WHERE id = :id AND deleted_at IS NULL`,
+       WHERE material_id = :id AND deleted_at IS NULL`,
       { id },
       { autoCommit: true }
     );
@@ -1086,15 +1086,15 @@ async function getAllRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT material_id, material_name, stock_quantity, last_update 
        FROM raw_materials 
        WHERE deleted_at IS NULL`
     );
     const rawMaterials = result.rows.map((row) => {
       return {
-        id: row[0],
-        name: row[1],
-        stok_qty: row[2],
+        material_id: row[0],
+        material_name: row[1],
+        stock_quantity: row[2],
         last_update: row[3]
       };
     });
@@ -1112,16 +1112,16 @@ async function getRawMaterialById(id) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT material_id, material_name, stock_quantity, last_update 
        FROM raw_materials 
-       WHERE id = :id AND deleted_at IS NULL`,
+       WHERE material_id = :id AND deleted_at IS NULL`,
       { id }
     );
     const rawMaterials = result.rows.map((row) => {
       return {
-        id: row[0],
-        name: row[1],
-        stok_qty: row[2],
+        material_id: row[0],
+        material_name: row[1],
+        stock_quantity: row[2],
         last_update: row[3]
       };
     });
@@ -1139,16 +1139,16 @@ async function getRawMaterialByName(name) {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name, stok_qty, last_update 
+      `SELECT material_id, material_name, stock_quantity, last_update 
        FROM raw_materials 
        WHERE LOWER(name) LIKE LOWER(:name) AND deleted_at IS NULL`,
       [`%${name}%`]
     );
     const rawMaterials = result.rows.map((row) => {
       return {
-        id: row[0],
-        name: row[1],
-        stok_qty: row[2],
+        material_id: row[0],
+        material_name: row[1],
+        stock_quantity: row[2],
         last_update: row[3]
       };
     });
@@ -1582,14 +1582,16 @@ async function getFilteredRawMaterials() {
   const connection = await getConnection();
   try {
     const result = await connection.execute(
-      `SELECT id, name 
+      `SELECT material_id, material_name, stock_quantity, last_update 
        FROM raw_materials 
-       WHERE deleted_at IS NULL AND id >= 3`
+       WHERE deleted_at IS NULL AND material_id != 'MAT0001' AND material_id != 'MAT0002'`
     );
     const filtermats = result.rows.map((row) => {
       return {
-        id: row[0],
-        name: row[1],
+        material_id: row[0],
+        material_name: row[1],
+        stock_quantity: row[2],
+        last_update: row[3],
       };
     });
     return filtermats;

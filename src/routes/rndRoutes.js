@@ -115,8 +115,8 @@ router.get("/design/name/:name", async (req, res) => {
 
 router.post("/design-material", async (req, res) => {
   try {
-    const { designId, materialId, qty } = req.body;
-    await insertDesignMaterial(designId, materialId, qty);
+    const { designId, material_id, qty } = req.body;
+    await insertDesignMaterial(designId, material_id, qty);
     res.status(201).json({ message: "Design material inserted successfully." });
   } catch (error) {
     res.status(500).json({ error: error.message });
