@@ -1,19 +1,21 @@
--- 1. create user admin
+-- 1. create user superadmin
 CREATE USER reti IDENTIFIED BY reti;
-CREATE role admin IDENTIFIED BY admin;
-GRANT CREATE TABLE TO admin;
-GRANT CREATE INDEX TO admin;
-GRANT CREATE TRIGGER TO admin;
-GRANT CREATE VIEW TO admin;
-GRANT CREATE PROCEDURE TO admin;
-GRANT GRANT ANY OBJECT PRIVILEGE TO admin;
-GRANT ALTER ANY TABLE TO admin;
-GRANT CREATE SEQUENCE TO admin;
-GRANT CREATE ROLE TO admin;
+CREATE role superadmin IDENTIFIED BY superadmin;
+GRANT CREATE TABLE TO superadmin;
+GRANT CREATE INDEX TO superadmin;
+GRANT CREATE TRIGGER TO superadmin;
+GRANT CREATE VIEW TO superadmin;
+GRANT CREATE PROCEDURE TO superadmin;
+GRANT GRANT ANY OBJECT PRIVILEGE TO superadmin;
+GRANT ALTER ANY TABLE TO superadmin;
+GRANT CREATE SEQUENCE TO superadmin;
+GRANT CREATE ROLE TO superadmin;
+GRANT CREATE MATERIALIZED VIEW TO superadmin;
+GRANT CREATE JOB TO superadmin;
 ALTER USER reti QUOTA UNLIMITED ON USERS;
-GRANT ADMIN TO reti;
+GRANT superadmin TO reti;
 GRANT CONNECT TO reti;
-grant create database link to admin;
+GRANT CREATE DATABASE LINK to superadmin;
 GRANT CREATE SESSION TO reti;
 
 
@@ -22,8 +24,8 @@ conn reti@steppa_supplier/reti
 
 
 
---role admin
-set role admin identified by admin;
+--role superadmin
+set role superadmin identified by superadmin;
 
 
 
@@ -91,7 +93,7 @@ CREATE TABLE users (
     full_name VARCHAR2(100),
     email VARCHAR2(100),
     phone_number VARCHAR2(20),
-    role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
+    role VARCHAR2(20) CHECK (role IN ('admin', 'manager', 'employee')),
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );

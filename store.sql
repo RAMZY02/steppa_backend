@@ -1,27 +1,82 @@
--- 1. create user admin
+-- 1. create user superadmin
 CREATE USER reki IDENTIFIED BY reki;
-CREATE role admin IDENTIFIED BY admin;
-GRANT CREATE TABLE TO admin;
-GRANT CREATE INDEX TO admin;
-GRANT CREATE TRIGGER TO admin;
-GRANT CREATE VIEW TO admin;
-GRANT CREATE PROCEDURE TO admin;
-GRANT GRANT ANY OBJECT PRIVILEGE TO admin;
-GRANT ALTER ANY TABLE TO admin;
-GRANT CREATE SEQUENCE TO admin;
-GRANT CREATE ROLE TO admin;
+CREATE role superadmin IDENTIFIED BY superadmin;
+GRANT CREATE TABLE TO superadmin;
+GRANT CREATE INDEX TO superadmin;
+GRANT CREATE TRIGGER TO superadmin;
+GRANT CREATE VIEW TO superadmin;
+GRANT CREATE PROCEDURE TO superadmin;
+GRANT GRANT ANY OBJECT PRIVILEGE TO superadmin;
+GRANT ALTER ANY TABLE TO superadmin;
+GRANT CREATE SEQUENCE TO superadmin;
+GRANT CREATE ROLE TO superadmin;
+GRANT CREATE DATABASE LINK TO superadmin;
+GRANT CREATE MATERIALIZED VIEW TO superadmin;
+GRANT CREATE JOB TO superadmin;
+GRANT MANAGE SCHEDULER TO superadmin;
 ALTER USER reki QUOTA UNLIMITED ON USERS;
-GRANT ADMIN TO reki;
+GRANT superadmin TO reki;
 GRANT CONNECT TO reki;
 GRANT CREATE SESSION TO reki;
+
+-- Create roles
+CREATE ROLE admin;
+CREATE ROLE manager;
+CREATE ROLE cashier;
+CREATE ROLE inventory;
+
+-- Grant privileges to admin
+GRANT SELECT, INSERT, UPDATE, DELETE ON products TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON sales TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON sale_items TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON customers TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON carts TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON cart_items TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON revenue_reports TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON users TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON log_store TO admin;
+
+CREATE USER vapo IDENTIFIED BY vapo;
+GRANT admin TO vapo;
+
+-- Grant privileges to manager
+GRANT SELECT, INSERT, UPDATE, DELETE ON products TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON sales TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON sale_items TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON customers TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON carts TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON cart_items TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON revenue_reports TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON users TO manager;
+GRANT SELECT, INSERT, UPDATE, DELETE ON log_store TO manager;
+
+create user baki identified by baki;
+grant manager to baki;
+
+-- Grant privileges to cashier
+GRANT SELECT, INSERT, UPDATE ON sales TO cashier;
+GRANT SELECT, INSERT, UPDATE ON sale_items TO cashier;
+GRANT SELECT, INSERT, UPDATE ON customers TO cashier;
+GRANT SELECT, INSERT, UPDATE ON carts TO cashier;
+GRANT SELECT, INSERT, UPDATE ON cart_items TO cashier;
+
+CREATE USER noko IDENTIFIED BY noko;
+GRANT cashier TO noko;
+
+-- Grant privileges to inventory
+GRANT SELECT, INSERT, UPDATE, DELETE ON products TO inventory;
+GRANT SELECT, INSERT, UPDATE, DELETE ON log_store TO inventory;
+
+CREATE USER bawa IDENTIFIED BY bawa;
+GRANT inventory TO bawa;
 
 --login ke reki
 conn reki@steppa_store/reki
 
 
 
---role admin
-set role admin identified by admin;
+--role superadmin
+set role superadmin identified by superadmin;
 
 drop table products cascade constraints;
 drop table sales cascade constraints;
@@ -120,7 +175,7 @@ CREATE TABLE users (
     full_name VARCHAR2(100),
     email VARCHAR2(100),
     phone_number VARCHAR2(20),
-    role VARCHAR2(20) CHECK (role IN ('admin', 'employee')),
+    role VARCHAR2(20) CHECK (role IN ('admin', 'manager', 'cashier', 'inventory')),
     created_at DATE DEFAULT SYSDATE,
     deleted_at DATE
 );
@@ -1128,4 +1183,55 @@ VALUES (SYSDATE, 'Failed');
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
   VALUES ('SHP0003', 'PRO0018', 10);
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
-  VALUES ('SHP0003', 'PRO0019', 20);
+  
+
+CREATE MATERIALIZED VIEW MV_RND_DATA
+BUILD IMMEDIATE
+REFRESH FORCE
+ON DEMAND
+AS
+SELECT material_id, material_name, stock_quantity
+FROM raw_materials@db_link_supplier;
+
+BEGIN
+   DBMS_SCHEDULER.CREATE_JOB (
+      job_name        => 'REFRESH_MV_RND_DATA',
+      job_type        => 'PLSQL_BLOCK',
+      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_RND_DATA''); END;',
+      start_date      => SYSDATE,
+      repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0',
+      enabled         => TRUE
+   );
+END;
+/
+
+BEGIN
+   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_RND_DATA');
+END;
+/
+
+CREATE MATERIALIZED VIEW MV_MATERIAL_DATA
+BUILD IMMEDIATE
+REFRESH FORCE
+ON DEMAND
+AS
+SELECT product_id, product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price, last_update
+FROM products@rnd_dblink;
+
+BEGIN
+   DBMS_SCHEDULER.CREATE_JOB (
+      job_name        => 'REFRESH_MV_RND_DATA',
+      job_type        => 'PLSQL_BLOCK',
+      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_RND_DATA''); END;',
+      start_date      => SYSDATE,
+      repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0',
+      enabled         => TRUE
+   );
+END;
+/
+
+BEGIN
+   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_MATERIAL_DATA');
+END;
+/
+

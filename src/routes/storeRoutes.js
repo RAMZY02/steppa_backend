@@ -487,14 +487,35 @@ router.get("/cart/subtotal", authenticateToken, async (req, res) => {
 
 // Cart - Offline Transaction
 router.post(
-  "/cart/offline_transaction",
+  "/cart/offline_transaction_non_member",
   authenticateToken,
   async (req, res) => {
     try {
       const { customer_id, sale_channel, products, quantities, prices } =
         req.body;
-      const total = await storeController.offlineTransaction(
+      const total = await storeController.offlineTransactionNonMember(
         customer_id,
+        sale_channel,
+        products,
+        quantities,
+        prices
+      );
+      res.status(200).json({ total });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+// Cart - Offline Transaction
+router.post(
+  "/cart/offline_transaction_member",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { customer_id, sale_channel, products, quantities, prices } =
+        req.body;
+      const total = await storeController.offlineTransactionMember(
         sale_channel,
         products,
         quantities,
