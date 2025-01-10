@@ -1165,11 +1165,11 @@ INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
 VALUES (SYSDATE, 'Failed');
 
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
-  VALUES ('SHP0001', 'PRO0011', 10);
+  VALUES ('SHP0006', 'PRO0011', 10);
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
-  VALUES ('SHP0001', 'PRO0012', 20);
+  VALUES ('SHP0006', 'PRO0012', 20);
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
-  VALUES ('SHP0001', 'PRO0013', 30);
+  VALUES ('SHP0006', 'PRO0013', 30);
 
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
   VALUES ('SHP0002', 'PRO0014', 15);
@@ -1185,7 +1185,7 @@ VALUES (SYSDATE, 'Failed');
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
   
 
-CREATE MATERIALIZED VIEW MV_RND_DATA
+CREATE MATERIALIZED VIEW MV_MATERIAL_DATA
 BUILD IMMEDIATE
 REFRESH FORCE
 ON DEMAND
@@ -1195,9 +1195,9 @@ FROM raw_materials@db_link_supplier;
 
 BEGIN
    DBMS_SCHEDULER.CREATE_JOB (
-      job_name        => 'REFRESH_MV_RND_DATA',
+      job_name        => 'REFRESH_MV_MATERIAL_DATA',
       job_type        => 'PLSQL_BLOCK',
-      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_RND_DATA''); END;',
+      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_MATERIAL_DATA''); END;',
       start_date      => SYSDATE,
       repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0',
       enabled         => TRUE
@@ -1206,7 +1206,7 @@ END;
 /
 
 BEGIN
-   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_RND_DATA');
+   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_MATERIAL_DATA');
 END;
 /
 

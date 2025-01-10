@@ -1176,7 +1176,6 @@ async function offlineTransactionMember(
     });
     console.log("Offline transaction completed successfully.");
     await connection.execute("COMMIT");
-    return result.outBinds.total;
   } catch (error) {
     console.error("Error during offline transaction:", error.message);
     if (connection) await connection.execute("ROLLBACK");
@@ -1196,25 +1195,59 @@ async function offlineTransactionNonMember(
   let connection;
   try {
     connection = await getConnection();
-    const query = `BEGIN offline_transaction_non_member(:sale_channel, :products, :quantities, :prices, :total); END;`;
-    const result = await connection.execute(query, {
-      sale_channel: saleChannel,
-      products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
-      quantities: {
-        type: oracledb.NUMBER,
-        dir: oracledb.BIND_IN,
-        val: quantities,
-      },
-      prices: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: prices },
-      total: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+
+    console.log(saleChannel, products, quantities, prices);
+
+    const insertSaleQuery = `
+      INSERT INTO sales (sale_channel, sale_date, total)
+      VALUES (:sale_channel, SYSDATE, 0)
+    `;
+    await connection.execute(insertSaleQuery, { sale_channel: saleChannel });
+
+    const result = await connection.execute("SELECT MAX(sale_id) FROM sales");
+
+    const saleId = result.rows[0][0];
+    console.log("Sale ID:", saleId);
+
+    const insertDetailQuery = `
+      INSERT INTO sale_items (sale_id, product_id, quantity, price, subtotal)
+      VALUES (:sale_id, :product_id, :quantity, :price, :subtotal)
+    `;
+
+    let totalSale = 0;
+
+    for (let i = 0; i < products.length; i++) {
+      const subtotal = quantities[i] * prices[i];
+      totalSale += subtotal;
+
+      console.log("Inserting detail:", products[i], quantities[i], prices[i]);
+
+      await connection.execute(insertDetailQuery, {
+        sale_id: saleId,
+        product_id: products[i],
+        quantity: quantities[i],
+        price: prices[i],
+        subtotal: subtotal,
+      });
+    }
+
+    const updateTotalQuery = `
+      UPDATE sales
+      SET total = :total
+      WHERE sale_id = :sale_id
+    `;
+    await connection.execute(updateTotalQuery, {
+      total: totalSale,
+      sale_id: saleId,
     });
-    console.log("Offline transaction completed successfully.");
+    console.log("Total sale updated successfully.");
+
     await connection.execute("COMMIT");
-    return result.outBinds.total;
+    console.log("Sale and sale items inserted successfully.");
   } catch (error) {
-    console.error("Error during offline transaction:", error.message);
+    console.error("Error in offlineTransactionNonMember:", error.message);
     if (connection) await connection.execute("ROLLBACK");
-    throw error;
+    res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
   }

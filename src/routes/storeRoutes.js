@@ -491,10 +491,8 @@ router.post(
   authenticateToken,
   async (req, res) => {
     try {
-      const { customer_id, sale_channel, products, quantities, prices } =
-        req.body;
+      const { sale_channel, products, quantities, prices } = req.body;
       const total = await storeController.offlineTransactionNonMember(
-        customer_id,
         sale_channel,
         products,
         quantities,
@@ -516,6 +514,7 @@ router.post(
       const { customer_id, sale_channel, products, quantities, prices } =
         req.body;
       const total = await storeController.offlineTransactionMember(
+        customer_id,
         sale_channel,
         products,
         quantities,
