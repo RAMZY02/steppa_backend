@@ -235,7 +235,8 @@ async function getAllProductsCashier() {
         product_gender,
         price,
         product_image,
-        product_size
+        product_size,
+        stok_qty
       FROM products
       WHERE deleted_at IS NULL`
     );
@@ -250,6 +251,7 @@ async function getAllProductsCashier() {
         price: row[5],
         product_image: row[6],
         product_size: row[7],
+        product_quantity: row[8],
       };
     });
     console.log(products);
