@@ -9,13 +9,13 @@ const midtransClient = require("midtrans-client");
 // });
 
 // Rama & Steven
-oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
-});
-
 // oracledb.initOracleClient({
-//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+//   libDir: "D:/instantclient_23_6",
 // });
+
+oracledb.initOracleClient({
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+});
 
 async function getConnection() {
   try {
@@ -234,7 +234,8 @@ async function getAllProductsCashier() {
         product_category,
         product_gender,
         price,
-        product_image
+        product_image,
+        product_size
       FROM products
       WHERE deleted_at IS NULL`
     );
@@ -248,6 +249,7 @@ async function getAllProductsCashier() {
         product_gender: row[4],
         price: row[5],
         product_image: row[6],
+        product_size: row[7],
       };
     });
     console.log(products);

@@ -5,19 +5,19 @@ const bcrypt = require("bcrypt");
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
 // Rama & Steven
-oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
-});
+// oracledb.initOracleClient({
+//   libDir: "D:/instantclient_23_6",
+// });
 
 // Melvin
 // oracledb.initOracleClient({
 //   libDir: "D:/KULIAH/Semester7/flutter/steppa_backend/instantclient_23_6",
 // });
 
-// Niko
-// oracledb.initOracleClient({
-//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
-// });
+//Niko
+oracledb.initOracleClient({
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+});
 
 async function getConnection() {
   try {
@@ -842,7 +842,7 @@ async function insertOrUpdateProduct(req, res) {
       const product_id = result.rows[0][0];
       const stok_qty = result.rows[0][1];
       console.log(product_id, stok_qty);
-      
+
       const newStokQty = stok_qty + parseInt(actual_qty);
 
       const updateQuery = `
@@ -1607,7 +1607,7 @@ async function login(req, res) {
 
   try {
     connection = await getConnection();
-    
+
     const result = await connection.execute(
       `SELECT user_id, password, role FROM users WHERE username = :username`,
       { username }
@@ -1630,7 +1630,7 @@ async function login(req, res) {
         expiresIn: "1h",
       }
     );
-    
+
     res.status(200).json({ token });
   } catch (error) {
     console.error("Error logging in:", error.message);
