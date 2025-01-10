@@ -1269,12 +1269,12 @@ END;
 
 BEGIN
     DBMS_SCHEDULER.create_job (
-        job_name        => 'sync_products_job',   -- Nama job
+        job_name        => 'sync_products_job', 
         job_type        => 'PLSQL_BLOCK',
         job_action      => 'BEGIN sync_products; END;',
-        start_date      => TRUNC(SYSDATE) + 1 + (12/24), -- Dimulai pada pukul 12 malam esok hari
-        repeat_interval => 'FREQ=DAILY; BYHOUR=0; BYMINUTE=0; BYSECOND=0', -- Setiap hari pukul 12:00 malam
-        enabled         => TRUE, -- Job diaktifkan
+        start_date      => TRUNC(SYSDATE) + 1 + (12/24), 
+        repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
+        enabled         => TRUE,
         comments        => 'Job to sync products table every midnight'
     );
 END;

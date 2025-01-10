@@ -67,6 +67,16 @@ router.get("/products", async (req, res) => {
   }
 });
 
+// Get All Products
+router.get("/products/cashier", async (req, res) => {
+  try {
+    const products = await storeController.getAllProductsCashier();
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get New Releases
 router.get("/products/new_releases", async (req, res) => {
   try {

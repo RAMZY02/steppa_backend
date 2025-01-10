@@ -9,20 +9,20 @@ const midtransClient = require("midtrans-client");
 // });
 
 // Rama & Steven
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
-
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
+
+// oracledb.initOracleClient({
+//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+// });
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.5:1521/steppa_store",
+      connectString: "192.168.195.213:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -210,6 +210,44 @@ async function getAllProducts() {
         product_gender: row[3],
         price: row[4],
         product_image: row[5],
+      };
+    });
+    console.log(products);
+    return products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Products - Get All
+async function getAllProductsCashier() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT 
+        product_id,
+        product_name,
+        product_description,
+        product_category,
+        product_gender,
+        price,
+        product_image
+      FROM products
+      WHERE deleted_at IS NULL`
+    );
+
+    const products = result.rows.map((row) => {
+      return {
+        product_id: row[0],
+        product_name: row[1],
+        product_description: row[2],
+        product_category: row[3],
+        product_gender: row[4],
+        price: row[5],
+        product_image: row[6],
       };
     });
     console.log(products);
@@ -1542,6 +1580,7 @@ module.exports = {
   updateProduct,
   softDeleteProduct,
   getAllProducts,
+  getAllProductsCashier,
   getNewReleaseProducts,
   getProductStock,
   addStock,
