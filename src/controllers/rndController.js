@@ -1187,10 +1187,9 @@ async function getAllMaterialShipments() {
     return shipments;
   } catch (error) {
     console.error(
-      "Error fetching material shipments with details and material names:",
-      error.message
+      "server sedang down, coba beberapa saat lagi"
     );
-    throw error;
+    throw new Error("Server sedang down, coba beberapa saat lagi");
   } finally {
     if (connection) await connection.close();
   }
@@ -1212,7 +1211,30 @@ async function getAllMaterialsFromSupplier() {
     return materials;
   } catch (error) {
     console.error("Error fetching materials from supplier:", error.message);
-    throw error;
+    // throw error;
+    throw new Error("Server sedang down, coba beberapa saat lagi");
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Get Material Data
+async function getMaterialData(req, res) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT * FROM mv_material_data`;
+    const result = await connection.execute(query);
+    const materials = result.rows.map((row) => ({
+      id: row[0],
+      name: row[1],
+      stok_qty: row[2],
+      last_update: row[3],
+    }));
+    res.status(200).json(materials);
+  } catch (error) {
+    console.error("Error fetching material data:", error.message);
+    res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
   }
@@ -1651,51 +1673,46 @@ async function register(req, res) {
 }
 
 // Insert Product Shipment
-// async function insertProductShipment(shipmentId, shipmentStatus) {
-//   let connection;
-//   try {
-//     connection = await getConnection();
-//     const query = `
-//       INSERT INTO product_shipment (shipment_id, shipment_status, created_at)
-//       VALUES (:shipmentId, :shipmentStatus, SYSDATE)
-//     `;
-//     await connection.execute(
-//       query,
-//       { shipmentId, shipmentStatus },
-//       { autoCommit: true }
-//     );
-//     console.log("Product shipment added successfully.");
-//   } catch (error) {
-//     console.error("Error inserting product shipment:", error.message);
-//     throw error;
-//   } finally {
-//     if (connection) await connection.close();
-//   }
-// }
-
-// Insert Product Shipment using Stored Procedure
 async function insertProductShipment(req, res) {
   let connection;
   try {
-    const { shipmentDate, shipmentStatus, products, quantities } = req.body;
+    const { products, quantities } = req.body;
     connection = await getConnection();
 
-    await connection.execute(
-      `BEGIN
-        insert_product_shipment(:shipmentDate, :shipmentStatus, :products, :quantities);
-      END;`,
-      {
-        shipmentDate,
-        shipmentStatus,
-        products: { type: oracledb.STRING, dir: oracledb.BIND_IN, val: products },
-        quantities: { type: oracledb.NUMBER, dir: oracledb.BIND_IN, val: quantities }
-      },
-      { autoCommit: true }
+    const insertShipmentQuery = `
+      INSERT INTO product_shipment (shipment_date, shipment_status)
+      VALUES (SYSDATE, 'Shipped')
+    `;
+    await connection.execute(insertShipmentQuery);
+
+    const result = await connection.execute(
+      "SELECT MAX(shipment_id) FROM product_shipment"
     );
+
+    const shipmentId = result.rows[0][0];
+    console.log("Shipment ID:", shipmentId);
+
+    const insertDetailQuery = `
+      INSERT INTO product_shipment_detail (shipment_id, product_id, quantity)
+      VALUES (:shipment_id, :product_id, :quantity)
+    `;
+
+    for (let i = 0; i < products.length; i++) {
+      console.log("Inserting detail:", products[i], quantities[i]);
+
+      await connection.execute(insertDetailQuery, {
+        shipment_id: shipmentId,
+        product_id: products[i],
+        quantity: quantities[i],
+      });
+    }
+
+    await connection.execute("COMMIT");
     res.status(201).json({ message: "Product shipment inserted successfully." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error inserting product shipment:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    res.status(500).json({ error: error.message });
   } finally {
     if (connection) await connection.close();
   }
@@ -2056,7 +2073,8 @@ async function acceptMaterialShipment(shipmentId) {
   } catch (error) {
     console.error("Error accepting material shipment:", error.message);
     if (connection) await connection.execute("ROLLBACK");
-    throw error;
+    // throw error;
+    throw new Error("Server sedang down, coba beberapa saat lagi");
   } finally {
     if (connection) await connection.close();
   }
@@ -2099,6 +2117,7 @@ module.exports = {
   getRawMaterialByName,
   getAllMaterialShipments,
   getAllMaterialsFromSupplier,
+  getMaterialData,
   getAllLogs,
   getLogById,
   getLogsByActionType,

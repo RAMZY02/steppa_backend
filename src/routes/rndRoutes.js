@@ -66,7 +66,8 @@ const {
   getProductShipmentDetailById,
   getAllMaterialShipments,
   acceptMaterialShipment,
-  getAllMaterialsFromSupplier
+  getAllMaterialsFromSupplier,
+  getMaterialData
 } = require("../controllers/rndController");
 
 router.post("/design", async (req, res) => {
@@ -536,5 +537,7 @@ router.get("/materials-from-supplier", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get("/material-data", getMaterialData);
 
 module.exports = router;
