@@ -1469,6 +1469,9 @@ async function getUserById(userId) {
 // Accept Material Shipment
 async function acceptProductShipment(shipmentId) {
   let connection;
+  const RETRY_DELAY_MS = 3000;
+  let MAX_RETRIES = 10;
+  let attempt = 1;
   try {
     connection = await getConnection();
     const query = `BEGIN accept_product_shipment(:shipment_id); END;`;
@@ -1478,7 +1481,22 @@ async function acceptProductShipment(shipmentId) {
   } catch (error) {
     console.error("Error accepting material shipment:", error.message);
     if (connection) await connection.execute("ROLLBACK");
-    throw error;
+
+    console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+
+    if (attempt < MAX_RETRIES) {
+      console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+      // Tunggu selama RETRY_DELAY_MS milidetik sebelum mencoba ulang
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+
+      // Lakukan retry dengan increment attempt
+      return acceptProductShipment(shipmentId, attempt + 1);
+    } else {
+      // Setelah MAX_RETRIES percobaan gagal, lempar error
+      throw new Error(
+        `Failed to accept product shipment after ${MAX_RETRIES} attempts.`
+      );
+    }
   } finally {
     if (connection) await connection.close();
   }

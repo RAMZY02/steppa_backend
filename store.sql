@@ -689,7 +689,7 @@ AFTER INSERT OR UPDATE OR DELETE ON products
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -1235,3 +1235,53 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE PROCEDURE sync_products IS
+BEGIN
+    MERGE INTO products p
+    USING (
+        SELECT product_id, product_name, product_description, product_category, 
+               product_size, product_gender, product_image, price, last_update
+        FROM products@rnd_dblink
+    ) ps
+    ON (p.product_id = ps.product_id)
+    WHEN MATCHED THEN
+        UPDATE SET 
+            p.product_name        = ps.product_name,
+            p.product_description = ps.product_description,
+            p.product_category    = ps.product_category,
+            p.product_size        = ps.product_size,
+            p.product_gender      = ps.product_gender,
+            p.product_image       = ps.product_image,
+            p.price               = ps.price,
+            p.last_update         = SYSDATE
+        WHERE p.deleted_at IS NULL  
+    WHEN NOT MATCHED THEN
+        INSERT (
+            product_id, product_name, product_description, product_category, 
+            product_size, product_gender, product_image, stok_qty, price, last_update, created_at
+        )
+        VALUES (
+            ps.product_id, ps.product_name, ps.product_description, ps.product_category, 
+            ps.product_size, ps.product_gender, ps.product_image, 0, ps.price, SYSDATE, SYSDATE
+        );
+END;
+/
+
+BEGIN
+    DBMS_SCHEDULER.create_job (
+        job_name        => 'sync_products_job',   -- Nama job
+        job_type        => 'PLSQL_BLOCK',
+        job_action      => 'BEGIN sync_products; END;',
+        start_date      => TRUNC(SYSDATE) + 1 + (12/24), -- Dimulai pada pukul 12 malam esok hari
+        repeat_interval => 'FREQ=DAILY; BYHOUR=0; BYMINUTE=0; BYSECOND=0', -- Setiap hari pukul 12:00 malam
+        enabled         => TRUE, -- Job diaktifkan
+        comments        => 'Job to sync products table every midnight'
+    );
+END;
+/
+
+
+BEGIN
+   DBMS_SCHEDULER.RUN_JOB('sync_products_job');
+END;
+/
