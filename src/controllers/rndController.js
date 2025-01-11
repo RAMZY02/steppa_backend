@@ -5,9 +5,9 @@ const bcrypt = require("bcrypt");
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
 // Rama & Steven
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
+oracledb.initOracleClient({
+  libDir: "D:/instantclient_23_6",
+});
 
 // Melvin
 // oracledb.initOracleClient({
@@ -15,16 +15,16 @@ const bcrypt = require("bcrypt");
 // });
 
 //Niko
-oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
-});
+// oracledb.initOracleClient({
+//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+// });
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "192.168.195.213:1521/steppa_rnd",
+      connectString: "192.168.195.148:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -142,6 +142,33 @@ async function getAllDesigns() {
       `SELECT id, name, image, description, category, gender, status 
        FROM design 
        WHERE deleted_at IS NULL`
+    );
+    const designs = result.rows.map((row) => {
+      return {
+        id: row[0],
+        name: row[1],
+        image: row[2],
+        description: row[3],
+        category: row[4],
+        gender: row[5],
+        status: row[6]
+      };
+    });
+    return designs;
+  } catch (error) {
+    console.error("Error fetching designs", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
+async function getAllDesign() {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT id, name, image, description, category, gender, status 
+       FROM design order by id`
     );
     const designs = result.rows.map((row) => {
       return {
@@ -2106,6 +2133,7 @@ module.exports = {
   updateDesign,
   softDeleteDesign,
   getAllDesigns,
+  getAllDesign,
   getDesignById,
   getDesignByName,
   insertDesignMaterial,

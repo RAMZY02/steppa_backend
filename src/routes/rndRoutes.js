@@ -6,6 +6,7 @@ const {
   updateDesign,
   softDeleteDesign,
   getAllDesigns,
+  getAllDesign,
   getDesignById,
   getDesignByName,
   insertDesignMaterial,
@@ -87,6 +88,15 @@ router.delete("/design", softDeleteDesign);
 router.get("/design", async (req, res) => {
   try {
     const designs = await getAllDesigns();
+    res.status(200).json(designs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/designs", async (req, res) => {
+  try {
+    const designs = await getAllDesign();
     res.status(200).json(designs);
   } catch (error) {
     res.status(500).json({ error: error.message });
