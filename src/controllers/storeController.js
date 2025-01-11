@@ -9,20 +9,20 @@ const midtransClient = require("midtrans-client");
 // });
 
 // Rama & Steven
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
-
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
+
+// oracledb.initOracleClient({
+//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+// });
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.213:1521/steppa_store",
+      connectString: "192.168.195.148:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
