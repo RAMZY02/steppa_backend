@@ -633,18 +633,16 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
-// Accept Material Shipment
+// Accept Product Shipment
 router.put("/accept-shipment", authenticateToken, async (req, res) => {
   const { shipmentId } = req.body;
   try {
     await storeController.acceptProductShipment(shipmentId);
-    res
-      .status(200)
-      .json({ message: "Material shipment accepted successfully" });
+    res.status(200).json({ message: "Product shipment accepted successfully" });
   } catch (error) {
-    console.error("Error accepting material shipment:", error.message);
+    console.error("Error accepting product shipment:", error.message);
     res.status(500).json({
-      error: "An error occurred while accepting the material shipment",
+      error: "An error occurred while accepting the product shipment",
     });
   }
 });

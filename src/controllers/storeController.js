@@ -1282,13 +1282,14 @@ async function offlineTransactionNonMember(
       SET total = :total
       WHERE sale_id = :sale_id
     `;
-    await connection.execute(updateTotalQuery, {
+    let transactions = await connection.execute(updateTotalQuery, {
       total: totalSale,
       sale_id: saleId,
     });
     console.log("Total sale updated successfully.");
 
     await connection.execute("COMMIT");
+    return transactions;
     console.log("Sale and sale items inserted successfully.");
   } catch (error) {
     console.error("Error in offlineTransactionNonMember:", error.message);

@@ -1149,13 +1149,40 @@ CREATE OR REPLACE PROCEDURE accept_product_shipment(
     p_shipment_id IN VARCHAR2
 ) AS
 BEGIN
+    -- Update shipment status to 'Accepted'
     UPDATE product_shipment@rnd_dblink
     SET shipment_status = 'Delivered'
     WHERE shipment_id = p_shipment_id
     AND shipment_status = 'Shipped';
+
+    -- Update product stock based on shipment details
+    FOR shipment_detail IN (
+        SELECT product_id, quantity
+        FROM product_shipment_detail@rnd_dblink
+        WHERE shipment_id = p_shipment_id
+    ) LOOP
+        UPDATE products
+        SET stok_qty = stok_qty + shipment_detail.quantity
+        WHERE product_id = shipment_detail.product_id;
+    END LOOP;
+
+    COMMIT;
 END;
 /
 
+CREATE OR REPLACE PROCEDURE create_accept_product_shipment_job(p_shipment_id IN VARCHAR2) AS
+BEGIN
+    DBMS_SCHEDULER.create_job (
+        job_name        => 'retry_accept_product_shipment_' || p_shipment_id,
+        job_type        => 'PLSQL_BLOCK',
+        job_action      => 'BEGIN accept_product_shipment(''' || p_shipment_id || '''); END;',
+        start_date      => SYSTIMESTAMP + INTERVAL '3' SECOND,
+        repeat_interval => 'FREQ=SECONDLY; INTERVAL=3',
+        end_date        => SYSTIMESTAMP + INTERVAL '30' MINUTE,
+        enabled         => TRUE
+    );
+END;
+/
 
 INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
 VALUES (SYSDATE, 'Shipped');
@@ -1185,32 +1212,7 @@ VALUES (SYSDATE, 'Failed');
   INSERT INTO product_shipment_detail@rnd_dblink (shipment_id, product_id, quantity)
   
 
-CREATE MATERIALIZED VIEW MV_MATERIAL_DATA
-BUILD IMMEDIATE
-REFRESH FORCE
-ON DEMAND
-AS
-SELECT material_id, material_name, stock_quantity
-FROM raw_materials@db_link_supplier;
-
-BEGIN
-   DBMS_SCHEDULER.CREATE_JOB (
-      job_name        => 'REFRESH_MV_MATERIAL_DATA',
-      job_type        => 'PLSQL_BLOCK',
-      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_MATERIAL_DATA''); END;',
-      start_date      => SYSDATE,
-      repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0',
-      enabled         => TRUE
-   );
-END;
-/
-
-BEGIN
-   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_MATERIAL_DATA');
-END;
-/
-
-CREATE MATERIALIZED VIEW MV_MATERIAL_DATA
+CREATE MATERIALIZED VIEW MV_PRODUCT_DATA
 BUILD IMMEDIATE
 REFRESH FORCE
 ON DEMAND
@@ -1220,18 +1222,18 @@ FROM products@rnd_dblink;
 
 BEGIN
    DBMS_SCHEDULER.CREATE_JOB (
-      job_name        => 'REFRESH_MV_RND_DATA',
+      job_name        => 'REFRESH_MV_PRODUCT_DATA',
       job_type        => 'PLSQL_BLOCK',
-      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_RND_DATA''); END;',
+      job_action      => 'BEGIN DBMS_MVIEW.REFRESH(''MV_PRODUCT_DATA''); END;',
       start_date      => SYSDATE,
-      repeat_interval => 'FREQ=DAILY; BYHOUR=12; BYMINUTE=0; BYSECOND=0',
+      repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
       enabled         => TRUE
    );
 END;
 /
 
 BEGIN
-   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_MATERIAL_DATA');
+   DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_PRODUCT_DATA');
 END;
 /
 

@@ -609,14 +609,32 @@ CREATE OR REPLACE PROCEDURE insert_material_shipment(
     p_quantities IN SYS.ODCINUMBERLIST
 ) AS
     v_shipment_id VARCHAR2(10);
+    v_stock_quantity NUMBER;
 BEGIN
     INSERT INTO material_shipment (shipment_date, shipment_status)
     VALUES (SYSDATE, 'Shipped')
     RETURNING shipment_id INTO v_shipment_id;
 
     FOR i IN 1 .. p_materials.COUNT LOOP
+        -- Check if there is enough stock
+        SELECT stock_quantity INTO v_stock_quantity
+        FROM raw_materials
+        WHERE material_id = p_materials(i);
+
+        IF v_stock_quantity < p_quantities(i) THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Not enough stock for material ' || p_materials(i));
+        END IF;
+    END LOOP;
+    
+    FOR i IN 1 .. p_materials.COUNT LOOP
         INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
         VALUES (v_shipment_id, p_materials(i), p_quantities(i));
+
+        -- Decrease the stock quantity of the material
+        UPDATE raw_materials
+        SET stock_quantity = stock_quantity - p_quantities(i),
+            last_update = SYSDATE
+        WHERE material_id = p_materials(i);
     END LOOP;
 
     COMMIT;
