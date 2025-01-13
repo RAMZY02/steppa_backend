@@ -9,20 +9,20 @@ const midtransClient = require("midtrans-client");
 // });
 
 // Rama & Steven
-oracledb.initOracleClient({
-  libDir: "D:/instantclient_23_6",
-});
-
 // oracledb.initOracleClient({
-//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+//   libDir: "D:/instantclient_23_6",
 // });
+
+oracledb.initOracleClient({
+  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+});
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.213:1521/steppa_store",
+      connectString: "192.168.195.5:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -234,7 +234,9 @@ async function getAllProductsCashier() {
         product_category,
         product_gender,
         price,
-        product_image
+        product_image,
+        product_size,
+        stok_qty
       FROM products
       WHERE deleted_at IS NULL`
     );
@@ -248,6 +250,8 @@ async function getAllProductsCashier() {
         product_gender: row[4],
         price: row[5],
         product_image: row[6],
+        product_size: row[7],
+        product_quantity: row[8]
       };
     });
     console.log(products);
