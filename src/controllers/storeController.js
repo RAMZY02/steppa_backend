@@ -1616,7 +1616,7 @@ async function acceptProductShipment(shipmentId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `BEGIN create_accept_product_shipment_job(:shipment_id); END;`;
+    const query = `BEGIN accept_product_shipment_job(:shipment_id); END;`;
     await connection.execute(query, { shipment_id: shipmentId });
     console.log("Product shipment job created successfully.");
     await connection.execute("COMMIT");
