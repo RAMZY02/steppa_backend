@@ -251,7 +251,7 @@ async function getAllProductsCashier() {
         price: row[5],
         product_image: row[6],
         product_size: row[7],
-        product_quantity: row[8]
+        product_quantity: row[8],
       };
     });
     console.log(products);
@@ -1633,6 +1633,39 @@ async function acceptProductShipment(shipmentId) {
   }
 }
 
+// Get All Products from Materialized View
+async function getAllMVProducts() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `SELECT * FROM MV_PRODUCT_DATA`;
+    const result = await connection.execute(query);
+    const products = result.rows.map((row) => {
+      return {
+        product_id: row[0],
+        product_name: row[1],
+        product_description: row[2],
+        product_category: row[3],
+        product_size: row[4],
+        product_gender: row[5],
+        product_image: row[6],
+        stok_qty: row[7],
+        price: row[8],
+        last_update: row[9],
+      };
+    });
+    return products;
+  } catch (error) {
+    console.error(
+      "Error fetching products from materialized view:",
+      error.message
+    );
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   insertProduct,
   updateProduct,
@@ -1691,4 +1724,5 @@ module.exports = {
   getAllProductShipments,
   syncProducts,
   refreshMVProductData,
+  getAllMVProducts,
 };

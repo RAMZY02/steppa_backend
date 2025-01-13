@@ -140,6 +140,16 @@ router.post("/start-refresh-mv", authenticateToken, async (req, res) => {
   }
 });
 
+// Get All Products from Materialized View
+router.get("/mv-products", async (req, res) => {
+  try {
+    const products = await storeController.getAllMVProducts();
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sale routes
 // Insert sale
 router.post("/sales", authenticateToken, async (req, res) => {
