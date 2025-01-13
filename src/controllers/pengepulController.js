@@ -10,20 +10,20 @@ const bcrypt = require("bcrypt");
 // });
 
 // Rama & Steven
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
-
 oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+  libDir: "D:/instantclient_23_6",
 });
+
+// oracledb.initOracleClient({
+//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+// });
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "reti",
       password: "reti",
-      connectString: "192.168.195.5:1521/steppa_supplier",
+      connectString: "localhost:1521/steppa_pengepul",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);

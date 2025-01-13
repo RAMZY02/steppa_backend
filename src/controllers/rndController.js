@@ -5,9 +5,9 @@ const bcrypt = require("bcrypt");
 // Aktifkan Thick Mode
 //tolong bikin punya masing masing kasi nama
 // Rama & Steven
-// oracledb.initOracleClient({
-//   libDir: "D:/instantclient_23_6",
-// });
+oracledb.initOracleClient({
+  libDir: "D:/instantclient_23_6",
+});
 
 // Melvin
 // oracledb.initOracleClient({
@@ -15,16 +15,16 @@ const bcrypt = require("bcrypt");
 // });
 
 //Niko
-oracledb.initOracleClient({
-  libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
-});
+// oracledb.initOracleClient({
+//   libDir: "C:/Users/HP/Desktop/steppa_backend/instantclient_23_6",
+// });
 
 async function getConnection() {
   try {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "192.168.195.5:1521/steppa_rnd",
+      connectString: "localhost:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1189,30 +1189,27 @@ async function getRawMaterialByName(name) {
 }
 
 // Get All Material Shipments
+// SELECT ms.shipment_id, ms.shipment_date, ms.shipment_status,
+//              msd.shipment_detail_id, msd.material_id, msd.quantity,
+//              m.material_name
+//       FROM material_shipment@db_link_supplier ms
+//       JOIN material_shipment_detail@db_link_supplier msd ON ms.shipment_id = msd.shipment_id
+//       JOIN raw_materials m ON msd.material_id = m.material_id
+//       WHERE ms.deleted_at IS NULL AND msd.deleted_at IS NULL
 async function getAllMaterialShipments() {
   let connection;
   try {
     connection = await getConnection();
     const query = `
-      SELECT ms.shipment_id, ms.shipment_date, ms.shipment_status,
-             msd.shipment_detail_id, msd.material_id, msd.quantity,
-             m.material_name
+      SELECT ms.shipment_id, ms.shipment_date, ms.shipment_status
       FROM material_shipment@db_link_supplier ms
-      JOIN material_shipment_detail@db_link_supplier msd ON ms.shipment_id = msd.shipment_id
-      JOIN raw_materials m ON msd.material_id = m.material_id
-      WHERE ms.deleted_at IS NULL AND msd.deleted_at IS NULL
+      WHERE ms.deleted_at IS NULL
     `;
     const result = await connection.execute(query);
     const shipments = result.rows.map((row) => ({
       shipment_id: row[0],
       shipment_date: row[1],
       shipment_status: row[2],
-      details: {
-        shipment_detail_id: row[3],
-        material_id: row[4],
-        quantity: row[5],
-        material_name: row[6],
-      },
     }));
     return shipments;
   } catch (error) {
@@ -1225,6 +1222,35 @@ async function getAllMaterialShipments() {
   }
 }
 
+async function getMaterialShipmentDetailByShipmentId(shipmentId) {
+  const connection = await getConnection();
+  try {
+    const result = await connection.execute(
+      `SELECT msd.shipment_detail_id, msd.material_id, msd.quantity, 
+          m.material_name
+       FROM material_shipment_detail@db_link_supplier msd
+       JOIN raw_materials@db_link_supplier m ON msd.material_id = m.material_id
+       WHERE msd.shipment_id = :shipmentId AND msd.deleted_at IS NULL`,
+      { shipmentId }
+    );
+    const shipmentDetails = result.rows.map((row) => {
+      return {
+        shipment_detail_id: row[0],
+        material_id: row[1],
+        quantity: row[2],
+        material_name: row[3]
+      };
+    });
+    console.log(shipmentDetails);
+    return shipmentDetails;
+  } catch (error) {
+    console.error("Error fetching material shipment detail by shipment ID", error);
+    throw error;
+  } finally {
+    connection.close();
+  }
+}
+
 // Get All Materials from Supplier
 async function getAllMaterialsFromSupplier() {
   let connection;
@@ -1233,9 +1259,9 @@ async function getAllMaterialsFromSupplier() {
     const query = `SELECT * FROM raw_materials@db_link_supplier`;
     const result = await connection.execute(query);
     const materials = result.rows.map((row) => ({
-      id: row[0],
-      name: row[1],
-      stok_qty: row[2],
+      material_id: row[0],
+      material_name: row[1],
+      stock_quantity: row[2],
       last_update: row[3],
     }));
     return materials;
@@ -2165,6 +2191,7 @@ module.exports = {
   getRawMaterialById,
   getRawMaterialByName,
   getAllMaterialShipments,
+  getMaterialShipmentDetailByShipmentId,
   getAllMaterialsFromSupplier,
   getMaterialData,
   getAllLogs,

@@ -66,6 +66,7 @@ const {
   getProductShipmentDetailByProductId,
   getProductShipmentDetailById,
   getAllMaterialShipments,
+  getMaterialShipmentDetailByShipmentId,
   acceptMaterialShipment,
   getAllMaterialsFromSupplier,
   getMaterialData
@@ -518,6 +519,16 @@ router.get("/material-shipments", async (req, res) => {
   try {
     const shipments = await getAllMaterialShipments();
     res.status(200).json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/material-shipment-detail/shipment/:shipmentId", async (req, res) => {
+  try {
+    const { shipmentId } = req.params;
+    const shipmentDetails = await getMaterialShipmentDetailByShipmentId(shipmentId);
+    res.status(200).json(shipmentDetails);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
