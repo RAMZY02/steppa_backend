@@ -279,7 +279,7 @@ CREATE TABLE log_pengepul (
     log_id INT PRIMARY KEY,
     action_type CHAR(1),
     table_name VARCHAR2(50),
-    action_details VARCHAR2(255),
+    action_details VARCHAR2(1000),
     action_time DATE DEFAULT SYSDATE,
     action_user VARCHAR2(50)
 );

@@ -118,6 +118,28 @@ router.get("/product-shipments", authenticateToken, async (req, res) => {
   }
 });
 
+// Sync Products
+router.post("/start-sync-products", authenticateToken, async (req, res) => {
+  try {
+    await storeController.syncProducts();
+    res.status(200).json({ message: "Products synced successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Refresh Materialized View
+router.post("/start-refresh-mv", authenticateToken, async (req, res) => {
+  try {
+    await storeController.refreshMVProductData();
+    res
+      .status(200)
+      .json({ message: "Materialized view refreshed successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sale routes
 // Insert sale
 router.post("/sales", authenticateToken, async (req, res) => {

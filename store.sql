@@ -540,8 +540,8 @@ END;
 /
 
 -- Insert dummy data into products
-INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
-VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
+INSERT INTO products@rnd_dblink (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('Apakah MIN', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'img', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
 VALUES ('Nike Air Max', 'High-quality running shoes', 'Running Shoes', '41', 'male', 'https://drive.google.com/file/d/1yFhbQqkKLMc4Gbe3X2NxBsrn9nnmptwu/view?usp=sharing', 50, 150);
 INSERT INTO products (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
@@ -678,7 +678,7 @@ CREATE TABLE log_store (
     log_id INT PRIMARY KEY,
     action_type CHAR(1), 
     table_name VARCHAR2(50),
-    action_details VARCHAR2(255),
+    action_details VARCHAR2(1000),
     action_time DATE DEFAULT SYSDATE,
     action_user VARCHAR2(50)
 );
@@ -747,13 +747,12 @@ END;
 /
 
 -- Trigger untuk sales
-DROP SEQUENCE seq_sales_id;
 CREATE OR REPLACE TRIGGER trg_log_sales
 AFTER INSERT OR UPDATE OR DELETE ON sales
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -798,7 +797,7 @@ AFTER INSERT OR UPDATE OR DELETE ON sale_items
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -849,7 +848,7 @@ AFTER INSERT OR UPDATE OR DELETE ON customers
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -909,7 +908,7 @@ AFTER INSERT OR UPDATE OR DELETE ON carts
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -948,7 +947,7 @@ AFTER INSERT OR UPDATE OR DELETE ON cart_items
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -999,7 +998,7 @@ AFTER INSERT OR UPDATE OR DELETE ON revenue_reports
 FOR EACH ROW
 DECLARE
     v_user VARCHAR2(50);
-    v_action_details VARCHAR2(255);
+    v_action_details VARCHAR2(1000);
 BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
@@ -1037,6 +1036,60 @@ BEGIN
     ELSIF DELETING THEN
         INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
         VALUES (log_store_seq.NEXTVAL, 'D', 'revenue_reports', 'Deleted revenue report: ' || :OLD.report_id, v_user);
+    END IF;
+END;
+/
+
+-- Trigger untuk users
+CREATE OR REPLACE TRIGGER trg_log_users
+AFTER INSERT OR UPDATE OR DELETE ON users
+FOR EACH ROW
+DECLARE
+    v_user VARCHAR2(50);
+    v_action_details VARCHAR2(1000);
+BEGIN
+    SELECT USER INTO v_user FROM DUAL;
+
+    IF INSERTING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'I', 'users', 'Inserted user: ' || :NEW.username, v_user);
+    ELSIF UPDATING THEN
+        v_action_details := :NEW.user_id || ' ';
+
+        IF :OLD.username != :NEW.username THEN
+            v_action_details := v_action_details || 'Username changed from ' || :OLD.username || ' to ' || :NEW.username || ', ';
+        END IF;
+        IF :OLD.email != :NEW.email THEN
+            v_action_details := v_action_details || 'Email changed from ' || :OLD.email || ' to ' || :NEW.email || ', ';
+        END IF;
+        IF :OLD.password != :NEW.password THEN
+            v_action_details := v_action_details || 'Password changed from ' || :OLD.password || ' to ' || :NEW.password || ', ';
+        END IF;
+        IF :OLD.full_name != :NEW.full_name THEN
+            v_action_details := v_action_details || 'Full name changed from ' || :OLD.full_name || ' to ' || :NEW.full_name || ', ';
+        END IF;
+        IF :OLD.phone_number != :NEW.phone_number THEN
+            v_action_details := v_action_details || 'Phone number changed from ' || :OLD.phone_number || ' to ' || :NEW.phone_number || ', ';
+        END IF;
+        IF :OLD.role != :NEW.role THEN
+            v_action_details := v_action_details || 'Role changed from ' || :OLD.role || ' to ' || :NEW.role || ', ';
+        END IF;
+        IF :OLD.created_at != :NEW.created_at THEN
+            v_action_details := v_action_details || 'Created At changed from ' || :OLD.created_at || ' to ' || :NEW.created_at || ', ';
+        END IF;
+        IF :OLD.deleted_at != :NEW.deleted_at THEN
+            v_action_details := v_action_details || 'Deleted At changed from ' || :OLD.deleted_at || ' to ' || :NEW.deleted_at || ', ';
+        END IF;
+
+        IF LENGTH(v_action_details) > 0 AND SUBSTR(v_action_details, LENGTH(v_action_details) - 1, 2) = ', ' THEN
+            v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
+        END IF;
+
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'U', 'users', v_action_details, v_user);
+    ELSIF DELETING THEN
+        INSERT INTO log_store (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_store_seq.NEXTVAL, 'D', 'users', 'Deleted user: ' || :OLD.username, v_user);
     END IF;
 END;
 /
@@ -1170,8 +1223,17 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE PROCEDURE create_accept_product_shipment_job(p_shipment_id IN VARCHAR2) AS
+CREATE OR REPLACE PROCEDURE accept_product_shipment_job(p_shipment_id IN VARCHAR2) AS
 BEGIN
+    BEGIN
+        DBMS_SCHEDULER.drop_job('retry_accept_product_shipment_' || p_shipment_id);
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE != -27475 THEN
+                RAISE;
+            END IF;
+    END;
+
     DBMS_SCHEDULER.create_job (
         job_name        => 'retry_accept_product_shipment_' || p_shipment_id,
         job_type        => 'PLSQL_BLOCK',
@@ -1237,6 +1299,7 @@ BEGIN
 END;
 /
 
+
 CREATE OR REPLACE PROCEDURE sync_products IS
 BEGIN
     MERGE INTO products p
@@ -1266,6 +1329,8 @@ BEGIN
             ps.product_id, ps.product_name, ps.product_description, ps.product_category, 
             ps.product_size, ps.product_gender, ps.product_image, 0, ps.price, SYSDATE, SYSDATE
         );
+
+    COMMIT;
 END;
 /
 
@@ -1274,7 +1339,6 @@ BEGIN
         job_name        => 'sync_products_job', 
         job_type        => 'PLSQL_BLOCK',
         job_action      => 'BEGIN sync_products; END;',
-        start_date      => TRUNC(SYSDATE) + 1 + (12/24), 
         repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
         enabled         => TRUE,
         comments        => 'Job to sync products table every midnight'
@@ -1287,3 +1351,21 @@ BEGIN
    DBMS_SCHEDULER.RUN_JOB('sync_products_job');
 END;
 /
+
+SELECT JOB_NAME, JOB_TYPE, STATE, JOB_ACTION, START_DATE, REPEAT_INTERVAL, NEXT_RUN_DATE 
+FROM DBA_SCHEDULER_JOBS
+WHERE OWNER = 'REKI'
+ORDER BY JOB_NAME;
+
+BEGIN
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'REKI.sync_products_job');
+END;
+/
+
+SELECT * 
+FROM (
+    SELECT * 
+    FROM products
+    ORDER BY product_id desc
+) 
+WHERE ROWNUM <= 10;

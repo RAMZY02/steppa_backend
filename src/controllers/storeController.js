@@ -22,7 +22,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.148:1521/steppa_store",
+      connectString: "192.168.195.213:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -234,9 +234,7 @@ async function getAllProductsCashier() {
         product_category,
         product_gender,
         price,
-        product_image,
-        product_size,
-        stok_qty
+        product_image
       FROM products
       WHERE deleted_at IS NULL`
     );
@@ -250,8 +248,6 @@ async function getAllProductsCashier() {
         product_gender: row[4],
         price: row[5],
         product_image: row[6],
-        product_size: row[7],
-        product_quantity: row[8],
       };
     });
     console.log(products);
@@ -342,6 +338,42 @@ async function addStock(productId, quantity) {
     await connection.execute("COMMIT");
   } catch (error) {
     console.error("Error adding stock:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Sync Products
+async function syncProducts() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN DBMS_SCHEDULER.RUN_JOB('sync_products_job'); END;`;
+    await connection.execute(query);
+    console.log("Products synced successfully.");
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error syncing products:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Refresh Materialized View
+async function refreshMVProductData() {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN DBMS_SCHEDULER.RUN_JOB('REFRESH_MV_PRODUCT_DATA'); END;`;
+    await connection.execute(query);
+    console.log("Materialized view refreshed successfully.");
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error refreshing materialized view:", error.message);
     if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
@@ -1513,41 +1545,41 @@ async function getUserById(userId) {
   }
 }
 
-// Accept Material Shipment
-async function acceptProductShipment(shipmentId) {
-  let connection;
-  const RETRY_DELAY_MS = 3000;
-  let MAX_RETRIES = 10;
-  let attempt = 1;
-  try {
-    connection = await getConnection();
-    const query = `BEGIN accept_product_shipment(:shipment_id); END;`;
-    await connection.execute(query, { shipment_id: shipmentId });
-    console.log("Product shipment accepted successfully.");
-    await connection.execute("COMMIT");
-  } catch (error) {
-    console.error("Error accepting material shipment:", error.message);
-    if (connection) await connection.execute("ROLLBACK");
+// Accept Peoduct Shipment
+// async function acceptProductShipment(shipmentId) {
+//   let connection;
+//   const RETRY_DELAY_MS = 3000;
+//   let MAX_RETRIES = 10;
+//   let attempt = 1;
+//   try {
+//     connection = await getConnection();
+//     const query = `BEGIN accept_product_shipment(:shipment_id); END;`;
+//     await connection.execute(query, { shipment_id: shipmentId });
+//     console.log("Product shipment accepted successfully.");
+//     await connection.execute("COMMIT");
+//   } catch (error) {
+//     console.error("Error accepting material shipment:", error.message);
+//     if (connection) await connection.execute("ROLLBACK");
 
-    console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+//     console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
 
-    if (attempt < MAX_RETRIES) {
-      console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
-      // Tunggu selama RETRY_DELAY_MS milidetik sebelum mencoba ulang
-      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+//     if (attempt < MAX_RETRIES) {
+//       console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+//       // Tunggu selama RETRY_DELAY_MS milidetik sebelum mencoba ulang
+//       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
 
-      // Lakukan retry dengan increment attempt
-      return acceptProductShipment(shipmentId, attempt + 1);
-    } else {
-      // Setelah MAX_RETRIES percobaan gagal, lempar error
-      throw new Error(
-        `Failed to accept product shipment after ${MAX_RETRIES} attempts.`
-      );
-    }
-  } finally {
-    if (connection) await connection.close();
-  }
-}
+//       // Lakukan retry dengan increment attempt
+//       return acceptProductShipment(shipmentId, attempt + 1);
+//     } else {
+//       // Setelah MAX_RETRIES percobaan gagal, lempar error
+//       throw new Error(
+//         `Failed to accept product shipment after ${MAX_RETRIES} attempts.`
+//       );
+//     }
+//   } finally {
+//     if (connection) await connection.close();
+//   }
+// }
 
 // Get All Product Shipments with Details and Product Names
 async function getAllProductShipments() {
@@ -1574,6 +1606,23 @@ async function getAllProductShipments() {
       "Error fetching product shipments with details and product names:",
       error.message
     );
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+async function acceptProductShipment(shipmentId) {
+  let connection;
+  try {
+    connection = await getConnection();
+    const query = `BEGIN create_accept_product_shipment_job(:shipment_id); END;`;
+    await connection.execute(query, { shipment_id: shipmentId });
+    console.log("Product shipment job created successfully.");
+    await connection.execute("COMMIT");
+  } catch (error) {
+    console.error("Error creating product shipment job:", error.message);
+    if (connection) await connection.execute("ROLLBACK");
     throw error;
   } finally {
     if (connection) await connection.close();
@@ -1636,4 +1685,6 @@ module.exports = {
   getPurchasedCartItems,
   acceptProductShipment,
   getAllProductShipments,
+  syncProducts,
+  refreshMVProductData,
 };
