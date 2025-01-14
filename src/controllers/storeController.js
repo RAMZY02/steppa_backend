@@ -22,7 +22,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "localhost:1521/steppa_store",
+      connectString: "192.168.195.5:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1620,7 +1620,17 @@ async function acceptProductShipment(shipmentId) {
   let connection;
   try {
     connection = await getConnection();
-    const query = `BEGIN accept_product_shipment_job(:shipment_id); END;`;
+    const query = `
+      BEGIN
+        DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(
+            job_name         => 'retry_accept_product_shipment',
+            argument_position => 1,
+            argument_value    => 'SHP0036'
+        );
+
+        DBMS_SCHEDULER.ENABLE('retry_accept_product_shipment');
+      END;
+    `;
     await connection.execute(query, { shipment_id: shipmentId });
     console.log("Product shipment job created successfully.");
     await connection.execute("COMMIT");

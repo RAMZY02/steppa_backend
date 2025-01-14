@@ -23,7 +23,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reti",
       password: "reti",
-      connectString: "localhost:1521/steppa_pengepul",
+      connectString: "localhost:1521/steppa_supplier",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);

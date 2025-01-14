@@ -29,6 +29,14 @@ set role superadmin identified by superadmin;
 
 
 
+drop table suppliers cascade constraints;
+drop table raw_materials cascade constraints;
+drop table transactions cascade constraints;
+drop table transaction_detail cascade constraints;
+drop table material_shipment cascade constraints;
+drop table material_shipment_detail cascade constraints;
+drop table users cascade constraints;
+drop table log_supplier cascade constraints;
 
 --create table
 CREATE TABLE suppliers (
@@ -98,13 +106,23 @@ CREATE TABLE users (
     deleted_at DATE
 );
 
+CREATE TABLE log_supplier (
+    log_id INT PRIMARY KEY,
+    action_type CHAR(1),
+    table_name VARCHAR2(50),
+    action_details VARCHAR2(1000),
+    action_time DATE DEFAULT SYSDATE,
+    action_user VARCHAR2(50)
+);
+
+DROP SEQUENCE seq_suppliers_id;
 CREATE SEQUENCE seq_suppliers_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
 NOCYCLE 
-CACHE 10;
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_suppliers
 BEFORE INSERT ON suppliers
@@ -114,13 +132,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_materials_id;
 CREATE SEQUENCE seq_materials_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
 NOCYCLE 
-CACHE 10;
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_materials
 BEFORE INSERT ON raw_materials
@@ -130,13 +149,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_transactions_id;
 CREATE SEQUENCE seq_transactions_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
 NOCYCLE 
-CACHE 10;
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_transactions
 BEFORE INSERT ON transactions
@@ -146,13 +166,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_tran_detail_id;
 CREATE SEQUENCE seq_tran_detail_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
 NOCYCLE 
-CACHE 10;
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_tran_detail
 BEFORE INSERT ON transaction_detail
@@ -162,13 +183,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_users_id;
 CREATE SEQUENCE seq_users_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
 NOCYCLE 
-CACHE 10;
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_users
 BEFORE INSERT ON users
@@ -178,13 +200,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_material_shipment_id;
 CREATE SEQUENCE seq_material_shipment_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
-NOCYCLE 
-CACHE 10;
+NOCYCLE
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_material_shipment
 BEFORE INSERT ON material_shipment
@@ -194,13 +217,14 @@ BEGIN
 END;
 /
 
+DROP SEQUENCE seq_shipment_detail_id;
 CREATE SEQUENCE seq_shipment_detail_id
 START WITH 1 
 INCREMENT BY 1 
 MINVALUE 1 
 MAXVALUE 9999 
-NOCYCLE 
-CACHE 10;
+NOCYCLE
+NOCACHE;
 
 CREATE OR REPLACE TRIGGER trg_bef_shipment_detail
 BEFORE INSERT ON material_shipment_detail
@@ -209,6 +233,15 @@ BEGIN
     :NEW.shipment_detail_id := 'SHD' || LPAD(seq_shipment_detail_id.NEXTVAL, 4, '0');
 END;
 /
+
+CREATE SEQUENCE log_supplier_seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1 
+MAXVALUE 9999
+NOCYCLE
+NOCACHE;
+
 
 CREATE OR REPLACE TRIGGER trg_update_trans_status
 AFTER UPDATE OF transaction_status ON transactions
@@ -270,19 +303,6 @@ END;
 
 
 
-CREATE SEQUENCE log_pengepul_seq
-START WITH 1
-INCREMENT BY 1
-CACHE 10;
-
-CREATE TABLE log_pengepul (
-    log_id INT PRIMARY KEY,
-    action_type CHAR(1),
-    table_name VARCHAR2(50),
-    action_details VARCHAR2(1000),
-    action_time DATE DEFAULT SYSDATE,
-    action_user VARCHAR2(50)
-);
 
 CREATE OR REPLACE TRIGGER trg_log_suppliers
 AFTER INSERT OR UPDATE OR DELETE ON suppliers
@@ -294,8 +314,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'suppliers', 'Inserted supplier: ' || :NEW.name, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'suppliers', 'Inserted supplier: ' || :NEW.name, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.supplier_id || ' ';
 
@@ -322,8 +342,8 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'suppliers', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'suppliers', v_action_details, v_user);
     END IF;
 END;
 /
@@ -338,8 +358,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'raw_materials', 'Inserted raw material: ' || :NEW.material_name, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'raw_materials', 'Inserted raw material: ' || :NEW.material_name, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.material_id || ' ';
 
@@ -369,8 +389,8 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'raw_materials', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'raw_materials', v_action_details, v_user);
     END IF;
 END;
 /
@@ -385,8 +405,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'transactions', 'Inserted transaction: ' || :NEW.transaction_id, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'transactions', 'Inserted transaction: ' || :NEW.transaction_id, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.transaction_id || ' ';
 
@@ -416,8 +436,8 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'transactions', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'transactions', v_action_details, v_user);
     END IF;
 END;
 /
@@ -432,8 +452,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'transaction_detail', 'Inserted transaction detail: Material ' || :NEW.material_id || ' with quantity ' || :NEW.quantity, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'transaction_detail', 'Inserted transaction detail: Material ' || :NEW.material_id || ' with quantity ' || :NEW.quantity, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.detail_id || ' ';
 
@@ -460,8 +480,8 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'transaction_detail', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'transaction_detail', v_action_details, v_user);
     END IF;
 END;
 /
@@ -476,8 +496,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'users', 'Inserted user: ' || :NEW.username, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'users', 'Inserted user: ' || :NEW.username, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.user_id || ' ';
 
@@ -513,8 +533,8 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'users', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'users', v_action_details, v_user);
     END IF;
 END;
 /
@@ -529,8 +549,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'material_shipment', 'Inserted shipment: ' || :NEW.shipment_id, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'material_shipment', 'Inserted shipment: ' || :NEW.shipment_id, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.shipment_id || ' ';
 
@@ -551,11 +571,11 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'material_shipment', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'material_shipment', v_action_details, v_user);
     ELSIF DELETING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'D', 'material_shipment', 'Deleted shipment: ' || :OLD.shipment_id, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'D', 'material_shipment', 'Deleted shipment: ' || :OLD.shipment_id, v_user);
     END IF;
 END;
 /
@@ -570,8 +590,8 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     IF INSERTING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'I', 'material_shipment_detail', 'Inserted shipment detail: ' || :NEW.shipment_detail_id, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'I', 'material_shipment_detail', 'Inserted shipment detail: ' || :NEW.shipment_detail_id, v_user);
     ELSIF UPDATING THEN
         v_action_details := :NEW.shipment_detail_id || ' ';
 
@@ -595,11 +615,11 @@ BEGIN
             v_action_details := SUBSTR(v_action_details, 1, LENGTH(v_action_details) - 2);
         END IF;
 
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'U', 'material_shipment_detail', v_action_details, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'U', 'material_shipment_detail', v_action_details, v_user);
     ELSIF DELETING THEN
-        INSERT INTO log_pengepul (log_id, action_type, table_name, action_details, action_user)
-        VALUES (log_pengepul_seq.NEXTVAL, 'D', 'material_shipment_detail', 'Deleted shipment detail: ' || :OLD.shipment_detail_id, v_user);
+        INSERT INTO log_supplier (log_id, action_type, table_name, action_details, action_user)
+        VALUES (log_supplier_seq.NEXTVAL, 'D', 'material_shipment_detail', 'Deleted shipment detail: ' || :OLD.shipment_detail_id, v_user);
     END IF;
 END;
 /
@@ -640,133 +660,83 @@ BEGIN
     COMMIT;
 END;
 /
--- Insert dummy data into suppliers
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 1', 'Location 1', 'Contact 1');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 2', 'Location 2', 'Contact 2');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 3', 'Location 3', 'Contact 3');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 4', 'Location 4', 'Contact 4');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 5', 'Location 5', 'Contact 5');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 6', 'Location 6', 'Contact 6');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 7', 'Location 7', 'Contact 7');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 8', 'Location 8', 'Contact 8');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 9', 'Location 9', 'Contact 9');
-INSERT INTO suppliers (name, location, contact_info)
-VALUES ('Supplier 10', 'Location 10', 'Contact 10');
 
--- Insert dummy data into raw_materials
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 1', 100, 'SUP0001');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 2', 200, 'SUP0002');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 3', 300, 'SUP0003');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 4', 400, 'SUP0004');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 5', 500, 'SUP0005');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 6', 600, 'SUP0006');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 7', 700, 'SUP0007');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 8', 800, 'SUP0008');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 9', 900, 'SUP0009');
-INSERT INTO raw_materials (material_name, stock_quantity, supplier_id)
-VALUES ('Material 10', 1000, 'SUP0010');
+-- Data dummy untuk tabel suppliers
+INSERT INTO suppliers (name, location, contact_info) VALUES
+('ABC Supply Co.', 'Jakarta', '081234567890');
+INSERT INTO suppliers (name, location, contact_info) VALUES
+('Global Raw Materials', 'Bandung', '081987654321');
+INSERT INTO suppliers (name, location, contact_info) VALUES
+('PT. Indo Resources', 'Surabaya', '081567890123');
 
--- Insert dummy data into transactions
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0001', 'Remarks 1');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0002', 'Remarks 2');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0003', 'Remarks 3');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0004', 'Remarks 4');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0005', 'Remarks 5');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0006', 'Remarks 6');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0007', 'Remarks 7');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0008', 'Remarks 8');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0009', 'Remarks 9');
-INSERT INTO transactions (transaction_date, transaction_status, supplier_id, remarks)
-VALUES (SYSDATE, 'Pending', 'SUP0010', 'Remarks 10');
+-- Data dummy untuk tabel raw_materials
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Tali Sepatu', 500, 'SUP0001');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Lem 200 gr', 300, 'SUP0002');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Kulit Durian', 700, 'SUP0003');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Kulit Ikan Pari', 200, 'SUP0001');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Kulit Singkong', 200, 'SUP0001');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Sabut Kelapa', 400, 'SUP0002');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Sayur Bayam', 500, 'SUP0002');
+INSERT INTO raw_materials (material_name, stock_quantity, supplier_id) VALUES
+('Kulit Kacang', 100, 'SUP0003');
 
--- Insert dummy data into transaction_detail
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0001', 'MAT0001', 10);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0002', 'MAT0002', 20);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0003', 'MAT0003', 30);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0004', 'MAT0004', 40);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0005', 'MAT0005', 50);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0006', 'MAT0006', 60);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0007', 'MAT0007', 70);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0008', 'MAT0008', 80);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0009', 'MAT0009', 90);
-INSERT INTO transaction_detail (transaction_id, material_id, quantity)
-VALUES ('TRS0010', 'MAT0010', 100);
+-- Data dummy untuk tabel transactions
+INSERT INTO transactions (transaction_status, supplier_id, remarks) VALUES
+('Completed', 'SUP0001', 'Bulk order for project A');
+INSERT INTO transactions (transaction_status, supplier_id, remarks) VALUES
+('Pending', 'SUP0002', 'Urgent material delivery');
+INSERT INTO transactions (transaction_status, supplier_id, remarks) VALUES
+('Completed', 'SUP0003', 'Monthly stock replenishment');
 
--- Insert dummy data into users
-INSERT INTO users (username, password, full_name, email, phone_number, role)
-VALUES ('admin', 'adminpassword', 'Admin User', 'admin@example.com', '1234567890', 'admin');
-INSERT INTO users (username, password, full_name, email, phone_number, role)
-VALUES ('employee1', 'employeepassword1', 'Employee One', 'employee1@example.com', '0987654321', 'employee');
-INSERT INTO users (username, password, full_name, email, phone_number, role)
-VALUES ('employee2', 'employeepassword2', 'Employee Two', 'employee2@example.com', '1122334455', 'employee');
+-- Data dummy untuk tabel transaction_detail
+INSERT INTO transaction_detail (transaction_id, material_id, quantity) VALUES
+('TRS0001', 'MAT0001', 100);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity) VALUES
+('TRS0001', 'MAT0004', 50);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity) VALUES
+('TRS0002', 'MAT0002', 75);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity) VALUES
+('TRS0003', 'MAT0003', 200);
+INSERT INTO transaction_detail (transaction_id, material_id, quantity) VALUES
+('TRS0003', 'MAT0001', 150);
 
--- Insert dummy data into material_shipment
-INSERT INTO material_shipment (shipment_date, shipment_status)
-VALUES (SYSDATE, 'Shipped');
-INSERT INTO material_shipment (shipment_date, shipment_status)
-VALUES (SYSDATE, 'Delivered');
-INSERT INTO material_shipment (shipment_date, shipment_status)
-VALUES (SYSDATE, 'Failed');
+-- Data dummy untuk tabel material_shipment
+INSERT INTO material_shipment (shipment_status) VALUES
+('Delivered');
+INSERT INTO material_shipment (shipment_status) VALUES
+('Shipped');
+INSERT INTO material_shipment (shipment_status) VALUES
+('Failed');
 
--- Insert dummy data into material_shipment_detail
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0001', 'MAT0001', 10);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0001', 'MAT0002', 20);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0001', 'MAT0003', 30);
+-- Data dummy untuk tabel material_shipment_detail
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity) VALUES
+('SHP0001', 'MAT0001', 100);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity) VALUES
+('SHP0001', 'MAT0002', 50);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity) VALUES
+('SHP0002', 'MAT0003', 150);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity) VALUES
+('SHP0002', 'MAT0004', 25);
+INSERT INTO material_shipment_detail (shipment_id, material_id, quantity) VALUES
+('SHP0003', 'MAT0001', 50);
 
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0002', 'MAT0004', 15);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0002', 'MAT0005', 25);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0002', 'MAT0006', 35);
+-- Data dummy untuk tabel users
+INSERT INTO users (username, password, full_name, email, phone_number, role) VALUES
+('admin01', 'password123', 'Admin User', 'admin@company.com', '08111222333', 'admin');
+INSERT INTO users (username, password, full_name, email, phone_number, role) VALUES
+('manager01', 'password123', 'Manager User', 'manager@company.com', '08112223344', 'manager');
+INSERT INTO users (username, password, full_name, email, phone_number, role) VALUES
+('employee01', 'password123', 'Employee User', 'employee@company.com', '08113334455', 'employee');
 
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0003', 'MAT0007', 5);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0003', 'MAT0008', 10);
-INSERT INTO material_shipment_detail (shipment_id, material_id, quantity)
-VALUES ('SHP0003', 'MAT0009', 20);
 
--- Create a database link to connect to the pengepul database
+-- Create a database link to connect to the supplier database
 CREATE DATABASE LINK rnd_dblink
 CONNECT TO rama IDENTIFIED BY rama
 USING 'conrnd';

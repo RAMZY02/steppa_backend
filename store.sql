@@ -1202,13 +1202,11 @@ CREATE OR REPLACE PROCEDURE accept_product_shipment(
     p_shipment_id IN VARCHAR2
 ) AS
 BEGIN
-    -- Update shipment status to 'Accepted'
     UPDATE product_shipment@rnd_dblink
     SET shipment_status = 'Delivered'
     WHERE shipment_id = p_shipment_id
     AND shipment_status = 'Shipped';
 
-    -- Update product stock based on shipment details
     FOR shipment_detail IN (
         SELECT product_id, quantity
         FROM product_shipment_detail@rnd_dblink
@@ -1226,18 +1224,18 @@ END;
 CREATE OR REPLACE PROCEDURE accept_product_shipment_job(p_shipment_id IN VARCHAR2) AS
 BEGIN
     BEGIN
-        DBMS_SCHEDULER.drop_job('retry_accept_product_shipment_' || p_shipment_id);
+        DBMS_SCHEDULER.drop_job('retry_accept_product_shipment');
     EXCEPTION
         WHEN OTHERS THEN
             IF SQLCODE != -27475 THEN
-                RAISE;
+                RAISE_APPLICATION_ERROR(-20002, 'Insufficient stock for product: ');
             END IF;
     END;
 
     DBMS_SCHEDULER.create_job (
-        job_name        => 'retry_accept_product_shipment_' || p_shipment_id,
+        job_name        => 'retry_accept_product_shipment',
         job_type        => 'PLSQL_BLOCK',
-        job_action      => 'BEGIN accept_product_shipment(''' || p_shipment_id || '''); END;',
+        job_action      => 'BEGIN accept_product_shipment(''SHP0001''); END;',
         start_date      => SYSTIMESTAMP + INTERVAL '3' SECOND,
         repeat_interval => 'FREQ=SECONDLY; INTERVAL=3',
         end_date        => SYSTIMESTAMP + INTERVAL '30' MINUTE,
@@ -1245,6 +1243,7 @@ BEGIN
     );
 END;
 /
+
 
 INSERT INTO product_shipment@rnd_dblink(shipment_date, shipment_status)
 VALUES (SYSDATE, 'Shipped');
@@ -1338,7 +1337,7 @@ BEGIN
     DBMS_SCHEDULER.create_job (
         job_name        => 'sync_products_job', 
         job_type        => 'PLSQL_BLOCK',
-        job_action      => 'BEGIN sync_products; END;',
+        job_action      => 'BEGIN sync_products; COMMIT; END;',
         repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
         enabled         => TRUE,
         comments        => 'Job to sync products table every midnight'
@@ -1358,14 +1357,82 @@ WHERE OWNER = 'REKI'
 ORDER BY JOB_NAME;
 
 BEGIN
-    DBMS_SCHEDULER.DROP_JOB(job_name => 'REKI.sync_products_job');
+    DBMS_SCHEDULER.DROP_JOB(job_name => 'REKI.retry_accept_product_shipment');
 END;
 /
+
+ 
 
 SELECT * 
 FROM (
     SELECT * 
-    FROM products
+    FROM products@rnd_dblink
     ORDER BY product_id desc
 ) 
-WHERE ROWNUM <= 10;
+WHERE ROWNUM <= 2;
+
+SELECT * 
+FROM (
+SELECT job_name, status, actual_start_date, run_duration
+FROM dba_scheduler_job_run_details
+WHERE job_name = 'SYNC_PRODUCTS_JOB'
+ORDER BY actual_start_date DESC) 
+WHERE ROWNUM <= 2;
+
+INSERT INTO products@rnd_dblink (product_name, product_description, product_category, product_size, product_gender, product_image, stok_qty, price)
+VALUES ('TEST min', 'High-quality running shoes', 'Running Shoes', '40', 'male', 'img', 50, 150);
+
+BEGIN
+   DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(
+      job_name         => 'retry_accept_product_shipment',
+      argument_position => 1,
+      argument_value    => 'SHP0036'
+   );
+
+   DBMS_SCHEDULER.ENABLE('retry_accept_product_shipment');
+END;
+/
+
+DBMS_SCHEDULER.create_job (
+        job_name        => 'reti.retry_accept_product_shipment',
+        job_type        => 'PLSQL_BLOCK',
+        job_action      => 'BEGIN accept_product_shipment(''SHP0001''); END;',
+        start_date      => SYSTIMESTAMP + INTERVAL '3' SECOND,
+        repeat_interval => 'FREQ=SECONDLY; INTERVAL=3',
+        end_date        => SYSTIMESTAMP + INTERVAL '30' MINUTE,
+        enabled         => TRUE
+    );
+
+    DBMS_SCHEDULER.CREATE_JOB (
+      job_name        => 'reki.retry_accept_product_shipment',
+      job_type        => 'STORED_PROCEDURE',
+      job_action      => 'accept_product_shipment',
+      number_of_arguments => 1,
+      start_date      => SYSTIMESTAMP + INTERVAL '3' SECOND,
+      repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
+      enabled         => TRUE
+   );
+
+BEGIN
+    DBMS_SCHEDULER.CREATE_JOB (
+        job_name        => 'retry_accept_product_shipment',
+        job_type        => 'STORED_PROCEDURE',
+        job_action      => 'accept_product_shipment',
+        number_of_arguments => 1,
+        start_date      => SYSTIMESTAMP + INTERVAL '3' SECOND,
+        repeat_interval => 'FREQ=MINUTELY; INTERVAL=1',
+        enabled         => FALSE 
+    );
+
+    DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE (
+        job_name         => 'retry_accept_product_shipment',
+        argument_position => 1,
+        argument_value    => 'SHP0002'
+    );
+
+    DBMS_SCHEDULER.ENABLE('retry_accept_product_shipment');
+END;
+/
+
+INSERT INTO product_shipment@rnd_dblink (shipment_status) VALUES
+('Shipped');
