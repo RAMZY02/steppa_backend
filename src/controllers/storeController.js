@@ -1625,7 +1625,7 @@ async function acceptProductShipment(shipmentId) {
         DBMS_SCHEDULER.SET_JOB_ARGUMENT_VALUE(
             job_name         => 'retry_accept_product_shipment',
             argument_position => 1,
-            argument_value    => 'SHP0036'
+            argument_value    => :shipment_id
         );
 
         DBMS_SCHEDULER.ENABLE('retry_accept_product_shipment');
