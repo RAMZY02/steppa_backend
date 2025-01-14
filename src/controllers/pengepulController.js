@@ -23,7 +23,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reti",
       password: "reti",
-      connectString: "localhost:1521/steppa_supplier",
+      connectString: "192.168.195.148:1521/steppa_supplier",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -339,7 +339,7 @@ async function getAllRawMaterial() {
       supplier_id: row[3],
       last_update: row[4],
     }));
-    return { materials };
+    return materials;
   } catch (error) {
     console.error("Error fetching raw materials", error);
     throw error;
@@ -365,7 +365,7 @@ async function getRawMaterialById(materialId) {
       supplier_id: row[3],
       last_update: row[4],
     }));
-    return { material };
+    return material;
   } catch (error) {
     console.error("Error fetching raw material by ID", error);
     throw error;

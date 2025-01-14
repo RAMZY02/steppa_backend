@@ -24,7 +24,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "rama",
       password: "rama",
-      connectString: "localhost:1521/steppa_rnd",
+      connectString: "192.168.195.148:1521/steppa_rnd",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1201,9 +1201,7 @@ async function getAllMaterialShipments() {
   try {
     connection = await getConnection();
     const query = `
-      SELECT ms.shipment_id, ms.shipment_date, ms.shipment_status
-      FROM material_shipment@db_link_supplier ms
-      WHERE ms.deleted_at IS NULL
+      SELECT * from mv_shipment
     `;
     const result = await connection.execute(query);
     const shipments = result.rows.map((row) => ({
@@ -1256,7 +1254,7 @@ async function getAllMaterialsFromSupplier() {
   let connection;
   try {
     connection = await getConnection();
-    const query = `SELECT * FROM raw_materials@db_link_supplier`;
+    const query = `SELECT * FROM mv_material_data`;
     const result = await connection.execute(query);
     const materials = result.rows.map((row) => ({
       material_id: row[0],

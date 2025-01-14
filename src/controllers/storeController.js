@@ -22,7 +22,7 @@ async function getConnection() {
     return await oracledb.getConnection({
       user: "reki",
       password: "reki",
-      connectString: "192.168.195.5:1521/steppa_store",
+      connectString: "192.168.195.148:1521/steppa_store",
     });
   } catch (err) {
     console.error("Error saat koneksi:", err);
@@ -1647,7 +1647,7 @@ async function getAllMVProducts() {
   let connection;
   try {
     connection = await getConnection();
-    const query = `SELECT * FROM MV_PRODUCT_DATA`;
+    const query = `SELECT * FROM MV_PRODUCTS`;
     const result = await connection.execute(query);
     const products = result.rows.map((row) => {
       return {
