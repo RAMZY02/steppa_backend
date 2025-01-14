@@ -1591,10 +1591,9 @@ async function getAllProductShipments() {
   try {
     connection = await getConnection();
     const query = `
-      SELECT ps.shipment_id, ps.shipment_date, ps.shipment_status
-      FROM product_shipment@rnd_dblink ps
-      WHERE ps.deleted_at IS NULL
-
+      SELECT *
+      FROM mv_shipment
+      order by shipment_id desc
     `;
     const result = await connection.execute(query);
     const shipments = result.rows.map((row) => {
